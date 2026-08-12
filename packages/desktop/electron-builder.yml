@@ -1,0 +1,79 @@
+appId: com.fugoku.dusk
+productName: Dusk Work OS
+copyright: Copyright © 2025 Fugoku. All rights reserved.
+
+directories:
+  output: packages/desktop/dist
+  buildResources: packages/desktop/build
+
+files:
+  - '**/*'
+  - '!**/*.map'
+  - '!**/*.ts'
+  - '!**/*.tsx'
+  - '!reference/**'
+  - '!docs/**'
+  - '!.github/**'
+  - '!BACKLOG/**'
+  - '!**/*.md'
+  - '!**/tsconfig*.json'
+  - '!**/vite.config.*'
+  - '!**/.gitignore'
+  - '!**/.DS_Store'
+
+asar: true
+asarUnpack:
+  - '**/*.node'
+  - '**/better-sqlite3/**'
+
+afterSign: scripts/notarize.js
+afterPack: scripts/verify-reference-excluded.js
+
+mac:
+  category: 'public.app-category.productivity'
+  target:
+    - dmg
+    - pkg
+  notarize: true
+  gatekeeperAssess: true
+  hardenedRuntime: true
+  entitlements: packages/desktop/build/entitlements.mac.plist
+  entitlementsInherit: packages/desktop/build/entitlements.mac.inherit.plist
+  artifactName: ${productName}-${version}-${arch}.${ext}
+  identity: 'Fugoku'
+  publish:
+    provider: github
+    owner: Fugoku
+    repo: dusk
+
+win:
+  target:
+    - nsis
+    - portable
+  sign: scripts/sign-windows.js
+  publisherName: Fugoku
+  artifactName: ${productName}-${version}-${arch}.${ext}
+  publish:
+    provider: github
+    owner: Fugoku
+    repo: dusk
+
+linux:
+  target:
+    - AppImage
+    - deb
+    - rpm
+  category: 'Utility'
+  mimeTypes:
+    - x-scheme-handler/dusk
+  artifactName: ${productName}-${version}-${arch}.${ext}
+  publish:
+    provider: github
+    owner: Fugoku
+    repo: dusk
+
+publish:
+  provider: github
+  owner: Fugoku
+  repo: dusk
+  releaseType: ${env:ELECTRON_BUILD_RELEASE_TYPE || release}

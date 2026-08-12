@@ -1,0 +1,7 @@
+{
+  "name": "dusk-docs",
+  "private": true,
+  "dependencies": {
+    "vitepress": "1.6.4"
+  }
+}

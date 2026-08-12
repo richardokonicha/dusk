@@ -1,0 +1,33 @@
+{
+  "name": "dusk",
+  "version": "0.1.0-alpha.1",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter desktop dev",
+    "build": "pnpm --filter @dusk/shared build && pnpm --filter @dusk/renderer build && pnpm --filter desktop build",
+    "test": "pnpm -r test",
+    "test:coverage": "pnpm -r test:coverage",
+    "coverage": "pnpm test:coverage",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r clean && rm -rf node_modules dist",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=11.0.0"
+  },
+  "packageManager": "pnpm@11.0.0",
+  "devDependencies": {
+    "@rollup/plugin-alias": "^6.0.0",
+    "@vitest/coverage-v8": "^2.1.9",
+    "license-checker": "^25.0.0",
+    "vitepress": "^1.0.0"
+  }
+}

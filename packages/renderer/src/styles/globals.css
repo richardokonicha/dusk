@@ -1,0 +1,232 @@
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./themes.css";
+
+@theme {
+  /* Semantic token mappings for Tailwind utilities */
+  --color-bg: var(--bg);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-hover: var(--bg-hover);
+  --color-bg-active: var(--bg-active);
+
+  --color-fg: var(--fg);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-on-accent: var(--fg-on-accent);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-muted: var(--accent-muted);
+
+  --color-border: var(--border);
+  --color-border-muted: var(--border-muted);
+
+  --color-ring: var(--ring);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-error: var(--error);
+  --color-error-foreground: var(--error-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  --color-disabled: var(--disabled);
+  --color-disabled-bg: var(--disabled-bg);
+  --color-readonly: var(--readonly);
+  --color-readonly-border: var(--readonly-border);
+
+  --shadow-shadow-sm: var(--shadow-sm);
+  --shadow-shadow-md: var(--shadow-md);
+  --shadow-shadow-lg: var(--shadow-lg);
+
+  --duration-fast: var(--duration-fast);
+  --duration-normal: var(--duration-normal);
+  --duration-slow: var(--duration-slow);
+  --ease-default: var(--easing-default);
+
+  /* shadcn/ui compatibility aliases */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-input: var(--input);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border);
+  }
+
+  html {
+    transition: background-color var(--duration-normal) var(--easing-default),
+                color var(--duration-normal) var(--easing-default);
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color var(--duration-normal) var(--easing-default),
+                color var(--duration-normal) var(--easing-default);
+  }
+
+  /* Focus management - inset-only rings */
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring);
+  }
+
+  /* Selection styling */
+  ::selection {
+    background-color: var(--accent-muted);
+    color: var(--fg);
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--fg-muted);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--fg-secondary);
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--fg-muted) var(--bg-secondary);
+  }
+}
+
+@layer components {
+  /* Ensure all components use semantic tokens */
+  .bg-background { background-color: var(--bg); }
+  .bg-background-secondary { background-color: var(--bg-secondary); }
+  .bg-background-tertiary { background-color: var(--bg-tertiary); }
+  .bg-background-elevated { background-color: var(--bg-elevated); }
+  .bg-background-hover { background-color: var(--bg-hover); }
+  .bg-background-active { background-color: var(--bg-active); }
+
+  .text-foreground { color: var(--fg); }
+  .text-foreground-secondary { color: var(--fg-secondary); }
+  .text-foreground-muted { color: var(--fg-muted); }
+  .text-foreground-on-accent { color: var(--fg-on-accent); }
+
+  .border-border { border-color: var(--border); }
+  .border-border-muted { border-color: var(--border-muted); }
+
+  .text-accent { color: var(--accent); }
+  .bg-accent { background-color: var(--accent); }
+  .bg-accent-hover { background-color: var(--accent-hover); }
+  .bg-accent-muted { background-color: var(--accent-muted); }
+
+  .text-success { color: var(--success); }
+  .bg-success { background-color: var(--success); }
+  .text-warning { color: var(--warning); }
+  .bg-warning { background-color: var(--warning); }
+  .text-error { color: var(--error); }
+  .bg-error { background-color: var(--error); }
+  .text-info { color: var(--info); }
+  .bg-info { background-color: var(--info); }
+
+  .ring-ring { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
+  .ring-offset-background { box-shadow: 0 0 0 2px var(--bg); }
+}
+
+@layer utilities {
+  .theme-transition {
+    transition: background-color var(--duration-normal) var(--easing-default),
+                color var(--duration-normal) var(--easing-default),
+                border-color var(--duration-normal) var(--easing-default),
+                box-shadow var(--duration-normal) var(--easing-default),
+                opacity var(--duration-normal) var(--easing-default);
+  }
+
+  .theme-transition-fast {
+    transition: background-color var(--duration-fast) var(--easing-default),
+                color var(--duration-fast) var(--easing-default),
+                border-color var(--duration-fast) var(--easing-default),
+                box-shadow var(--duration-fast) var(--easing-default);
+  }
+}
+
+@media print {
+  * {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  body {
+    background-color: #fff !important;
+    color: #000 !important;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+  }
+
+  nav,
+  aside,
+  .no-print {
+    display: none !important;
+  }
+
+  .print-break-inside-avoid {
+    break-inside: avoid;
+  }
+
+  .print-break-before {
+    break-before: page;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

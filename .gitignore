@@ -1,0 +1,17 @@
+node_modules
+dist
+.dusk
+*.db
+.DS_Store
+logs
+coverage
+*.tsbuildinfo
+*.bak
+.env
+.env.local
+.env.*.local
+
+# Cherry Studio reference (AGPL-3.0) — local-only, never commit
+# See scripts/verify-reference-excluded.js for the rationale.
+reference/
+

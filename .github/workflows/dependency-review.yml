@@ -1,0 +1,14 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          deny-licenses: AGPL,AGPL-3.0,GPL,GPL-2.0,GPL-3.0,LGPL,LGPL-2.0,LGPL-2.1,LGPL-3.0,SSPL,BUSL,BUSL-1.1
