@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "aliases": {
+    "components": "@dusk/ui/components",
+    "hooks": "@dusk/ui/hooks",
+    "lib": "@dusk/ui/lib",
+    "ui": "@dusk/ui/components/primitives",
+    "utils": "@dusk/ui/lib/utils"
+  },
+  "iconLibrary": "lucide",
+  "rsc": false,
+  "style": "new-york",
+  "tailwind": {
+    "baseColor": "zinc",
+    "config": "",
+    "css": "src/styles/theme.css",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "tsx": true
+}
