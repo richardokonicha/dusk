@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dusk Code Review"
+  short_description: "Review code and architecture against project rules"
+  default_prompt: "Use $gh-pr-review to review the current branch against Dusk code and architecture rules."

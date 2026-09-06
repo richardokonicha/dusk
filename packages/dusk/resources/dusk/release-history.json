@@ -1,0 +1,6 @@
+[
+  {
+    "version": "2.0.12",
+    "releaseNotes": "<!--LANG:en-->\nDusk — first build of the Dusk fork as a standalone Work OS.\n\n- Standalone: no account, no telemetry, no Dusk cloud services\n- Bring your own provider: OpenAI-compatible endpoints, Anthropic, Gemini, Ollama\n- Full chat, agents, knowledge base, and MCP support\n\n<!--LANG:zh-CN-->\nDusk —— Dusk 分叉后的首个独立工作台版本。\n\n- 完全独立：无账号、无遥测、无 Dusk 云服务\n- 自带服务商：OpenAI 兼容端点、Anthropic、Gemini、Ollama\n- 完整的对话、智能体、知识库与 MCP 支持\n\n<!--LANG:END-->\n"
+  }
+]

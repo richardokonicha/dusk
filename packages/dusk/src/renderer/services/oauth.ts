@@ -1,0 +1,269 @@
+import { loggerService } from '@logger'
+import i18n, { getLanguageCode } from '@renderer/i18n/resolver'
+import { ipcApi } from '@renderer/ipc'
+import { toast } from '@renderer/services/toast'
+
+const logger = loggerService.withContext('oauth')
+
+const SILICON_CLIENT_ID = 'SFaJLLq0y6CAMoyDm81aMu'
+const PPIO_CLIENT_ID = '37d0828c96b34936a600b62c'
+const PPIO_APP_SECRET = import.meta.env.RENDERER_VITE_PPIO_APP_SECRET || ''
+
+export const oauthWithSiliconFlow = async (setKey) => {
+  const authUrl = `https://account.siliconflow.cn/oauth?client_id=${SILICON_CLIENT_ID}`
+
+  const popup = window.open(
+    authUrl,
+    'oauth',
+    'width=720,height=720,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,alwaysOnTop=yes,alwaysRaised=yes'
+  )
+
+  const messageHandler = (event) => {
+    if (event.data.length > 0 && event.data[0]['secretKey'] !== undefined) {
+      setKey(event.data[0]['secretKey'])
+      popup?.close()
+      window.removeEventListener('message', messageHandler)
+    }
+  }
+
+  window.removeEventListener('message', messageHandler)
+  window.addEventListener('message', messageHandler)
+}
+
+// TODO(dusk): this flow uses Dusk's aihubmix OAuth client id and referral
+// code; the callback contract (`dusk_studio_oauth_callback`) belongs to that
+// registration. Register a Dusk oauth client or drop the quick-login entry —
+// manual API-key entry is unaffected.
+export const oauthWithAihubmix = async (setKey) => {
+  const authUrl = ` https://console.inferera.com/token?client_id=dusk_studio_oauth&lang=${await getLanguageCode()}&aff=SJyh`
+
+  const popup = window.open(
+    authUrl,
+    'oauth',
+    'width=720,height=720,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,alwaysOnTop=yes,alwaysRaised=yes'
+  )
+
+  const messageHandler = async (event) => {
+    const data = event.data
+
+    if (data && data.key === 'dusk_studio_oauth_callback') {
+      const { iv, encryptedData } = data.data
+
+      try {
+        const secret = import.meta.env.RENDERER_VITE_AIHUBMIX_SECRET || ''
+        const decryptedData: any = await window.api.aes.decrypt(encryptedData, iv, secret)
+        const { api_keys } = JSON.parse(decryptedData)
+        if (api_keys && api_keys.length > 0) {
+          setKey(api_keys[0].value)
+          popup?.close()
+          window.removeEventListener('message', messageHandler)
+        }
+      } catch (error) {
+        logger.error('[oauthWithAihubmix] error', error as Error)
+        popup?.close()
+        toast.error(i18n.t('settings.provider.oauth.error'))
+      }
+    }
+  }
+
+  window.removeEventListener('message', messageHandler)
+  window.addEventListener('message', messageHandler)
+}
+
+// TODO(dusk): redirect is `dusk://` but the registered PPIO client id was issued
+// for Dusk's callback scheme; sign-in via this flow will fail until Dusk
+// registers its own client. API-key entry is unaffected.
+export const oauthWithPPIO = async (setKey) => {
+  const redirectUri = 'dusk://'
+  const authUrl = `https://ppio.com/oauth/authorize?invited_by=JYT9GD&client_id=${PPIO_CLIENT_ID}&scope=api%20openid&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}`
+
+  window.open(
+    authUrl,
+    'oauth',
+    'width=720,height=720,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,alwaysOnTop=yes,alwaysRaised=yes'
+  )
+
+  if (!setKey) {
+    logger.debug('[PPIO OAuth] No setKey callback provided, returning early')
+    return
+  }
+
+  logger.debug('[PPIO OAuth] Setting up protocol listener')
+
+  return new Promise<string>((resolve, reject) => {
+    const removeListener = ipcApi.on('navigation.protocol_data', async (data) => {
+      try {
+        const url = new URL(data.url)
+        const params = new URLSearchParams(url.search)
+        const code = params.get('code')
+
+        if (!code) {
+          reject(new Error('No authorization code received'))
+          return
+        }
+
+        if (!PPIO_APP_SECRET) {
+          reject(
+            new Error('PPIO_APP_SECRET not configured. Please set RENDERER_VITE_PPIO_APP_SECRET environment variable.')
+          )
+          return
+        }
+        const formData = new URLSearchParams({
+          client_id: PPIO_CLIENT_ID,
+          client_secret: PPIO_APP_SECRET,
+          code: code,
+          grant_type: 'authorization_code',
+          redirect_uri: redirectUri
+        })
+        const tokenResponse = await fetch('https://ppio.com/oauth/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: formData.toString()
+        })
+
+        if (!tokenResponse.ok) {
+          const errorText = await tokenResponse.text()
+          logger.error(`[PPIO OAuth] Token exchange failed: ${tokenResponse.status} ${errorText}`)
+          throw new Error(`Failed to exchange code for token: ${tokenResponse.status} ${errorText}`)
+        }
+
+        const tokenData = await tokenResponse.json()
+        const accessToken = tokenData.access_token
+
+        if (accessToken) {
+          setKey(accessToken)
+          resolve(accessToken)
+        } else {
+          reject(new Error('No access token received'))
+        }
+      } catch (error) {
+        logger.error('[PPIO OAuth] Error processing callback:', error as Error)
+        reject(error)
+      } finally {
+        removeListener()
+      }
+    })
+  })
+}
+
+export const oauthWith302AI = async (setKey) => {
+  const authUrl = 'https://dash.302.ai/sso/login?app=dusk&name=Dusk'
+
+  const popup = window.open(
+    authUrl,
+    'oauth',
+    'width=720,height=720,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,alwaysOnTop=yes,alwaysRaised=yes'
+  )
+
+  const messageHandler = (event) => {
+    if (event.data && event.data.data.apikey !== undefined) {
+      setKey(event.data.data.apikey)
+      popup?.close()
+      window.removeEventListener('message', messageHandler)
+    }
+  }
+
+  window.removeEventListener('message', messageHandler)
+  window.addEventListener('message', messageHandler)
+}
+
+export const oauthWithAiOnly = async (setKey) => {
+  const authUrl = `https://maas.aiionly.com/login?inviteCode=1755481173663DrZBBOC0&duskCode=01`
+
+  const popup = window.open(
+    authUrl,
+    'login',
+    'width=720,height=720,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,alwaysOnTop=yes,alwaysRaised=yes'
+  )
+
+  const messageHandler = (event) => {
+    if (event.data.length > 0 && event.data[0]['secretKey'] !== undefined) {
+      setKey(event.data[0]['secretKey'])
+      popup?.close()
+      window.removeEventListener('message', messageHandler)
+    }
+  }
+
+  window.removeEventListener('message', messageHandler)
+  window.addEventListener('message', messageHandler)
+}
+
+export const providerCharge = async (provider: string) => {
+  const lang = await getLanguageCode()
+  const chargeUrlMap = {
+    silicon: {
+      url: 'https://cloud.siliconflow.cn/expensebill',
+      width: 900,
+      height: 700
+    },
+    aihubmix: {
+      url: `https://console.inferera.com/topup?client_id=dusk_studio_oauth&lang=${lang}&aff=SJyh`,
+      width: 720,
+      height: 900
+    },
+    ppio: {
+      url: 'https://ppio.com/user/register?invited_by=JYT9GD&utm_source=github_dusk&redirect=/billing',
+      width: 900,
+      height: 700
+    },
+    '302ai': {
+      url: 'https://dash.302.ai/charge',
+      width: 900,
+      height: 700
+    },
+    aionly: {
+      url: `https://maas.aiionly.com/recharge`,
+      width: 900,
+      height: 700
+    }
+  }
+
+  const { url, width, height } = chargeUrlMap[provider]
+
+  window.open(
+    url,
+    'oauth',
+    `width=${width},height=${height},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,alwaysOnTop=yes,alwaysRaised=yes`
+  )
+}
+
+export const providerBills = async (provider: string) => {
+  const lang = await getLanguageCode()
+  const billsUrlMap = {
+    silicon: {
+      url: 'https://cloud.siliconflow.cn/bills',
+      width: 900,
+      height: 700
+    },
+    aihubmix: {
+      url: `https://console.inferera.com/statistics?client_id=dusk_studio_oauth&lang=${lang}&aff=SJyh`,
+      width: 900,
+      height: 700
+    },
+    ppio: {
+      url: 'https://ppio.com/user/register?invited_by=JYT9GD&utm_source=github_dusk&redirect=/billing/billing-details',
+      width: 900,
+      height: 700
+    },
+    '302ai': {
+      url: 'https://dash.302.ai/charge',
+      width: 900,
+      height: 700
+    },
+    aionly: {
+      url: `https://maas.aiionly.com/billManagement`,
+      width: 900,
+      height: 700
+    }
+  }
+
+  const { url, width, height } = billsUrlMap[provider]
+
+  window.open(
+    url,
+    'oauth',
+    `width=${width},height=${height},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,alwaysOnTop=yes,alwaysRaised=yes`
+  )
+}
