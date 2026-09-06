@@ -17,7 +17,7 @@ function checkDirectory(dir: string, base: string = ""): void {
         `AGPL CONTAMINATION RISK: Found reference/ path in build output: ${relativePath}`
       );
       console.error(
-        "The reference/ directory contains Cherry Studio (AGPL-3.0) code and must not be included in builds."
+        "The reference/ directory contains Dusk Studio (AGPL-3.0) code and must not be included in builds."
       );
       process.exit(1);
     }

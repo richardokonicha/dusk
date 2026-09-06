@@ -11,7 +11,6 @@ coverage
 .env.local
 .env.*.local
 
-# Cherry Studio reference (AGPL-3.0) — local-only, never commit
+# Upstream reference (AGPL-3.0) — local-only, never commit
 # See scripts/verify-reference-excluded.js for the rationale.
 reference/
-

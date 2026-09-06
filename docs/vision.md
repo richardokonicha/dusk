@@ -43,5 +43,5 @@ Dusk earns independently (its own pricing / distribution) *and* feeds the Fugoku
 ## Non-goals (for now)
 
 - Not a browser. Not an IDE. Not an OS in the kernel sense.
-- Not a hosted/SaaS web app at launch — desktop-first (lineage: Cherry Studio).
+- Not a hosted/SaaS web app at launch — desktop-first (lineage: Dusk Studio).
 - Not a model training platform (that's Fugoku Cloud's job — Dusk *uses* compute, doesn't replace it).

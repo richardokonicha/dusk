@@ -8,7 +8,7 @@
 
 ### What works
 
-- **Greenfield decision is correct.** Cherry Studio is AGPL-3.0. Distributing a derivative work triggers copyleft. Greenfield eliminates this entirely.
+- **Greenfield decision is correct.** Dusk Studio is AGPL-3.0. Distributing a derivative work triggers copyleft. Greenfield eliminates this entirely.
 - **MIT license recommendation** is appropriate for a commercial desktop product. Maximum flexibility, broad compatibility.
 - **Local-first privacy model** is sound. Minimizes data protection obligations and builds user trust.
 - **CLA requirement** for external contributors protects Fugoku's relicensing rights.
@@ -17,7 +17,7 @@
 
 **1. `reference/` directory must be excluded from ALL distributions — enforce this in CI.**
 
-The legal framework correctly states that Cherry reference code must never ship with Dusk. But there's no automated enforcement. A single mistaken build could ship AGPL code.
+The legal framework correctly states that Dusk reference code must never ship with Dusk. But there's no automated enforcement. A single mistaken build could ship AGPL code.
 
 **Action:** Add a CI step that verifies no files from `reference/` appear in release artifacts. Also add `reference/` to `.gitignore` for release branches, or better, use a separate git subtree that isn't included in the main repo's release pipeline.
 

@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-The Dusk risk register captures the headline risks but has material gaps. Three risks require immediate action before any implementation begins: AGPL contamination boundary hardening, Electron security architecture, and Phase 1 timeline realism. The register underestimates likelihood on several fronts and omits an entire category of ecosystem and team risks that are probable given the project's small-team, greenfield, high-ambition posture. Cherry Studio has demonstrated a recurring pattern of Electron security vulnerabilities that Dusk must architect to avoid from day one. Fugoku ecosystem dependency is asymmetrical: Fugoku needs Dusk far less than Dusk needs Fugoku to succeed.
+The Dusk risk register captures the headline risks but has material gaps. Three risks require immediate action before any implementation begins: AGPL contamination boundary hardening, Electron security architecture, and Phase 1 timeline realism. The register underestimates likelihood on several fronts and omits an entire category of ecosystem and team risks that are probable given the project's small-team, greenfield, high-ambition posture. Dusk Studio has demonstrated a recurring pattern of Electron security vulnerabilities that Dusk must architect to avoid from day one. Fugoku ecosystem dependency is asymmetrical: Fugoku needs Dusk far less than Dusk needs Fugoku to succeed.
 
 ---
 
@@ -24,13 +24,13 @@ The register (master-plan.md §6; unified-roadmap.md §6) covers eight risks:
 | R1 | AGPL contamination | Legal |
 | R2 | Scope creep | Planning |
 | R3 | Resource constraints | Planning |
-| R4 | Brand confusion with Cherry | Marketing |
+| R4 | Brand confusion with Dusk | Marketing |
 | R5 | Fugoku dependency fears | Ecosystem |
 | R6 | Mobile delays | Roadmap |
 | R7 | Provider API changes | Technical |
 | R8 | Competitive saturation | Market |
 
-The mobile-strategy.md register adds seven mobile-specific risks (streaming performance, schema drift, UX divergence, app store rejection, Cherry AGPL confusion, mobile scope creep, network reliability).
+The mobile-strategy.md register adds seven mobile-specific risks (streaming performance, schema drift, UX divergence, app store rejection, Dusk AGPL confusion, mobile scope creep, network reliability).
 
 ### 1.2 What Is Missing
 
@@ -38,7 +38,7 @@ The register is missing risks in the following categories:
 
 **Technical Architecture (5 missing)**
 - SQLite data corruption / migration failure with no recovery procedure
-- Electron security architecture (nodeIntegration, contextIsolation, preload bridge) — Cherry's entire CVE history is in this category
+- Electron security architecture (nodeIntegration, contextIsolation, preload bridge) — Dusk's entire CVE history is in this category
 - Agent context window exhaustion and multi-tool failure cascades
 - Keychain / credential store platform differences (macOS Keychain vs Windows DPAPI vs Linux libsecret)
 - IPC contract drift between main and renderer process as the codebase grows
@@ -56,7 +56,7 @@ The register is missing risks in the following categories:
 - AI-generated content liability: no watermarking, provenance tracking, or disclosure mechanism for agent-produced artifacts
 
 **Competitive & Market (4 missing)**
-- Cherry Studio feature parity acceleration: Cherry has 50k stars, active development, and a mature codebase — they can ship desktop-to-desktop competitive responses quickly
+- Dusk Studio feature parity acceleration: Dusk has 50k stars, active development, and a mature codebase — they can ship desktop-to-desktop competitive responses quickly
 - Direct platform competition: OpenAI (ChatGPT desktop), Anthropic (Claude app), Google (Gemini app), and Microsoft (Copilot) are all expanding desktop presence
 - Pricing pressure from free tiers: Open WebUI, Ollama clients, and provider-native apps are free; converting users to paid requires defensible differentiation
 - Switching cost erosion: if workspace data is local-only, users can migrate to a competitor instantly — no lock-in works both ways
@@ -98,13 +98,13 @@ The register is missing risks in the following categories:
 | AGPL contamination | Medium / Critical | Low / Critical | Greenfield reduces likelihood; isolation controls are strong. Impact assessment is accurate. |
 | Scope creep | High / High | High / High | Accurate. Greenfield + agent-leverage teams are prone to over-scoping. |
 | Resource constraints | High / High | High / High | Accurate for a project this ambitious at this phase. |
-| Brand confusion with Cherry | Medium / Medium | Medium / **High** | Underestimated. Cherry's brand awareness in the AI desktop space is first-mover scale. Differentiation requires sustained marketing investment, not just naming. |
+| Brand confusion with Dusk | Medium / Medium | Medium / **High** | Underestimated. Dusk's brand awareness in the AI desktop space is first-mover scale. Differentiation requires sustained marketing investment, not just naming. |
 | Fugoku dependency fears | Low / Medium | **Medium** / Medium | Underestimated. The "standalone-first" framing reduces immediate concern, but Phase 2 explicitly depends on Fugoku Gateway capability. Users will notice. |
 | Mobile delays | Medium / Low | Medium / **Medium** | Underestimated. Mobile is a competitive necessity (competitors have mobile apps). Absence affects professional credibility and platform reviews. |
 | Provider API changes | Medium / Medium | Medium / Medium | Accurate. Abstraction layer mitigates but does not eliminate. |
 | Competitive saturation | High / Medium | **High** / **High** | Underestimated. Every major AI platform is expanding desktop presence. "Professional positioning" is not a durable moat without pricing and distribution. |
 | Greenfield build underestimation | Not assessed | **High** / **High** | A 12–16 week Phase 1 for a production Electron app with agent runtime, workspace model, provider abstraction, and build pipeline is historically optimistic by 40–60%. |
-| Electron security architecture | Not assessed | **High** / **Critical** | Cherry has published 3 CVEs in this category in 12 months. Dusk shares the same Electron attack surface. |
+| Electron security architecture | Not assessed | **High** / **Critical** | Dusk has published 3 CVEs in this category in 12 months. Dusk shares the same Electron attack surface. |
 | SQLite data corruption | Not assessed | **Medium** / **High** | No backup, migration, or recovery procedure is documented. A single corrupted workspace DB is unrecoverable without a backup strategy. |
 | No monetization path | Not assessed | **High** / **High** | The project has a 12-month revenue target and no pricing, packaging, or sales motion. |
 | Key-person dependency | Not assessed | **Medium** / **High** | 11 specialist agents are role abstractions. If execution depends on 1–2 people, single points of failure are structural. |
@@ -127,7 +127,7 @@ The register is missing risks in the following categories:
 
 | Risk | Current Mitigation | Evaluation |
 |------|--------------------|-----------|
-| AGPL contamination | "Greenfield build, legal audit, no Cherry code" | **Partially actionable.** "No Cherry code" is a policy, not a control. There is no CI enforcement, no automated license scan, no build-time exclusion of `reference/`. The legal audit is a one-time event with no ongoing monitoring. |
+| AGPL contamination | "Greenfield build, legal audit, no Dusk code" | **Partially actionable.** "No Dusk code" is a policy, not a control. There is no CI enforcement, no automated license scan, no build-time exclusion of `reference/`. The legal audit is a one-time event with no ongoing monitoring. |
 | Scope creep | "Strict phase gates, MVP discipline" | **Not actionable as written.** No phase gate criteria are defined. No MVP definition is documented. "MVP discipline" is a cultural expectation, not a process. |
 | Resource constraints | "Phased delivery, agent leverage" | **Partially actionable.** Phased delivery is defined (Phase 1/2/3). Agent leverage is an operating model assumption, not a risk mitigation. No resource buffer or contingency planning exists. |
 | Brand confusion | "Distinct naming, branding, positioning" | **Actionable but incomplete.** Naming and branding are defined. Positioning is described but not measured. No trademark filing timeline, no brand monitoring process, no competitive response plan. |
@@ -157,7 +157,7 @@ The architecture uses better-sqlite3 for all local persistence. No backup strate
 
 **T2: Electron Security Architecture**
 
-Cherry Studio has published three CVEs in 12 months, all rooted in the same pattern: Electron security misconfiguration (nodeIntegration enabled, contextIsolation disabled, preload bridge bypass, unsafe URL handling). Dusk uses the same Electron architecture. The current plans do not document Electron security decisions.
+Dusk Studio has published three CVEs in 12 months, all rooted in the same pattern: Electron security misconfiguration (nodeIntegration enabled, contextIsolation disabled, preload bridge bypass, unsafe URL handling). Dusk uses the same Electron architecture. The current plans do not document Electron security decisions.
 
 **Critical controls that must be in place from day one:**
 - `contextIsolation: true` in all BrowserWindow configurations
@@ -229,17 +229,17 @@ The EU AI Act and emerging US regulations require disclosure of AI-generated con
 
 ### 4.4 Competitive Risks
 
-**C1: Cherry Studio Feature Parity Acceleration**
+**C1: Dusk Studio Feature Parity Acceleration**
 
-Cherry Studio has 50k GitHub stars, active development, and a mature Electron codebase. They have already implemented: multi-provider chat, agent system, MCP integration, file workspace, code highlighting, streaming, mobile app, and 300+ assistant templates. Dusk's Phase 1 feature set is a subset of what Cherry already ships. Cherry's team can respond to Dusk's positioning with a feature release in weeks, not months.
+Dusk Studio has 50k GitHub stars, active development, and a mature Electron codebase. They have already implemented: multi-provider chat, agent system, MCP integration, file workspace, code highlighting, streaming, mobile app, and 300+ assistant templates. Dusk's Phase 1 feature set is a subset of what Dusk already ships. Dusk's team can respond to Dusk's positioning with a feature release in weeks, not months.
 
-**Critical differentiators Dusk must establish before Cherry can copy them:**
-- Professional workspace model (Cherry is chat-centric)
-- Local-first data architecture (Cherry uses cloud features)
-- Agent artifact system (Cherry's assistants produce chat output, not workspace files)
-- Western brand positioning and clean IP (Cherry's Chinese origin is a differentiator in enterprise markets)
+**Critical differentiators Dusk must establish before Dusk can copy them:**
+- Professional workspace model (Dusk is chat-centric)
+- Local-first data architecture (Dusk uses cloud features)
+- Agent artifact system (Dusk's assistants produce chat output, not workspace files)
+- Western brand positioning and clean IP (Dusk's Chinese origin is a differentiator in enterprise markets)
 
-**Recommendation:** Accelerate workspace artifact and agent deliverable features. These are the hardest features for Cherry to replicate because they require architectural changes, not UI updates.
+**Recommendation:** Accelerate workspace artifact and agent deliverable features. These are the hardest features for Dusk to replicate because they require architectural changes, not UI updates.
 
 **C2: Platform-Builder Competition**
 
@@ -273,7 +273,7 @@ If Fugoku experiences a security incident, regulatory action, or reputational ev
 
 **A1: MCP Server Supply Chain**
 
-The mobile-strategy.md notes that MCP tool management is desktop-only in Phase 2. This is the correct scoping decision — MCP servers execute code with the agent's permissions. A malicious or compromised MCP server can: read workspace files, write arbitrary artifacts, execute shell commands (Cherry's CVE-2025-54074 proved this), exfiltrate data, and modify agent state.
+The mobile-strategy.md notes that MCP tool management is desktop-only in Phase 2. This is the correct scoping decision — MCP servers execute code with the agent's permissions. A malicious or compromised MCP server can: read workspace files, write arbitrary artifacts, execute shell commands (Dusk's CVE-2025-54074 proved this), exfiltrate data, and modify agent state.
 
 **Current controls:** None documented beyond scoping MCP to desktop.
 
@@ -299,11 +299,11 @@ When agents execute tools (file read/write, shell commands, API calls), they gen
 
 ---
 
-## 5. Cherry Studio Risks — What Cherry Faces That Dusk Also Faces
+## 5. Dusk Studio Risks — What Dusk Faces That Dusk Also Faces
 
-Cherry Studio's published CVEs and issues reveal a pattern of Electron security failures that Dusk shares by architectural choice. Dusk can avoid these by learning from Cherry's mistakes:
+Dusk Studio's published CVEs and issues reveal a pattern of Electron security failures that Dusk shares by architectural choice. Dusk can avoid these by learning from Dusk's mistakes:
 
-### 5.1 Cherry's Published CVEs
+### 5.1 Dusk's Published CVEs
 
 | CVE | Year | Vulnerability | Root Cause | Dusk Relevance |
 |-----|------|--------------|------------|----------------|
@@ -311,31 +311,31 @@ Cherry Studio's published CVEs and issues reveal a pattern of Electron security 
 | CVE-2025-54063 | 2025 | One-click RCE via custom URL handler | Unsafe custom protocol handler accepting arbitrary URLs | **Directly applicable.** Dusk will implement custom URL handlers for deep linking. Must validate all protocol inputs. |
 | CVE-2025-54074 | 2025 | OS command injection via malicious MCP server | MCP client passes unsanitized server metadata to `open` function | **Directly applicable.** Dusk's MCP integration must sanitize all server-provided URLs before passing to OS-level functions. |
 
-### 5.2 Cherry's Published Security Issues
+### 5.2 Dusk's Published Security Issues
 
 **Issue #14232 — MCP Skill Auto-Install Without User Confirmation**
 
-Cherry's MCP implementation auto-approves the `install` action for all agents, which fetches remote code and writes it to the filesystem without user confirmation. This is a privilege escalation vulnerability — any MCP server can write code that executes in the user's environment.
+Dusk's MCP implementation auto-approves the `install` action for all agents, which fetches remote code and writes it to the filesystem without user confirmation. This is a privilege escalation vulnerability — any MCP server can write code that executes in the user's environment.
 
 **Dusk implication:** Dusk's MCP integration must not auto-approve install or write actions. All filesystem operations via MCP must require explicit user confirmation.
 
 **Issue #13966 — Preload Bridge Bypass**
 
-Cherry's preload script exposes `shell.openExternal` directly to the renderer without URL validation, bypassing main-process security checks. Renderer code can open arbitrary URLs with full OS privileges.
+Dusk's preload script exposes `shell.openExternal` directly to the renderer without URL validation, bypassing main-process security checks. Renderer code can open arbitrary URLs with full OS privileges.
 
 **Dusk implication:** Dusk must not expose shell or OS-level functions through the preload bridge. All external operations must go through validated IPC channels with explicit allowlists.
 
-### 5.3 Cherry's Risk Profile That Dusk Also Faces
+### 5.3 Dusk's Risk Profile That Dusk Also Faces
 
-Cherry faces risks that Dusk, as a structurally similar product, will also encounter:
+Dusk faces risks that Dusk, as a structurally similar product, will also encounter:
 
-1. **Electron security debt accumulates over time.** Cherry's CVEs appeared after the product was mature. Dusk must build security into the architecture before the first release, not retrofit it after CVEs are published.
+1. **Electron security debt accumulates over time.** Dusk's CVEs appeared after the product was mature. Dusk must build security into the architecture before the first release, not retrofit it after CVEs are published.
 
-2. **MCP trust model is unsolved.** Cherry's MCP implementation is a recurring source of vulnerabilities. Dusk's MCP integration will face the same trust boundary challenges. The MCP protocol standard is new (Anthropic, Nov 2024) and security patterns are still evolving.
+2. **MCP trust model is unsolved.** Dusk's MCP implementation is a recurring source of vulnerabilities. Dusk's MCP integration will face the same trust boundary challenges. The MCP protocol standard is new (Anthropic, Nov 2024) and security patterns are still evolving.
 
-3. **Feature breadth creates attack surface.** Cherry's 300+ assistant templates, MCP integrations, search providers, and file handlers each create potential attack surfaces. Dusk's scope is smaller at launch but will grow. Security must scale with feature growth.
+3. **Feature breadth creates attack surface.** Dusk's 300+ assistant templates, MCP integrations, search providers, and file handlers each create potential attack surfaces. Dusk's scope is smaller at launch but will grow. Security must scale with feature growth.
 
-4. **User-generated content and artifacts are XSS vectors.** Cherry renders markdown, code blocks, and HTML artifacts from agent output. Dusk will do the same. Unsanitized HTML in artifacts can execute JavaScript in the renderer. DOMPurify is in the dependency list but must be enforced at every rendering boundary.
+4. **User-generated content and artifacts are XSS vectors.** Dusk renders markdown, code blocks, and HTML artifacts from agent output. Dusk will do the same. Unsanitized HTML in artifacts can execute JavaScript in the renderer. DOMPurify is in the dependency list but must be enforced at every rendering boundary.
 
 ---
 
@@ -469,7 +469,7 @@ The following mitigations must be addressed before implementation begins. They a
 **P2-1: Competitive Monitoring Process**
 
 - Define a monthly competitive review cadence
-- Track: Cherry Studio releases, platform client updates (OpenAI, Anthropic, Google), pricing changes, feature additions
+- Track: Dusk Studio releases, platform client updates (OpenAI, Anthropic, Google), pricing changes, feature additions
 - Assign to: Marketing/Growth
 
 **P2-2: Monetization Design**
@@ -510,7 +510,7 @@ The following table is a proposed replacement for the current register, incorpor
 | R1 | AGPL contamination | Low | Critical | CI license scan, build exclusion of `reference/`, legal audit, CLA | Legal | P0 |
 | R2 | Scope creep | High | High | MVP definition, phase gates, Architect gate on new features | Architect | P0 |
 | R3 | Resource constraints | High | High | Phased delivery, 20% contingency buffer, role coverage plan | All | P1 |
-| R4 | Brand confusion with Cherry | Medium | High | Distinct branding, trademark filing, competitive differentiation audit | Marketing | P1 |
+| R4 | Brand confusion with Dusk | Medium | High | Distinct branding, trademark filing, competitive differentiation audit | Marketing | P1 |
 | R5 | Fugoku Gateway availability | Medium | High | Phase 2 fallback plan, Gateway capability checkpoint | Architect | P1 |
 | R6 | Mobile delays | Medium | Medium | Desktop-first priority, mobile prototype timeline, platform review contingency | Mobile Eng | P2 |
 | R7 | Provider API changes | Medium | Medium | Abstraction layer, API version tracking, deprecation monitoring | Backend | P2 |
@@ -523,7 +523,7 @@ The following table is a proposed replacement for the current register, incorpor
 | R14 | No monetization path | High | High | Pricing design, sales motion, enterprise licensing terms | Marketing + Legal | P2 |
 | R15 | Key-person dependency | Medium | High | Role assignment, backup coverage, handoff documentation | Architect | P1 |
 | R16 | GDPR processor obligations | Medium | High | Data processing agreement, privacy policy update, breach notification procedure | Legal | P1 |
-| R17 | Cherry feature parity acceleration | High | High | Workspace artifact differentiation, accelerated Phase 1 features, competitive monitoring | All | P1 |
+| R17 | Dusk feature parity acceleration | High | High | Workspace artifact differentiation, accelerated Phase 1 features, competitive monitoring | All | P1 |
 | R18 | Platform builder competition | High | High | Workspace-first positioning, artifact production, provider flexibility as moat | Marketing | P2 |
 | R19 | Agent context window exhaustion | Medium | Medium | Truncation policy, checkpoint/resume, state reset mechanism | Agent Eng | P2 |
 | R20 | IPC contract drift | High | Medium | IPC versioning policy, Architect review gate, schema CI enforcement | Architect | P1 |
@@ -541,11 +541,11 @@ The following table is a proposed replacement for the current register, incorpor
 
 **Three risks are existential for Phase 1:**
 
-1. **Electron security architecture** (R9, R25) — Cherry has proven that Electron security failures are common and severe. Dusk must architect security in from the first line of code, not retrofit it after the first CVE.
+1. **Electron security architecture** (R9, R25) — Dusk has proven that Electron security failures are common and severe. Dusk must architect security in from the first line of code, not retrofit it after the first CVE.
 
 2. **Greenfield timeline realism** (R11) — A 12–16 week Phase 1 estimate for this scope is historically optimistic. If the team commits to this timeline without contingency, Phase 1 will either ship broken or slip significantly.
 
-3. **AGPL boundary enforcement** (R1) — The policy ("no Cherry code") is sound but has no enforcement mechanism. One accidental import of Cherry code into the build invalidates the entire legal strategy. This must be automated, not trusted.
+3. **AGPL boundary enforcement** (R1) — The policy ("no Dusk code") is sound but has no enforcement mechanism. One accidental import of Dusk code into the build invalidates the entire legal strategy. This must be automated, not trusted.
 
 **The three risks most likely to be underestimated:**
 

@@ -10,7 +10,7 @@ The architecture is sound, but I have critical concerns about three areas.
 
 ### What works
 
-- **Electron + Vite + React + TypeScript** is the right stack for a desktop-first Work OS. It mirrors Cherry's proven architecture while giving us full control.
+- **Electron + Vite + React + TypeScript** is the right stack for a desktop-first Work OS. It mirrors Dusk's proven architecture while giving us full control.
 - **Service Container (IoC)** pattern is clean and testable. Dependencies flow explicitly through registration, not magic.
 - **IPC channel registry** with type-safe request/response + event streaming is exactly what we need. The channel list is comprehensive and well-organized.
 - **Repository pattern** over better-sqlite3 is correct. Wrapping raw SQL in typed repos gives us testability without an ORM abstraction tax.

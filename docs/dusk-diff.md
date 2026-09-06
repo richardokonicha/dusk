@@ -1,8 +1,8 @@
-# Dusk — Cherry Studio diff
+# Dusk — Dusk Studio diff
 
-Dusk begins from a **Cherry Studio** lineage (desktop AI client / workbench) and grows into a Work OS. This doc tracks what we **keep**, **customize**, and **add**. (To be refined after a source-level review of Cherry Studio.)
+Dusk begins from a **Dusk Studio** lineage (desktop AI client / workbench) and grows into a Work OS. This doc tracks what we **keep**, **customize**, and **add**. (To be refined after a source-level review of Dusk Studio.)
 
-## Keep from Cherry Studio (proven, don't rebuild)
+## Keep from Dusk Studio (proven, don't rebuild)
 
 - Desktop shell (Electron-class) — cross-platform, local-first
 - Multi-provider model configuration (OpenAI-compatible + native provider adapters)
@@ -15,9 +15,9 @@ Dusk begins from a **Cherry Studio** lineage (desktop AI client / workbench) and
 
 ## Customize (rebrand + reshape)
 
-| Area | From Cherry → Dusk |
+| Area | From Dusk → Dusk |
 |---|---|
-| Name & branding | Cherry Studio → **Dusk** (logo, palette: dusk/twilight tones) |
+| Name & branding | Dusk Studio → **Dusk** (logo, palette: dusk/twilight tones) |
 | Framing | "AI chat client" → "Work OS / primary place for AI work" |
 | First-run | Default to workspace view, not empty chat |
 | Provider presets | Add **Fugoku Gateway** as a first-class preset |
@@ -36,9 +36,9 @@ These are what make Dusk a Work OS rather than a chat client:
 
 ## Decide later (needs source review)
 
-- Fork Cherry source outright vs. greenfield with Cherry as reference?
+- Fork Dusk source outright vs. greenfield with Dusk as reference?
 - Which provider adapters to keep vs. slim down for launch?
-- How much of Cherry's MCP/tooling to inherit vs. rework?
+- How much of Dusk's MCP/tooling to inherit vs. rework?
 - Licensing model for Dusk distribution.
 
-> **Note:** Source scout done — Cherry is AGPL-3.0. We build greenfield using Cherry as a *design reference*, not a code fork. Details: `BACKLOG/cherry-source-scout.md`.
+> **Note:** Source scout done — Dusk is AGPL-3.0. We build greenfield using Dusk as a *design reference*, not a code fork. Details: `BACKLOG/dusk-source-scout.md`.

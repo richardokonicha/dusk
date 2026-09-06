@@ -88,7 +88,7 @@ Build **Dusk Work OS** — a standalone, professional AI work environment that b
 **Phase 0 — Foundation (COMPLETE)**
 - [x] Vision, naming, brand lock
 - [x] Standalone vs Fugoku capability matrix
-- [x] Cherry diff (keep/customize/add)
+- [x] Dusk diff (keep/customize/add)
 - [x] Tech stack decisions
 - [x] Reference repos cloned
 - [x] Folder scaffold
@@ -201,7 +201,7 @@ Build **Dusk Work OS** — a standalone, professional AI work environment that b
 - Prepares for EAS builds
 
 **Legal/IP Counsel**
-- Audits Cherry reference code for AGPL contamination risk
+- Audits Dusk reference code for AGPL contamination risk
 - Advises on commercial licensing strategy
 - Drafts Dusk license, privacy policy, terms of service
 - Identifies third-party license obligations
@@ -244,7 +244,7 @@ Build **Dusk Work OS** — a standalone, professional AI work environment that b
 ### 5.1 Market Landscape
 
 **Competitors**
-- Cherry Studio (50k stars, AGPL, Chinese origin)
+- Dusk Studio (50k stars, AGPL, Chinese origin)
 - Open WebUI (open source, self-hosted)
 - LangChain/LangSmith (developer-focused, SaaS)
 - Cursor/Claude Code (IDE-integrated, not work OS)
@@ -274,7 +274,7 @@ Build **Dusk Work OS** — a standalone, professional AI work environment that b
 - **Data privacy**: GDPR, CCPA — local-first helps
 - **Export controls**: model access restrictions by region
 - **Open source compliance**: AGPL, MIT, Apache license obligations
-- **Commercial licensing**: if using Cherry code, need commercial license
+- **Commercial licensing**: if using Dusk code, need commercial license
 
 ### 5.4 Distribution Realities
 
@@ -289,10 +289,10 @@ Build **Dusk Work OS** — a standalone, professional AI work environment that b
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|------------|
-| AGPL contamination | Medium | Critical | Greenfield build, legal audit, no Cherry code |
+| AGPL contamination | Medium | Critical | Greenfield build, legal audit, no Dusk code |
 | Scope creep | High | High | Strict phase gates, MVP discipline |
 | Resource constraints | High | High | Phased delivery, agent leverage |
-| Brand confusion with Cherry | Medium | Medium | Distinct naming, branding, positioning |
+| Brand confusion with Dusk | Medium | Medium | Distinct naming, branding, positioning |
 | Fugoku dependency fears | Low | Medium | Standalone-first messaging |
 | Mobile delays | Medium | Low | Desktop-first, mobile later |
 | Provider API changes | Medium | Medium | Abstraction layer, provider adapters |

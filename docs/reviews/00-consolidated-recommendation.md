@@ -38,11 +38,11 @@ Fourteen manager agents reviewed the Dusk master plan, unified roadmap, and 11 s
 ### P0 — Block Implementation
 
 **1. AGPL boundary has no automated enforcement**  
-The `reference/` Cherry directory must never ship with Dusk. The legal framework states this, but there is no CI check, no build-time exclusion, and no automated license scan. One mistaken build invalidates the entire legal strategy.  
+The `reference/` Dusk directory must never ship with Dusk. The legal framework states this, but there is no CI check, no build-time exclusion, and no automated license scan. One mistaken build invalidates the entire legal strategy.  
 *Action:* Add CI step that fails on AGPL/GPL/LGPL/SSPL/BUSL dependencies. Add build-time verification that `reference/` is excluded from artifacts. Add `license-checker` to every PR.
 
 **2. Electron security architecture is undefined**  
-Cherry Studio has published 3 CVEs in 12 months from Electron misconfigurations. Dusk uses the same attack surface. `sandbox: false`, no preload audit, no URL validation rules, and no MCP trust model are documented.  
+Dusk Studio has published 3 CVEs in 12 months from Electron misconfigurations. Dusk uses the same attack surface. `sandbox: false`, no preload audit, no URL validation rules, and no MCP trust model are documented.  
 *Action:* Create Electron security checklist. Enforce `contextIsolation: true`, `nodeIntegration: false`, preload bridge whitelist, and validated IPC for all external operations. Make this a Phase 1 quality gate.
 
 **3. Phase 1 timeline is unrealistic**  
@@ -84,7 +84,7 @@ The `get()` method encrypts the key name, `set()` encrypts the value — they're
 - **JobQueueService has circular dependency** — inject `agentRuntime`
 - **Playwright E2E for Electron is unconfigured** — add `playwright-electron` fixture
 - **Onboarding flow is Sprint 4 but should be Sprint 1** — first-run experience is product, not docs
-- **Cherry comparison page needed before launch** — highest-intent SEO and conversion content
+- **Dusk comparison page needed before launch** — highest-intent SEO and conversion content
 - **No preview build in CI** — QA needs installable packages before release tags
 - **No mobile data export/import** — Phase 2 mobile needs manual workspace transfer to avoid data fragmentation
 - **Context window exhaustion** — document truncation policy and checkpoint/resume
@@ -177,7 +177,7 @@ All foundational docs written. Decisions locked.
 - [ ] Internal alpha (5-10 trusted users)
 - [ ] Bug fixes, performance tuning
 - [ ] Privacy policy, ToS, CLA, Security.md published
-- [ ] Comparison page (Dusk vs Cherry) written
+- [ ] Comparison page (Dusk vs Dusk) written
 - [ ] Public beta (50-100 users)
 - [ ] GitHub Release v0.1.0
 
@@ -230,7 +230,7 @@ These items must be completed before Sprint 1 implementation begins.
 | 8 | Initialize monorepo scaffold (packages/desktop, renderer, shared) | Architect | Working repo with CI |
 | 9 | Set up Drizzle ORM with shared schema | Backend Eng | `packages/shared/schema/` with migrations |
 | 10 | Configure Playwright Electron fixture | QA Eng | Working E2E test that launches Electron |
-| 11 | Write Cherry Studio comparison page | Marketing | `docs/compare/cherry-studio.md` |
+| 11 | Write Dusk Studio comparison page | Marketing | `docs/compare/dusk-studio.md` |
 | 12 | Design onboarding flow spec | UI Designer + Tech Writer | `docs/in-app-help/onboarding.md` v2 |
 | 13 | Fix SecureStorageService encryption logic | Backend Eng | Corrected implementation in `backend-architecture.md` |
 | 14 | Draft Fugoku Gateway fallback plan | Architect + Marketing | Phase 2 features without Gateway |

@@ -8,7 +8,7 @@
 
 ### What works
 
-- **Electron + Vite + React** is mature and well-understood. Cherry Studio itself uses this stack, which validates the choice.
+- **Electron + Vite + React** is mature and well-understood. Dusk Studio itself uses this stack, which validates the choice.
 - **better-sqlite3** for local persistence is the right call. It's synchronous, fast, and well-suited for desktop apps.
 - **TailwindCSS v4 + shadcn/ui** reduces UI implementation time significantly. The component library plan is realistic.
 - **pnpm monorepo** is appropriate for desktop + renderer + future mobile packages.
@@ -50,4 +50,4 @@ For a desktop app where the provider is always local/networked, this is a real r
 ### Minor concerns
 
 - **TypeScript strict mode:** The plan specifies strict mode. Ensure `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` are enabled — they catch real bugs.
-- **Vitest vs Jest:** The frontend plan mentions Vitest (correct), but some Cherry reference code uses Jest. Ensure no Jest config leaks into Dusk.
+- **Vitest vs Jest:** The frontend plan mentions Vitest (correct), but some Dusk reference code uses Jest. Ensure no Jest config leaks into Dusk.
