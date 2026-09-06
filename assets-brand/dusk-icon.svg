@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1B1633"/>
+      <stop offset="0.55" stop-color="#2A2545"/>
+      <stop offset="1" stop-color="#4A3E6E"/>
+    </linearGradient>
+    <radialGradient id="horizon" cx="0.5" cy="0.92" r="0.75">
+      <stop offset="0" stop-color="#E8B06B" stop-opacity="0.55"/>
+      <stop offset="0.45" stop-color="#E8B06B" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#E8B06B" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="crescentMask">
+      <rect width="1024" height="1024" fill="black"/>
+      <circle cx="512" cy="420" r="150" fill="white"/>
+      <circle cx="565" cy="385" r="135" fill="black"/>
+    </mask>
+  </defs>
+  <rect width="1024" height="1024" rx="230" fill="url(#sky)"/>
+  <rect width="1024" height="1024" rx="230" fill="url(#horizon)"/>
+  <g mask="url(#crescentMask)">
+    <rect width="1024" height="1024" fill="#E8B06B"/>
+  </g>
+  <rect x="140" y="760" width="744" height="10" rx="5" fill="#E8B06B" opacity="0.38"/>
+  <rect x="230" y="820" width="564" height="10" rx="5" fill="#E8B06B" opacity="0.22"/>
+  <rect x="330" y="880" width="364" height="10" rx="5" fill="#E8B06B" opacity="0.12"/>
+</svg>

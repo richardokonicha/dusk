@@ -71,17 +71,17 @@ The mobile app is **not** the primary work surface. Desktop remains where deep w
 ### 2.1 React Native + Expo
 
 **Rationale:**
-- Cherry Studio's mobile app (cherry-studio-app) uses Expo + React Native 0.81 — validates the choice
+- Dusk Studio's mobile app (dusk-studio-app) uses Expo + React Native 0.81 — validates the choice
 - Expo handles native build complexity (EAS), OTA updates, and platform quirks
 - React Native's component model maps cleanly to React on desktop — shared patterns
 - Strong TypeScript support
-- Expo SQLite + Drizzle already proven in cherry-studio-app
+- Expo SQLite + Drizzle already proven in dusk-studio-app
 
 **Expo SDK:** ~54 (track desktop Phase 1 timeline; bump if needed)
 
 **Version constraints:**
-- React: 19.x (matches desktop React 18+ pattern, cherry-studio-app uses 19.1)
-- React Native: 0.81+ (cherry-studio-app baseline)
+- React: 19.x (matches desktop React 18+ pattern, dusk-studio-app uses 19.1)
+- React Native: 0.81+ (dusk-studio-app baseline)
 - TypeScript: ~5.9 (strict mode, matches desktop)
 
 ### 2.2 Drizzle ORM for Local DB (SQLite)
@@ -90,7 +90,7 @@ The mobile app is **not** the primary work surface. Desktop remains where deep w
 - Desktop uses better-sqlite3; mobile uses `expo-sqlite` — both are SQLite, same data model possible
 - Drizzle provides type-safe queries, schema migrations, and Drizzle Studio for inspection
 - Schema can be shared (with platform adapters) — same tables, different driver
-- cherry-studio-app already uses drizzle-orm + expo-sqlite successfully
+- dusk-studio-app already uses drizzle-orm + expo-sqlite successfully
 
 **Mobile DB stack:**
 - `expo-sqlite` (native SQLite on device)
@@ -100,7 +100,7 @@ The mobile app is **not** the primary work surface. Desktop remains where deep w
 
 ### 2.3 Navigation Strategy
 
-**Framework:** React Navigation v7 (matches cherry-studio-app)
+**Framework:** React Navigation v7 (matches dusk-studio-app)
 
 **Structure:**
 - Root: `Stack.Navigator` (auth → main app)
@@ -119,7 +119,7 @@ The mobile app is **not** the primary work surface. Desktop remains where deep w
 **Framework:** Zustand (lighter than Redux Toolkit for mobile)
 
 **Rationale:**
-- Cherry-studio-app uses Redux Toolkit — proven but heavier
+- Dusk-studio-app uses Redux Toolkit — proven but heavier
 - Dusk desktop may use Zustand or Redux — align with desktop decision
 - For mobile MVP, Zustand is simpler, less boilerplate, works with React Native
 - Persist to MMKV (not AsyncStorage) for performance
@@ -137,7 +137,7 @@ The mobile app is **not** the primary work surface. Desktop remains where deep w
 
 **Decision: Build mobile-native components, extract shared design tokens.**
 
-Cherry Studio's mobile app uses HeroUI Native + UniwindCSS. Dusk should **not** copy this — Dusk has its own design system (dusk/twilight palette, calm aesthetic).
+Dusk Studio's mobile app uses HeroUI Native + UniwindCSS. Dusk should **not** copy this — Dusk has its own design system (dusk/twilight palette, calm aesthetic).
 
 **Approach:**
 1. **Shared layer** (monorepo package): design tokens, color system, typography scale, spacing, motion curves
@@ -145,7 +145,7 @@ Cherry Studio's mobile app uses HeroUI Native + UniwindCSS. Dusk should **not** 
 3. **No component reuse** between desktop (HTML/CSS) and mobile (React Native) — different rendering targets
 
 **Mobile UI stack:**
-- React Native primitives + `moti` for animations (matches cherry-studio-app)
+- React Native primitives + `moti` for animations (matches dusk-studio-app)
 - `react-native-skia` for charts/visualizations (if needed)
 - `expo-blur` + `expo-linear-gradient` for Dusk atmosphere effects
 - `react-native-markdown-display` or similar for chat rendering
@@ -453,7 +453,7 @@ MainTabs
 **Implementation:**
 - `@ai-sdk/*` providers support streaming via `streamText`
 - Mobile uses native fetch with `ReadableStream` (React Native supports fetch + streams)
-- Cherry-studio-app uses `react-native-sse` + custom streaming — evaluate if needed
+- Dusk-studio-app uses `react-native-sse` + custom streaming — evaluate if needed
 - For long-running streams: keep-alive pings, reconnect logic
 
 **Mobile streaming UX:**
@@ -858,7 +858,7 @@ Before starting mobile, Phase 1 must deliver:
 | Drizzle schema drift between desktop/mobile | Medium | High | Shared schema source of truth in `packages/shared`, generate for each platform |
 | iOS/Android UX divergence | Medium | Medium | Platform-specific components, test on both early |
 | App store rejection (AI disclosure) | Low | High | Clear AI labeling in UI, privacy-first design |
-| Cherry-studio-app AGPL confusion | Low | Medium | Zero code reuse, cleanroom design, clear attribution |
+| Dusk-studio-app AGPL confusion | Low | Medium | Zero code reuse, cleanroom design, clear attribution |
 | Mobile scope creep | High | High | Strict phase gates, desktop-first priority |
 | Streaming reliability on mobile networks | Medium | Medium | Exponential backoff, message queuing, partial retry |
 

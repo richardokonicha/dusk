@@ -28,11 +28,11 @@ This delay is worth it. A premature launch with missing legal docs creates real 
 
 ### Medium concerns
 
-- **Comparison pages are listed in the site structure but not in the launch scope.** The site plan includes `/compare/cherry-studio`, `/compare/open-webui`, `/compare/cursor` — but the GTM launch timeline doesn't allocate time to write these. They're important for SEO and conversion.
+- **Comparison pages are listed in the site structure but not in the launch scope.** The site plan includes `/compare/dusk-studio`, `/compare/open-webui`, `/compare/cursor` — but the GTM launch timeline doesn't allocate time to write these. They're important for SEO and conversion.
 
-**Recommendation:** Write at least the Cherry Studio comparison page before launch. It's the highest-intent comparison (users searching for Cherry alternatives). Add it to the Week 8-9 content sprint.
+**Recommendation:** Write at least the Dusk Studio comparison page before launch. It's the highest-intent comparison (users searching for Dusk alternatives). Add it to the Week 8-9 content sprint.
 
-- **HN/Reddit launch strategy is risky without comparison content.** If you post "Show HN: Dusk — desktop AI Work OS" without explaining how it differs from Cherry, the top comments will be "Is this just a Cherry fork?" Have the comparison content ready to address this.
+- **HN/Reddit launch strategy is risky without comparison content.** If you post "Show HN: Dusk — desktop AI Work OS" without explaining how it differs from Dusk, the top comments will be "Is this just a Dusk fork?" Have the comparison content ready to address this.
 
 - **No PRD or feature announcement template.** When you ship updates, you'll need release notes that match the brand voice. Create a template now.
 

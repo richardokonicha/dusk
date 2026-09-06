@@ -11,7 +11,7 @@
 Dusk has undergone a comprehensive two-wave review:
 
 - **Wave 1:** 11 specialist agents produced complete plans for architecture, design, frontend, backend, agents, mobile, legal, marketing, docs, testing, and DevOps.
-- **Wave 2:** 15 manager agents reviewed all plans, cross-checked against Cherry Studio, identified gaps, and produced a consolidated recommendation.
+- **Wave 2:** 15 manager agents reviewed all plans, cross-checked against Dusk Studio, identified gaps, and produced a consolidated recommendation.
 - **Wave 3:** 15 engineer agents implemented the foundational codebase based on approved plans.
 
 **Current Status:** Foundation is **substantially built** but has **5 critical gaps** that must be closed before Sprint 1 implementation can proceed with confidence.
@@ -40,7 +40,7 @@ Dusk has undergone a comprehensive two-wave review:
 | `docs/devops-release.md` | ✅ Complete |
 | `docs/agents.md` | ✅ Complete |
 | `docs/standalone-vs-fugoku.md` | ✅ Complete |
-| `docs/cherry-diff.md` | ✅ Complete |
+| `docs/dusk-diff.md` | ✅ Complete |
 
 ### Reviews (15 files)
 | Review | Verdict |
@@ -188,11 +188,11 @@ Sprint 1 may begin when ALL of the following are true:
 
 ### From Users
 - Professionals want **reliability**, **privacy**, **flexibility**, and **professional output**
-- They will compare Dusk to Cherry Studio, Open WebUI, Cursor, and Poe
+- They will compare Dusk to Dusk Studio, Open WebUI, Cursor, and Poe
 - Dusk's differentiator: **calm, focused, workspace-centric, local-first**
 
 ### From Competitors
-- Cherry Studio has 50k stars and strong community — we match features but with clean IP
+- Dusk Studio has 50k stars and strong community — we match features but with clean IP
 - Open WebUI is open-source but less professional
 - Cursor/Claude Code are IDE-integrated, not work OS
 - Poe is consumer-facing

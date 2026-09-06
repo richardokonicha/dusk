@@ -1,11 +1,11 @@
 import type { Config } from "drizzle-kit";
 
 export default {
-  schema: "./packages/shared/src/schema/index.ts",
-  out: "./packages/shared/src/schema/migrations",
+  schema: "./packages/dusk/src/main/data/db/schemas/index.ts",
+  out: "./packages/dusk/migrations/sqlite-drizzle",
   dialect: "sqlite",
   dbCredentials: {
-    url: "./packages/shared/src/schema/migrations/dev.db"
+    url: "./packages/dusk/migrations/sqlite-drizzle/dev.db"
   },
   verbose: true,
   strict: true,

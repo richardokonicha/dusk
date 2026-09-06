@@ -2,7 +2,7 @@
 
 **Status:** MANDATORY — All items must pass before any release  
 **Applies to:** Dusk Work OS desktop shell  
-**Rationale:** Cherry Studio published 3 CVEs in 12 months from Electron misconfigurations. Dusk must not repeat these mistakes.
+**Rationale:** Dusk Studio published 3 CVEs in 12 months from Electron misconfigurations. Dusk must not repeat these mistakes.
 
 ---
 

@@ -32,7 +32,7 @@
 
 ### Key Differentiators
 
-| Dimension | Dusk | Cherry Studio | Open WebUI | Cursor | Claude Code | Poe |
+| Dimension | Dusk | Dusk Studio | Open WebUI | Cursor | Claude Code | Poe |
 |---|---|---|---|---|---|---|
 | Positioning | Work OS | AI client | Self-hosted web UI | AI IDE | Agentic CLI | Chat aggregator |
 | Scope | Workspace + files + agents + models | Chat + assistants | Chat + models (web) | Code-first IDE | Code agent CLI | Multi-model chat |
@@ -45,7 +45,7 @@
 | Professional calm | ✅ Core brand | ❌ "AI Studio" feel | ❌ Hacker/self-host vibe | ❌ IDE/IDE-heavy | ❌ Terminal-only | ❌ Chat-heavy |
 | Target audience | Professionals doing AI work | General AI users | Self-host enthusiasts | Developers | Developers | Casual + power users |
 
-**vs Cherry Studio (lineage):** Dusk inherits Cherry's desktop-native, multi-provider foundation but rebrands from "AI client/studio" to "Work OS" — adding persistent workspaces, artifact-centric agents, and professional positioning. Cherry targets general AI users; Dusk targets professionals whose daily work involves AI.
+**vs Dusk Studio (lineage):** Dusk inherits Dusk's desktop-native, multi-provider foundation but rebrands from "AI client/studio" to "Work OS" — adding persistent workspaces, artifact-centric agents, and professional positioning. Dusk targets general AI users; Dusk targets professionals whose daily work involves AI.
 
 **vs Open WebUI:** Open WebUI is a self-hosted enthusiast project. Dusk is a polished commercial desktop product for professionals who want local-first without managing Docker containers and web UIs.
 
@@ -161,7 +161,7 @@
 
 | Competitor | Primary lane | Pricing | Desktop | Workspace | Provider lock-in | Professional positioning | Local-first |
 |---|---|---|---|---|---|---|---|
-| **Cherry Studio** | AI client | Free/open | ✅ | ❌ | ❌ | ❌ Casual | ✅ |
+| **Dusk Studio** | AI client | Free/open | ✅ | ❌ | ❌ | ❌ Casual | ✅ |
 | **Open WebUI** | Self-hosted web UI | Free/OSS | ❌ | ❌ | ❌ | ❌ Hacker | ✅ |
 | **Cursor** | AI IDE | $20/mo | ✅ | ❌ | ⚠️ Partial | ✅ Dev | ✅ |
 | **Claude Code** | Agentic CLI | Included | ✅ (CLI) | ❌ | ✅ Anthropic | ✅ Dev | ✅ |
@@ -173,7 +173,7 @@
 
 The gap Dusk occupies: **professional, desktop-native, workspace-centric, provider-agnostic, local-first**.
 
-- Cherry and Open WebUI serve enthusiasts but lack professional polish and workspace architecture
+- Dusk and Open WebUI serve enthusiasts but lack professional polish and workspace architecture
 - Cursor serves developers but is IDE-bound and provider-partial
 - ChatGPT/Claude Code/Poe are chat or CLI-first, not workspace environments
 - No product positions itself as "the calm work environment for AI" — the "calm" positioning is entirely open
@@ -248,7 +248,7 @@ The gap Dusk occupies: **professional, desktop-native, workspace-centric, provid
 
 4. **Twitter/X**
    - Technical audience: developers, AI practitioners, productivity enthusiasts
-   - Content: screenshots, demo clips, comparison threads (Dusk vs Cherry vs Open WebUI)
+   - Content: screenshots, demo clips, comparison threads (Dusk vs Dusk vs Open WebUI)
    - Accounts to engage: @swyx, @karpathy, @jimfan, @bindureddy, AI tool reviewers
    - Thread series: "Why I built a Work OS instead of another AI chat app"
 
@@ -293,7 +293,7 @@ The gap Dusk occupies: **professional, desktop-native, workspace-centric, provid
 
 **Recruitment:**
 - Primary: HN, r/LocalLLaMA, r/selfhosted, Twitter — professionals who currently use 2+ AI tools
-- Secondary: Fugoku community, Cherry Studio power users, developer communities
+- Secondary: Fugoku community, Dusk Studio power users, developer communities
 - Requirement: active daily AI user, comfortable with pre-release software, willing to give feedback
 
 **Structure:**
@@ -314,7 +314,7 @@ The gap Dusk occupies: **professional, desktop-native, workspace-centric, provid
 **Acquisition channels:**
 1. **Community seeding** — HN, Reddit, Discord communities where target users gather
 2. **Referral program** — beta testers who refer 3 active users get 6 months free
-3. **Comparison content** — "Dusk vs Cherry Studio: Why I switched" type posts from beta testers
+3. **Comparison content** — "Dusk vs Dusk Studio: Why I switched" type posts from beta testers
 4. **Creator partnerships** — productivity YouTubers, AI tool reviewers, developer advocates
 5. **Fugoku ecosystem** — existing Fugoku Gateway users as natural early adopters
 
@@ -333,7 +333,7 @@ The gap Dusk occupies: **professional, desktop-native, workspace-centric, provid
 
 1. **"Why I built a Work OS instead of another AI chat app"** — founder story, design philosophy
 2. **"The workspace is the missing primitive in AI tools"** — architectural argument for workspace-centric design
-3. **"Cherry Studio taught us what works. Here's what we're changing."** — honest lineage post
+3. **"Dusk Studio taught us what works. Here's what we're changing."** — honest lineage post
 4. **"Local-first AI: why your data should stay on your machine"** — privacy and control
 5. **"How to evaluate AI providers (and why you shouldn't be locked in)"** — educational, positions Dusk as provider-agnostic
 
@@ -355,7 +355,7 @@ The gap Dusk occupies: **professional, desktop-native, workspace-centric, provid
 - **Hero demo video (2-3 min):** Install → create workspace → add provider → chat with model → agent produces artifact → file appears in workspace. Show the full loop.
 - **Feature clips (30-60 sec each):** Workspace switching, provider configuration, agent tool use, file handling
 - **Screenshot set (8-12 images):** Hero workspace, chat view, agent artifact output, provider settings, file browser, dark theme showcase
-- **Comparison GIFs:** Dusk vs Cherry chat-only, Dusk vs Open WebUI (desktop polish)
+- **Comparison GIFs:** Dusk vs Dusk chat-only, Dusk vs Open WebUI (desktop polish)
 - **Onboarding walkthrough:** First 5 minutes with Dusk
 
 **Distribution:**
@@ -541,7 +541,7 @@ dusk.so/
 │   └── /changelog
 ├── /blog                    ← Blog / content
 ├── /compare                ← Comparison pages
-│   ├── /cherry-studio
+│   ├── /dusk-studio
 │   ├── /open-webui
 │   └── /cursor
 ├── /community              ← Community links (Discord, GitHub)
@@ -587,10 +587,10 @@ dusk.so/
 
 **Compare pages (`/compare/`)**
 - Honest, factual comparisons
-- "Dusk vs Cherry Studio" — what we keep, what we change
+- "Dusk vs Dusk Studio" — what we keep, what we change
 - "Dusk vs Open WebUI" — desktop polish vs self-hosted flexibility
 - "Dusk vs Cursor" — provider-agnostic vs code-only
-- SEO targeting: "best desktop AI client," "Cherry Studio alternative," etc.
+- SEO targeting: "best desktop AI client," "Dusk Studio alternative," etc.
 
 **Enterprise (`/enterprise`)**
 - SSO, audit logs, SLA
@@ -603,7 +603,7 @@ dusk.so/
 **Primary keywords:**
 - "desktop AI work environment"
 - "AI work OS"
-- "Cherry Studio alternative"
+- "Dusk Studio alternative"
 - "local-first AI client"
 - "provider-agnostic AI tool"
 - "AI workspace desktop"

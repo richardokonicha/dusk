@@ -6,7 +6,7 @@ Agents in Dusk are **workers in your workspace**, not just chat personas. They h
 
 ## Core principle
 
-Cherry Studio shipped 300+ pre-configured assistants. Dusk ships **agent roles** that do actual work inside workspaces. The difference: Cherry's assistants are prompt templates; Dusk's agents are active participants with memory, tools, and artifact ownership.
+Dusk Studio shipped 300+ pre-configured assistants. Dusk ships **agent roles** that do actual work inside workspaces. The difference: Dusk's assistants are prompt templates; Dusk's agents are active participants with memory, tools, and artifact ownership.
 
 ---
 
@@ -90,9 +90,9 @@ Orchestrator
 
 ---
 
-## How agents differ from Cherry Studio
+## How agents differ from Dusk Studio
 
-| | Cherry Studio assistants | Dusk agents |
+| | Dusk Studio assistants | Dusk agents |
 |---|---|---|
 | Scope | Prompt templates | Workspace-bound workers |
 | Context | Single conversation | Cross-session workspace memory |
@@ -140,6 +140,6 @@ For a professional audience, agents must:
 ## Open questions
 
 1. Agent config format — YAML schema, JSON, or UI builder?
-2. How much of Cherry's 300+ assistant library maps to Specialist Agents vs. is discarded?
-3. Should agents be shareable as templates (like Cherry's assistant sharing)?
+2. How much of Dusk's 300+ assistant library maps to Specialist Agents vs. is discarded?
+3. Should agents be shareable as templates (like Dusk's assistant sharing)?
 4. Local-first: where does agent memory live? SQLite same as workspace, or separate store?

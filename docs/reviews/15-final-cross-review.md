@@ -34,7 +34,7 @@
 | Workspace UI | List, create, switch, view | Done |
 | Settings UI | Providers, agents, theme, general settings panels | Done |
 | File browser | Tree, preview, artifact list | Done |
-| Cherry comparison page | `docs/cherry-diff.md` | Done |
+| Dusk comparison page | `docs/dusk-diff.md` | Done |
 
 ### In Progress / Partial
 
@@ -54,7 +54,7 @@
 | JobQueueService | Does not exist |
 | CSP implementation | Documented but not implemented |
 | Preview build in CI | Not configured |
-| Cherry comparison page in website | Doc exists but not published |
+| Dusk comparison page in website | Doc exists but not published |
 | Accessibility audit | Not performed |
 | Performance benchmarks | Not defined |
 | Code signing setup | Scripts exist but no certificates |

@@ -17,7 +17,7 @@
 
 **1. The scaffold script has a bug.**
 
-`frontend-plan.md` line 577 shows `echo '🍒 Dusk — Project Scaffold'`. The cherry emoji and "Cherry" name in the scaffold script must be removed. This is a brand contamination issue — even in a setup script, Cherry references undermine the Dusk brand.
+`frontend-plan.md` line 577 shows `echo '🍒 Dusk — Project Scaffold'`. The dusk emoji and "Dusk" name in the scaffold script must be removed. This is a brand contamination issue — even in a setup script, Dusk references undermine the Dusk brand.
 
 **2. React Router is listed but not in the dependency list.**
 

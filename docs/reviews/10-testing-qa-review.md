@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-The Dusk testing strategy is **comprehensive on paper** but suffers from **specification gaps, CI/implementation mismatches, and missing enforcement mechanisms**. The document sets ambitious coverage targets (70–95% per layer) and a multi-layer test pyramid (unit → component → integration → E2E), but the CI pipeline descriptions are inconsistent across documents, key test configurations are referenced but never defined, and the quality-gate job is a no-op. Cherry Studio's reference codebase demonstrates several patterns Dusk should adopt — notably per-process Vitest projects with correct `pool` selection for native modules, a real SQLite test-database harness with production migrations, and path-filtered/sharded CI — to avoid the very pitfalls Dusk's spec walks into.
+The Dusk testing strategy is **comprehensive on paper** but suffers from **specification gaps, CI/implementation mismatches, and missing enforcement mechanisms**. The document sets ambitious coverage targets (70–95% per layer) and a multi-layer test pyramid (unit → component → integration → E2E), but the CI pipeline descriptions are inconsistent across documents, key test configurations are referenced but never defined, and the quality-gate job is a no-op. Dusk Studio's reference codebase demonstrates several patterns Dusk should adopt — notably per-process Vitest projects with correct `pool` selection for native modules, a real SQLite test-database harness with production migrations, and path-filtered/sharded CI — to avoid the very pitfalls Dusk's spec walks into.
 
 ---
 
@@ -71,13 +71,13 @@ The test pyramid (§2.1) is conceptually correct: unit at the base, component ab
 - IPC round-trip ≤ 50ms — described as "Integration test" but no integration test pattern measures latency
 - Agent tool call ≤ 500ms — same gap
 
-Cherry's `vitest.config.ts` separates benchmark tests with `include: ['**/*.bench.{ts,tsx}']` and uses `vitest bench` CI jobs. Dusk should adopt a similar pattern — Vitest benchmarks for latency budgets (IPC, DB queries) and Playwright measurements for app-level budgets (cold start, memory).
+Dusk's `vitest.config.ts` separates benchmark tests with `include: ['**/*.bench.{ts,tsx}']` and uses `vitest bench` CI jobs. Dusk should adopt a similar pattern — Vitest benchmarks for latency budgets (IPC, DB queries) and Playwright measurements for app-level budgets (cold start, memory).
 
-**No security-focused tests.** Cherry's test suite includes `validateSender.test.ts` (IPC sender validation, file:// traversal rejection, SSRF prevention). Dusk has no equivalent. The preload script (`src/preload/index.ts`) exposes `fs.readFile`/`fs.writeFile` through IPC — this security boundary has **zero test coverage specified**.
+**No security-focused tests.** Dusk's test suite includes `validateSender.test.ts` (IPC sender validation, file:// traversal rejection, SSRF prevention). Dusk has no equivalent. The preload script (`src/preload/index.ts`) exposes `fs.readFile`/`fs.writeFile` through IPC — this security boundary has **zero test coverage specified**.
 
 **No contract/schema validation tests for IPC.** The strategy mentions Zod validation (§3.5, §5.3) but the test patterns show validation only at the schema-loading level (checking all channels have input/output schemas) — **not at the runtime enforcement level**. No test simulates a malformed IPC message and asserts the handler rejects it with `ZodError`.
 
-**No fuzzing or property-based testing.** Provider adapters and data transformers (normalizing OpenAI/Anthropic/Gemini responses) are prime candidates for property-based testing with `fast-check`. Cherry's `provider-registry` tests cover invariant checking extensively; Dusk covers none of this.
+**No fuzzing or property-based testing.** Provider adapters and data transformers (normalizing OpenAI/Anthropic/Gemini responses) are prime candidates for property-based testing with `fast-check`. Dusk's `provider-registry` tests cover invariant checking extensively; Dusk covers none of this.
 
 **Visual regression tests are under-specified.** The config (§2.6) defines a `visual-tests` project with `maxDiffPixels: 100` and `threshold: 0.2`, but there are no baseline files, no approval workflow, and no mention of how to update baselines in CI. A threshold of 0.2 is very aggressive (20% pixel diff allowed) — this will mask real UI regressions.
 
@@ -118,9 +118,9 @@ This job passes regardless of whether any checks actually passed — it only run
 
 **Branch protection mismatch:** §8.2 lists `required_status_checks` contexts but the actual CI workflow files (`ci.yml`, `quality.yml`) have job names that may not exactly match these context strings. The `ci.yml` in `devops-release.md` uses job names `lint`, `typecheck`, `test`, `build` — but the branch protection references `lint-and-typecheck`, `unit-and-component`, `integration`, `dependency-audit` (matching `quality.yml` naming). **There is no guarantee the CI file described actually exists in the repo.**
 
-### Cherry's Approach (for comparison)
+### Dusk's Approach (for comparison)
 
-Cherry's CI (`ci.yml`):
+Dusk's CI (`ci.yml`):
 - Uses **path filtering** (`dorny/paths-filter@v4`) to determine which packages changed and only runs affected tests
 - **Shards tests** — main tests across 3 shards, renderer across 5 shards
 - Uses `pnpm rebuild:node` before tests to handle better-sqlite3 ABI
@@ -148,21 +148,21 @@ Cherry's CI (`ci.yml`):
 | Manual smoke test on macOS, Windows, Linux | ❌ | Cannot be automated; will be skipped |
 | Release notes drafted and reviewed | ❌ | Manual process |
 
-**Cherry's approach:** Cherry enforces lint (`oxlint --deny-warnings`), typecheck, and tests in CI, but does **not** require zero lint warnings or manual smoke tests as PR gates. Cherry's `build:check` script runs `pnpm lint && pnpm docs:check-links && pnpm test` — all automated, no manual steps.
+**Dusk's approach:** Dusk enforces lint (`oxlint --deny-warnings`), typecheck, and tests in CI, but does **not** require zero lint warnings or manual smoke tests as PR gates. Dusk's `build:check` script runs `pnpm lint && pnpm docs:check-links && pnpm test` — all automated, no manual steps.
 
 **Specific issues:**
 
-- "Lint passes with zero warnings" — Biome's `check` command (line 467 in `quality.yml`) runs `pnpm biome check .` which includes formatting checks. On a growing codebase, maintaining zero warnings is a **drag on velocity**. Cherry uses `oxlint --deny-warnings` which is stricter but scoped to lint rules, not formatting.
+- "Lint passes with zero warnings" — Biome's `check` command (line 467 in `quality.yml`) runs `pnpm biome check .` which includes formatting checks. On a growing codebase, maintaining zero warnings is a **drag on velocity**. Dusk uses `oxlint --deny-warnings` which is stricter but scoped to lint rules, not formatting.
 - "No P2 bugs older than 7 days" — This is a **process requirement**, not a technical gate. Including it in "Definition of Ready for Release" conflates issue triage SLAs with technical quality gates.
 - Coverage enforcement is absent from CI — no job reads the coverage report and fails the pipeline on threshold violations.
 
 ---
 
-## 5. Cherry Comparison — Testing Patterns to Adopt
+## 5. Dusk Comparison — Testing Patterns to Adopt
 
 ### 5.1 Vitest Multi-Project Configuration
 
-Cherry's `vitest.config.ts` defines **6 Vitest projects** in a single config:
+Dusk's `vitest.config.ts` defines **6 Vitest projects** in a single config:
 - `main` — `environment: 'node'`, `pool: 'forks'` (for native module safety)
 - `renderer` — `environment: 'jsdom'`
 - `scripts` — `environment: 'node'`
@@ -171,13 +171,13 @@ Cherry's `vitest.config.ts` defines **6 Vitest projects** in a single config:
 - `provider-registry` — `environment: 'node'`
 - `ui` — `environment: 'node'` (UI package scripts don't need jsdom)
 
-**Why this matters for Dusk:** Dusk's strategy mentions a single `vitest.config.ts` and a separate `vitest.integration.config.ts` (that's never defined). Cherry's approach of **project-level separation with environment-specific configuration** is cleaner — no second config file needed, and each test type gets its correct environment automatically.
+**Why this matters for Dusk:** Dusk's strategy mentions a single `vitest.config.ts` and a separate `vitest.integration.config.ts` (that's never defined). Dusk's approach of **project-level separation with environment-specific configuration** is cleaner — no second config file needed, and each test type gets its correct environment automatically.
 
 **Adopt:** Consolidate into a single multi-project Vitest config with projects for `main`, `renderer`, `integration`, and `ui`. Drop the nonexistent `vitest.integration.config.ts`.
 
 ### 5.2 Native Module ABI Handling
 
-Cherry explicitly handles the **better-sqlite3 ABI split** between Node (tests) and Electron (app):
+Dusk explicitly handles the **better-sqlite3 ABI split** between Node (tests) and Electron (app):
 - `pnpm rebuild:node` — rebuilds for Node ABI before tests
 - `pnpm rebuild:electron` — rebuilds for Electron ABI before app dev/build
 - `vitest.config.ts` uses `pool: 'forks'` for the `main` project because better-sqlite3 (NAN/V8 native addon) is **not safe under `worker_threads`** (causes SIGSEGV at thread teardown)
@@ -189,7 +189,7 @@ Cherry explicitly handles the **better-sqlite3 ABI split** between Node (tests) 
 
 ### 5.3 Real SQLite Test Database Harness
 
-Cherry's `setupTestDatabase()`:
+Dusk's `setupTestDatabase()`:
 - Creates a **file-backed** SQLite DB in `os.tmpdir()` (not `:memory:`, which Dusk proposes)
 - Runs **production migrations** (not hand-written `CREATE TABLE` SQL)
 - Sets `foreign_keys = ON` and `integrity_check = ok` as sanity assertions
@@ -203,7 +203,7 @@ Dusk's pattern (§3.2, §3.5) uses `:memory:` databases and hand-written `CREATE
 
 ### 5.4 Test Mocking Discipline
 
-Cherry's `main.setup.ts`:
+Dusk's `main.setup.ts`:
 - Mocks `@application`, `@logger`, `PreferenceService`, `DataApiService`, `CacheService`, `DbService` **globally** with a unified factory
 - Mocks `electron` module with typed stubs (`app.getPath`, `ipcMain`, `BrowserWindow`, `dialog`, `shell`, `session`, etc.)
 - **Keeps `node:fs`, `node:path`, `node:os` real** — only stubs `os.homedir()` to a deterministic path
@@ -211,11 +211,11 @@ Cherry's `main.setup.ts`:
 
 Dusk's strategy (§3.5) proposes ad-hoc mocks with `vi.mock('fs/promises', ...)` per test file and `memfs` for filesystem tests. This is **less maintainable** — each test file reinvents the wheel.
 
-**Adopt:** Create a unified `tests/main.setup.ts` and `tests/renderer.setup.ts` with global mocks, following Cherry's pattern. Never stub `node:fs` globally — spy on specific methods when needed.
+**Adopt:** Create a unified `tests/main.setup.ts` and `tests/renderer.setup.ts` with global mocks, following Dusk's pattern. Never stub `node:fs` globally — spy on specific methods when needed.
 
 ### 5.5 Path-Filtered, Sharded CI
 
-Cherry's CI:
+Dusk's CI:
 - Uses `dorny/paths-filter` to determine which of 7 subsystems changed
 - **Conditionally runs tests** only for affected packages (e.g., `if: needs.changes.outputs.renderer == 'true'`)
 - **Shards** main tests across 3 parallel runners, renderer across 5
@@ -227,7 +227,7 @@ Dusk's CI runs **all tests unconditionally** on every PR — will become slow as
 
 ### 5.6 Test Value Gate
 
-Cherry's frontend-testing guide (lines 20–31) introduces a **Value Gate** — a test is only worth adding when:
+Dusk's frontend-testing guide (lines 20–31) introduces a **Value Gate** — a test is only worth adding when:
 1. It protects user-visible behavior or a documented contract
 2. A realistic production regression would make it fail
 3. It's not already covered at a more appropriate layer
@@ -239,9 +239,9 @@ Dusk has no such gating principle. This leads to **low-value tests** that record
 
 ### 5.7 E2E Testing Reality Check
 
-Cherry has **only 1 E2E spec** (`app-launch.spec.ts`, 18 lines) — it checks window size on launch. This is honest: E2E tests for Electron apps on CI are expensive, flaky, and platform-dependent. Dusk's strategy prescribes extensive E2E coverage (§1.3 critical flows list has 5 flow groups) and a 3-OS matrix with 20-minute estimated runtime. **Cherry demonstrates that 5 critical E2E flows are enough.**
+Dusk has **only 1 E2E spec** (`app-launch.spec.ts`, 18 lines) — it checks window size on launch. This is honest: E2E tests for Electron apps on CI are expensive, flaky, and platform-dependent. Dusk's strategy prescribes extensive E2E coverage (§1.3 critical flows list has 5 flow groups) and a 3-OS matrix with 20-minute estimated runtime. **Dusk demonstrates that 5 critical E2E flows are enough.**
 
-**Adopt:** Follow Cherry's "minimal E2E" philosophy — E2E is for cross-process workflow confidence, not feature coverage. Most logic should be in unit/integration tests.
+**Adopt:** Follow Dusk's "minimal E2E" philosophy — E2E is for cross-process workflow confidence, not feature coverage. Most logic should be in unit/integration tests.
 
 ---
 
@@ -335,23 +335,23 @@ Cherry has **only 1 E2E spec** (`app-launch.spec.ts`, 18 lines) — it checks wi
    - Three documents describe three different CI pipelines. Unify into one `.github/workflows/ci.yml` with these jobs: lint-typecheck → unit-and-component (sharded) → integration → e2e (matrix) → quality-gate (coverage + metrics enforcement).
 
 7. **Add IPC security tests**
-   - Following Cherry's `validateSender.test.ts` pattern, add tests for:
+   - Following Dusk's `validateSender.test.ts` pattern, add tests for:
      - Sender frame validation (reject non-app URLs, webview guests, iframe sub-frames)
      - Path traversal in `file:read` / `file:write` IPC handlers
      - Ensure `apiKeyRef` is never returned to the renderer in any IPC response
 
-8. **Adopt Cherry's unified Vitest multi-project config**
+8. **Adopt Dusk's unified Vitest multi-project config**
    - Single `vitest.config.ts` with projects for `main` (node env, forks pool), `renderer` (jsdom), `integration` (node). Eliminates the nonexistent `vitest.integration.config.ts`.
 
 9. **Replace `:memory:` SQLite tests with real-migration harness**
-   - Cherry's `setupTestDatabase()` runs production migrations and truncates tables between tests. Dusk's `:memory:` + hand-written SQL pattern drifts from production schema.
+   - Dusk's `setupTestDatabase()` runs production migrations and truncates tables between tests. Dusk's `:memory:` + hand-written SQL pattern drifts from production schema.
 
 10. **Remove manual smoke tests and "zero warnings" from release gates**
     - Replace with automated checks. "Zero lint warnings" → require zero lint **errors** (biome `check` without warnings is overly strict). "Manual smoke test on 3 OS" → keep as beta-program checklist, not a merge gate.
 
 ---
 
-## 8. Recommended Vitest Configuration (Adopting Cherry's Multi-Project Pattern)
+## 8. Recommended Vitest Configuration (Adopting Dusk's Multi-Project Pattern)
 
 ```ts
 // vitest.config.ts — single multi-project config
@@ -429,9 +429,9 @@ export default defineConfig({
 
 ---
 
-## 9. Summary Table — Dusk vs Cherry Testing Patterns
+## 9. Summary Table — Dusk vs Dusk Testing Patterns
 
-| Aspect | Dusk (Current Spec) | Cherry (Reference) | Recommendation |
+| Aspect | Dusk (Current Spec) | Dusk (Reference) | Recommendation |
 |--------|--------------------|-------------------|----------------|
 | Vitest config | Single config + nonexistent `vitest.integration.config.ts` | Multi-project (7 projects), single config | Adopt multi-project; drop separate integration config |
 | Native module (better-sqlite3) ABI | Not addressed | Explicit `rebuild:node` / `rebuild:electron`; `pool: 'forks'` for main | Add ABI handling + forks pool |
@@ -445,4 +445,4 @@ export default defineConfig({
 | Test value principle | None | "Value Gate" — test must catch realistic regressions | Adopt Value Gate for review |
 | ABI note | None | Documented at `database-testing.md` §"Gotchas" | Document in Dusk testing docs |
 | Timezone | Not addressed | `process.env.TZ = 'UTC'` | Add TZ fix to test setup |
-| Flaky test handling | Retries: CI → 2, local → 0 | Same | Acceptable; Cherry's minimal E2E reduces flakiness surface |
+| Flaky test handling | Retries: CI → 2, local → 0 | Same | Acceptable; Dusk's minimal E2E reduces flakiness surface |

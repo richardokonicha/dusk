@@ -11,7 +11,7 @@
 
 ### 1.1 Current Risk Level: **LOW — GREENFIELD**
 
-Dusk is being built **greenfield** (from scratch) with Cherry Studio repos cloned in `reference/` for **design and architecture reference only**. No Cherry Studio code is being copied, modified, or distributed as part of Dusk.
+Dusk is being built **greenfield** (from scratch) with Dusk Studio repos cloned in `reference/` for **design and architecture reference only**. No Dusk Studio code is being copied, modified, or distributed as part of Dusk.
 
 **Current state is clean.** The `reference/` repos remain isolated reference copies and are not part of the Dusk distribution.
 
@@ -23,25 +23,25 @@ AGPL-3.0 (Affero General Public License) is a **strong copyleft** license. Oblig
 2. The **modified work is run over a network** (SaaS / hosted variant) — AGPL §13 requires source publication to all users who interact with it over a computer network.
 3. **AGPL code is combined** with proprietary code in a way that creates a single "combined work" under copyright law (contested area, but risky for a commercial product).
 
-**Specific triggers for Dusk if Cherry code were imported:**
+**Specific triggers for Dusk if Dusk code were imported:**
 - Shipping Dusk desktop client (Electron app) to users = distribution → AGPL source publication required.
 - Running Dusk as a hosted service (even internal tools accessed by users) = network interaction → AGPL source publication required.
-- Linking Cherry libraries into Dusk binaries = creating a combined work → entire combined work subject to AGPL.
+- Linking Dusk libraries into Dusk binaries = creating a combined work → entire combined work subject to AGPL.
 
-### 1.3 Safe Boundaries for Using Cherry as Reference
+### 1.3 Safe Boundaries for Using Dusk as Reference
 
 The following activities are **safe** and do **not** trigger AGPL:
 
 | Activity | AGPL Risk | Notes |
 |---|---|---|
-| Cloning Cherry repos for personal/internal review | None | No distribution |
-| Reading Cherry architecture, data models, IPC patterns | None | Ideas are not copyrightable |
-| Studying Cherry's provider abstraction, agent system design | None | Functional concepts are not protected |
-| Reimplementing Cherry patterns from scratch in Dusk | None | Independent implementation |
-| Discussing Cherry design decisions in Dusk docs | None | Expression of ideas |
-| Keeping Cherry in `reference/` directory in Dusk repo | None (if not distributed) | Ensure `reference/` is excluded from Dusk release packages and binary distributions |
+| Cloning Dusk repos for personal/internal review | None | No distribution |
+| Reading Dusk architecture, data models, IPC patterns | None | Ideas are not copyrightable |
+| Studying Dusk's provider abstraction, agent system design | None | Functional concepts are not protected |
+| Reimplementing Dusk patterns from scratch in Dusk | None | Independent implementation |
+| Discussing Dusk design decisions in Dusk docs | None | Expression of ideas |
+| Keeping Dusk in `reference/` directory in Dusk repo | None (if not distributed) | Ensure `reference/` is excluded from Dusk release packages and binary distributions |
 
-**Critical boundary:** The `reference/` directory containing Cherry source code must **never be included** in:
+**Critical boundary:** The `reference/` directory containing Dusk source code must **never be included** in:
 - Dusk release builds (`.dmg`, `.exe`, `.AppImage`, etc.)
 - Dusk npm/pnpm packages published to registries
 - Docker images or other deployment artifacts
@@ -49,19 +49,19 @@ The following activities are **safe** and do **not** trigger AGPL:
 
 ### 1.4 Code Patterns to Avoid (Derivative Works)
 
-Do **not** do the following when working with Cherry reference code:
+Do **not** do the following when working with Dusk reference code:
 
 | Pattern | Risk | Safe Alternative |
 |---|---|---|
-| Copy-pasting Cherry source files into `src/` | **HIGH** — clear derivative work | Write fresh implementation; use Cherry only as a spec |
-| Modifying Cherry files and committing them to Dusk | **HIGH** — modified AGPL work | Never commit Cherry files to Dusk; keep them only in `reference/` |
-| Importing Cherry packages (`@cherrystudio/*`) into Dusk | **HIGH** — creates combined work | Implement equivalent functionality independently |
-| Adapting Cherry's IPC schemas verbatim | **MEDIUM-HIGH** — expression of architecture | Re design the IPC layer independently; study patterns only |
-| Reusing Cherry's database schema designs exactly | **MEDIUM** — functional but risky if identical | Design Dusk's own schema; Cherry's data model can inspire structure but not be copied |
-| Including Cherry's test fixtures, mocks, or snapshots | **MEDIUM** — uncopyrightable but blurs lines | Write Dusk-specific tests and fixtures |
-| Cherry branding, icons, assets in Dusk | **LOW-IP / HIGH-BRAND** — trademark issue | Full rebrand (Dusk identity, palette, naming) |
+| Copy-pasting Dusk source files into `src/` | **HIGH** — clear derivative work | Write fresh implementation; use Dusk only as a spec |
+| Modifying Dusk files and committing them to Dusk | **HIGH** — modified AGPL work | Never commit Dusk files to Dusk; keep them only in `reference/` |
+| Importing Dusk packages (`@duskstudio/*`) into Dusk | **HIGH** — creates combined work | Implement equivalent functionality independently |
+| Adapting Dusk's IPC schemas verbatim | **MEDIUM-HIGH** — expression of architecture | Re design the IPC layer independently; study patterns only |
+| Reusing Dusk's database schema designs exactly | **MEDIUM** — functional but risky if identical | Design Dusk's own schema; Dusk's data model can inspire structure but not be copied |
+| Including Dusk's test fixtures, mocks, or snapshots | **MEDIUM** — uncopyrightable but blurs lines | Write Dusk-specific tests and fixtures |
+| Dusk branding, icons, assets in Dusk | **LOW-IP / HIGH-BRAND** — trademark issue | Full rebrand (Dusk identity, palette, naming) |
 
-**Key test for safe use:** "Could a reasonable developer look at Dusk code and say it was independently written without reference to Cherry?" If yes, you're safe. If the answer depends on seeing Cherry source, you're in derivative-work territory.
+**Key test for safe use:** "Could a reasonable developer look at Dusk code and say it was independently written without reference to Dusk?" If yes, you're safe. If the answer depends on seeing Dusk source, you're in derivative-work territory.
 
 ---
 
@@ -135,7 +135,7 @@ SOFTWARE.
 
 ### 3.1 Confirmed Dependencies (MIT License)
 
-Based on Cherry Studio reference stack and planned Dusk tech stack:
+Based on Dusk Studio reference stack and planned Dusk tech stack:
 
 | Dependency | License | Notes |
 |---|---|---|
@@ -453,13 +453,13 @@ APPLY TO USER.
 3. **License logo usage:** Define when third parties can use Dusk logo (community sites, integrations, etc.) and when they need permission.
 4. **Protect against dilution:** Monitor for confusingly similar logos or apps using "Dusk" name in AI/software space.
 
-### 7.4 Cherry Brand Separation
+### 7.4 Dusk Brand Separation
 
-**Critical:** Ensure no Cherry Studio branding, name, or visual identity appears in Dusk:
-- No Cherry logos, icons, splash screens
-- No "Cherry Studio" in Dusk documentation, UI, or marketing
+**Critical:** Ensure no Dusk Studio branding, name, or visual identity appears in Dusk:
+- No Dusk logos, icons, splash screens
+- No "Dusk Studio" in Dusk documentation, UI, or marketing
 - Clear differentiation in product positioning (Work OS vs. AI Studio)
-- Cherry reference repos kept in `reference/` with explicit "not part of Dusk" labeling
+- Dusk reference repos kept in `reference/` with explicit "not part of Dusk" labeling
 
 ---
 
@@ -491,7 +491,7 @@ APPLY TO USER.
 | **Every PR** | License check on new dependencies | CI: `license-checker` or `dotnet license` equivalent |
 | **Every release** | Full dependency audit | Automated report + manual review |
 | **Quarterly** | Third-party license review | Update `THIRD_PARTY_LICENSES.md` |
-| **As needed** | Reference repo updates | Do not pull Cherry updates into Dusk; update `reference/` independently if needed |
+| **As needed** | Reference repo updates | Do not pull Dusk updates into Dusk; update `reference/` independently if needed |
 | **Annually** | Trademark monitoring | Watch for conflicting "Dusk" registrations or apps |
 
 ### 8.3 Attribution Requirements
@@ -516,8 +516,8 @@ APPLY TO USER.
 
 | Do | Don't |
 |---|---|
-| Read Cherry code in `reference/` for design ideas | Copy Cherry code into Dusk `src/` |
-| Reimplement patterns from scratch | Import Cherry packages as dependencies |
+| Read Dusk code in `reference/` for design ideas | Copy Dusk code into Dusk `src/` |
+| Reimplement patterns from scratch | Import Dusk packages as dependencies |
 | Keep `reference/` isolated from build | Ship `reference/` in release artifacts |
 | Use MIT for Dusk core | Mix AGPL code into Dusk distribution |
 | Require CLA from external contributors | Allow unlicensed external contributions |
@@ -533,9 +533,9 @@ APPLY TO USER.
 | D1: Fork vs greenfield | Greenfield | 2026-08-10 | AGPL risk; clean IP for commercial product |
 | D2: Dusk license | MIT | 2026-08-11 | Maximum commercial freedom; broad compatibility |
 | D3: CLA requirement | Required for external contributors | 2026-08-11 | Protects relicensing and commercial use rights |
-| D4: Cherry reference handling | Design reference only, isolated | 2026-08-10 | Zero AGPL contamination risk |
+| D4: Dusk reference handling | Design reference only, isolated | 2026-08-10 | Zero AGPL contamination risk |
 | D5: Privacy model | Local-first, opt-in sync | 2026-08-11 | User control; minimizes data obligations |
-| D6: Commercial license from Cherry | Not pursued (unless budget allows) | 2026-08-10 | Greenfield path sufficient; Cherry commercial license is fallback |
+| D6: Commercial license from Dusk | Not pursued (unless budget allows) | 2026-08-10 | Greenfield path sufficient; Dusk commercial license is fallback |
 
 ---
 
