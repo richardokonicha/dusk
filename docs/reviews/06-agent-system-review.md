@@ -8,7 +8,7 @@
 
 ### What works
 
-- **Agent taxonomy is clear and differentiated from Cherry.** Workspace Agent (persistent), Task Agent (job-based), Specialist (role), Orchestrator (router), System (background) — each has a distinct use case.
+- **Agent taxonomy is clear and differentiated from Dusk.** Workspace Agent (persistent), Task Agent (job-based), Specialist (role), Orchestrator (router), System (background) — each has a distinct use case.
 - **Tool system design is solid.** The `Tool` interface with `execute(params, context)` is clean. Built-in tools (read_file, write_file, list_files) are the right Phase 1 set.
 - **Memory architecture** (short-term conversation + long-term SQLite + workspace artifacts) is well-layered.
 - **Permission model** with filesystem/read-write/none + web + code execution + MCP servers is appropriately granular.

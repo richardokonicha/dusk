@@ -60,7 +60,7 @@
 | Model | A specific LLM offered by a provider (gpt-4o, claude-sonnet-4, etc.) |
 | Fugoku Gateway | Optional routing layer for unified billing, fallback, and cost control |
 | MCP | Model Context Protocol — external tool integration standard |
-| Cherry Studio | Predecessor/reference implementation — mention only in architecture/contributing context |
+| Dusk Studio | Predecessor/reference implementation — mention only in architecture/contributing context |
 
 **Formatting Conventions**
 - Use title case for headings (Getting Started, not Getting started)
@@ -132,7 +132,7 @@ docs/
 └── appendices/
     ├── glossary.md              # Terminology definitions
     ├── faq.md                   # Frequently asked questions
-    └── comparison.md            # Dusk vs competitors (Cherry, Open WebUI, etc.)
+    └── comparison.md            # Dusk vs competitors (Dusk, Open WebUI, etc.)
 ```
 
 ### 2.2 File Organization in Repo
@@ -144,7 +144,7 @@ dusk/
 │   ├── documentation-plan.md    # This file
 │   ├── vision.md                # Product vision (existing)
 │   ├── standalone-vs-fugoku.md  # Capability matrix (existing)
-│   ├── cherry-diff.md           # Cherry comparison (existing)
+│   ├── dusk-diff.md           # Dusk comparison (existing)
 │   ├── master-plan.md           # Master plan (existing)
 │   ├── getting-started/
 │   ├── guides/

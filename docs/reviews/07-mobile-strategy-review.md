@@ -8,7 +8,7 @@
 
 ### What works
 
-- **React Native + Expo** is the right choice. Cherry Studio's mobile app validates this stack.
+- **React Native + Expo** is the right choice. Dusk Studio's mobile app validates this stack.
 - **Drizzle ORM for mobile SQLite** matches the desktop recommendation (once standardized). Same schema, different driver.
 - **Shared monorepo package** for design tokens, types, and utilities is the correct approach. No component reuse between HTML/CSS and native — this is architecturally honest.
 - **Clear Phase 2 vs Phase 3 scope boundaries.** Read-only mobile in Phase 2, sync in Phase 3. Good guardrails against scope creep.

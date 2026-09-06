@@ -4,7 +4,7 @@
 **Date:** 2026-08-11  
 **Auditor:** Electron Shell Engineer  
 **Applies to:** Dusk Work OS desktop shell  
-**Rationale:** Cherry Studio published 3 CVEs in 12 months from Electron misconfigurations. Dusk must not repeat these mistakes.
+**Rationale:** Dusk Studio published 3 CVEs in 12 months from Electron misconfigurations. Dusk must not repeat these mistakes.
 
 ---
 
@@ -12,9 +12,9 @@
 
 This audit documents the security hardening applied to the Dusk Electron shell during Sprint 1. All controls are implemented, tested, and verified in the codebase. No known unmitigated critical risks remain for the Phase 1 release surface.
 
-### 1.1 Cherry Studio CVE Lessons Applied
+### 1.1 Dusk Studio CVE Lessons Applied
 
-| Cherry Studio CVE | Root Cause | Dusk Mitigation |
+| Dusk Studio CVE | Root Cause | Dusk Mitigation |
 |---|---|---|
 | CVE-1: RCE via `nodeIntegration: true` + XSS in chat | Renderer had direct Node.js access; XSS in message rendering became RCE | `contextIsolation: true`, `nodeIntegration: false`, typed preload bridge only |
 | CVE-2: SSRF via unvalidated `shell.openExternal` | URLs from untrusted sources passed to shell without validation | `URLValidator` blocks private IPs, cloud metadata, disallowed protocols; main-process gated |
@@ -490,7 +490,7 @@ packages/desktop/src/main/
 
 ## 7. Conclusion
 
-Sprint 1 delivers a hardened Electron shell with defense-in-depth across all attack surfaces identified from Cherry Studio CVEs. All critical and high-severity risks are mitigated. Medium-severity risks are documented with Phase 2 migration plans.
+Sprint 1 delivers a hardened Electron shell with defense-in-depth across all attack surfaces identified from Dusk Studio CVEs. All critical and high-severity risks are mitigated. Medium-severity risks are documented with Phase 2 migration plans.
 
 The security architecture follows these principles:
 1. **Default deny** — whitelist channels, protocols, and hosts

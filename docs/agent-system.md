@@ -746,7 +746,7 @@ config:
 ## 8. Open Questions
 
 1. **Agent config format** — Start with UI builder, add YAML/JSON import in Phase 2
-2. **Cherry's 300+ assistants** — Evaluate which map to Specialist Agents; likely 10-20 core roles
+2. **Dusk's 300+ assistants** — Evaluate which map to Specialist Agents; likely 10-20 core roles
 3. **Agent sharing** — Phase 2 feature; export/import agent configs
 4. **Memory storage** — SQLite same as workspace for MVP; separate store if needed
 5. **Tool sandboxing** — Code execution needs sandboxing (Docker? VM? restricted process?)

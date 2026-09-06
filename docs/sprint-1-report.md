@@ -377,7 +377,7 @@ Sprint 1 produced a **structurally complete** Dusk desktop client. All 14 planne
 - `docs/master-plan.md`
 - `docs/vision.md`
 - `docs/standalone-vs-fugoku.md`
-- `docs/cherry-diff.md`
+- `docs/dusk-diff.md`
 - `docs/agents.md`
 - `docs/agent-system.md`
 - `docs/guide/*.md`

@@ -41,7 +41,7 @@ Dusk is where AI work lives. Not a chat app, not a studio — a **persistent wor
 - **Support:** Responsive, professional, excellent documentation
 
 ### Market Landscape
-- Cherry Studio (50k stars, AGPL, Chinese origin) — we match features but with clean IP and Western branding
+- Dusk Studio (50k stars, AGPL, Chinese origin) — we match features but with clean IP and Western branding
 - Open WebUI (open source, self-hosted) — less professional positioning
 - Cursor/Claude Code (IDE-integrated) — not a work OS
 - Poe (consumer-facing) — not professional-grade
@@ -51,7 +51,7 @@ Dusk is where AI work lives. Not a chat app, not a studio — a **persistent wor
 - AI labeling laws (EU AI Act)
 - Data privacy (GDPR, CCPA) — local-first helps
 - Open source compliance (AGPL, MIT, Apache)
-- Commercial licensing (if using Cherry code — we don't)
+- Commercial licensing (if using Dusk code — we don't)
 
 ---
 
@@ -71,7 +71,7 @@ Dusk is where AI work lives. Not a chat app, not a studio — a **persistent wor
 
 **Key Design Decisions**
 - ✅ Greenfield build (no AGPL contamination)
-- ✅ Electron desktop-first (mirrors Cherry's proven architecture)
+- ✅ Electron desktop-first (mirrors Dusk's proven architecture)
 - ✅ Local-first data model
 - ✅ Provider-agnostic (OpenAI-compatible + key providers)
 - ✅ Agent system with tools and artifacts
@@ -129,7 +129,7 @@ Dusk is where AI work lives. Not a chat app, not a studio — a **persistent wor
 **Deliverables:**
 - ✅ Vision, naming, brand lock
 - ✅ Standalone vs Fugoku capability matrix
-- ✅ Cherry diff (keep/customize/add)
+- ✅ Dusk diff (keep/customize/add)
 - ✅ Tech stack decisions
 - ✅ Reference repos cloned (design reference only)
 - ✅ 11 specialist agent plans produced
@@ -300,7 +300,7 @@ Dusk is where AI work lives. Not a chat app, not a studio — a **persistent wor
 | AGPL contamination | Low | Critical | Greenfield build, legal audit | Legal |
 | Scope creep | High | High | Strict phase gates, MVP discipline | Architect |
 | Resource constraints | High | High | Phased delivery, agent leverage | All |
-| Brand confusion with Cherry | Medium | Medium | Distinct naming, positioning | Marketing |
+| Brand confusion with Dusk | Medium | Medium | Distinct naming, positioning | Marketing |
 | Provider API changes | Medium | Medium | Abstraction layer, adapters | Backend |
 | Competitive saturation | High | Medium | Professional positioning | Marketing |
 
@@ -388,7 +388,7 @@ All specialist plans are in `docs/`:
 | `devops-release.md` | DevOps Eng | ✅ Complete |
 | `agents.md` | Agent System Eng | ✅ Complete |
 | `standalone-vs-fugoku.md` | Product | ✅ Complete |
-| `cherry-diff.md` | Product | ✅ Complete |
+| `dusk-diff.md` | Product | ✅ Complete |
 
 ---
 
