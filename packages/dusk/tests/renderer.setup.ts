@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/vitest'
 import { createRequire } from 'node:module'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
-import { MockDuskstudioUI } from './__mocks__/renderer/DuskstudioUI'
+import { MockDuskstudioUI } from './__mocks__/renderer/DuskUI'
 import { resetPopupMocks } from './__mocks__/renderer/popup'
 import { resetToastMocks } from './__mocks__/renderer/toast'
 
