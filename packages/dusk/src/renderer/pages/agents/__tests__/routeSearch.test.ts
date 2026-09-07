@@ -8,7 +8,8 @@ describe('parseAgentRouteSearch', () => {
       agentId: undefined,
       intent: 'feedback',
       sessionId: 'session-1',
-      view: 'message'
+      view: 'message',
+      workspaceId: undefined
     })
   })
 
@@ -17,7 +18,8 @@ describe('parseAgentRouteSearch', () => {
       agentId: 'agent-1',
       intent: undefined,
       sessionId: undefined,
-      view: undefined
+      view: undefined,
+      workspaceId: undefined
     })
   })
 
@@ -26,7 +28,8 @@ describe('parseAgentRouteSearch', () => {
       agentId: 'agent-1',
       intent: undefined,
       sessionId: 'session-1',
-      view: undefined
+      view: undefined,
+      workspaceId: undefined
     })
   })
 
@@ -35,7 +38,28 @@ describe('parseAgentRouteSearch', () => {
       agentId: undefined,
       intent: undefined,
       sessionId: undefined,
-      view: undefined
+      view: undefined,
+      workspaceId: undefined
+    })
+  })
+
+  it('parses workspaceId for workspace-bound session entry', () => {
+    expect(parseAgentRouteSearch({ workspaceId: 'ws-1' })).toEqual({
+      agentId: undefined,
+      intent: undefined,
+      sessionId: undefined,
+      view: undefined,
+      workspaceId: 'ws-1'
+    })
+  })
+
+  it('drops non-string workspaceId values', () => {
+    expect(parseAgentRouteSearch({ workspaceId: 42 })).toEqual({
+      agentId: undefined,
+      intent: undefined,
+      sessionId: undefined,
+      view: undefined,
+      workspaceId: undefined
     })
   })
 
@@ -44,7 +68,8 @@ describe('parseAgentRouteSearch', () => {
       agentId: undefined,
       intent: undefined,
       sessionId: undefined,
-      view: undefined
+      view: undefined,
+      workspaceId: undefined
     })
   })
 })
