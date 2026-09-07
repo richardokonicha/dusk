@@ -5,6 +5,7 @@ export type AgentRouteSearch = {
   intent?: 'feedback'
   sessionId?: string
   view?: typeof MESSAGE_VIEW
+  workspaceId?: string
 }
 
 export function parseAgentRouteSearch(search: Record<string, unknown>): AgentRouteSearch {
@@ -12,6 +13,7 @@ export function parseAgentRouteSearch(search: Record<string, unknown>): AgentRou
   const intent = search.intent === 'feedback' ? 'feedback' : undefined
   const sessionId = typeof search.sessionId === 'string' ? search.sessionId : undefined
   const view = search.view === MESSAGE_VIEW ? MESSAGE_VIEW : undefined
+  const workspaceId = typeof search.workspaceId === 'string' ? search.workspaceId : undefined
 
-  return { agentId, intent, sessionId, view }
+  return { agentId, intent, sessionId, view, workspaceId }
 }

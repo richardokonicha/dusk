@@ -3,6 +3,7 @@ import {
   Code,
   FileSearch,
   Folder,
+  Folders,
   Globe,
   Languages,
   LayoutGrid,
@@ -21,6 +22,7 @@ export type IconComponent = React.FC<{ size?: number; strokeWidth?: number; clas
 // ─── Route → Icon mapping ─────────────────────────────────────────────────────
 
 export const ROUTE_ICONS: Record<string, IconComponent> = {
+  '/app/workspaces': Folders,
   '/app/chat': MessageCircle,
   '/app/agents': MousePointerClick,
   '/app/paintings': Palette,
