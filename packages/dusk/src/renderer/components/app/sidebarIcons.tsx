@@ -4,6 +4,7 @@ import {
   Code,
   FileSearch,
   Folder,
+  Folders,
   Languages,
   LayoutGrid,
   MessageSquare,
@@ -19,6 +20,7 @@ import {
  * components; the navigation data and logic live in `@renderer/utils/sidebar`.
  */
 export const SIDEBAR_ICON_COMPONENTS: Record<SidebarAppId, LucideIcon> = {
+  workspaces: Folders,
   assistants: MessageSquare,
   agents: MousePointerClick,
   paintings: Palette,

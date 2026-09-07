@@ -62,6 +62,10 @@ export function isMessageOnlyConversationUrl(url: string): boolean {
  */
 const SIDEBAR_APP_DEFINITIONS = [
   {
+    id: 'workspaces',
+    routePrefix: '/app/workspaces'
+  },
+  {
     id: 'agents',
     routePrefix: '/app/agents',
     conversationRoute: {

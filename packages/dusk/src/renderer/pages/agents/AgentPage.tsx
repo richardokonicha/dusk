@@ -99,6 +99,7 @@ const AgentPage = () => {
   const currentTabId = useCurrentTabId()
   const routeSessionId = routeSearch.sessionId
   const routeAgentId = routeSearch.agentId
+  const routeWorkspaceId = routeSearch.workspaceId
   const isMessageOnlyView = routeSearch.view === 'message' && !!routeSessionId
   const routeActiveSessionId = isMessageOnlyView ? null : (routeSessionId ?? null)
   // Shared full-list source for session UI plus exact latest/reusable lookups.
@@ -154,6 +155,7 @@ const AgentPage = () => {
     agentId: string
     promise: Promise<AgentSessionEntity>
   } | null>(null)
+  const workspaceActivationRef = useRef<string | null>(null)
 
   useLayoutEffect(() => {
     ownerFallbackRequestIdRef.current += 1
@@ -260,6 +262,7 @@ const AgentPage = () => {
     reenterAgentRoute,
     routeSessionId
   ])
+
   const lastVisibleSessionRef = useRef<AgentSessionEntity | null>(null)
   const visibleSession = isMessageOnlyView
     ? routeSession
@@ -578,6 +581,37 @@ const AgentPage = () => {
       setPendingSession
     ]
   )
+
+  useEffect(() => {
+    if (!routeWorkspaceId || routeSessionId || activeSessionId || isAgentsLoading) return
+    if (workspaceActivationRef.current === routeWorkspaceId) return
+
+    workspaceActivationRef.current = routeWorkspaceId
+    const existingSession = agentSessions.find((session) => session.workspaceId === routeWorkspaceId)
+    if (existingSession) {
+      activateSession(existingSession, existingSession.agentId)
+      return
+    }
+
+    const defaultAgent =
+      (routeAgentId && agents.find((agent) => agent.id === routeAgentId)) ||
+      (lastUsedAgentId && agents.find((agent) => agent.id === lastUsedAgentId)) ||
+      agents[0]
+    if (!defaultAgent) return
+
+    void createAndActivateEmptySession({ agentId: defaultAgent.id, workspaceId: routeWorkspaceId })
+  }, [
+    activateSession,
+    activeSessionId,
+    agents,
+    agentSessions,
+    createAndActivateEmptySession,
+    isAgentsLoading,
+    lastUsedAgentId,
+    routeAgentId,
+    routeSessionId,
+    routeWorkspaceId
+  ])
 
   // Stable wrapper for the classic-layout rail's per-agent "new session" action. Adapting the
   // `(agentId) => ...` signature inline at the JSX call site would hand `AgentResourceList` a fresh
