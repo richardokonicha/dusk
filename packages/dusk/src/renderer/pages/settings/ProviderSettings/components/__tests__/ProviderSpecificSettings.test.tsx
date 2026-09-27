@@ -30,10 +30,6 @@ vi.mock('@renderer/pages/settings/ProviderSettings/ProviderSpecific/ProviderOaut
   }
 })
 
-vi.mock('@renderer/pages/settings/ProviderSettings/ProviderSpecific/DuskInOauth', () => ({
-  default: ({ providerId }: any) => <div>{`duskin-oauth-${providerId}`}</div>
-}))
-
 vi.mock('@renderer/pages/settings/ProviderSettings/ProviderSpecific/DmxapiSettings', () => ({
   default: ({ providerId }: any) => <div>{`dmxapi-settings-${providerId}`}</div>
 }))
@@ -99,12 +95,6 @@ describe('ProviderSpecificSettings', () => {
   })
 
   it.each([
-    {
-      providerId: 'duskin',
-      placement: 'beforeAuth' as const,
-      meta: { isDuskINq: true, isDmxapi: false },
-      expectedText: 'duskin-oauth-duskin'
-    },
     {
       providerId: 'dmxapi',
       placement: 'beforeAuth' as const,

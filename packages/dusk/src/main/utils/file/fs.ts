@@ -26,6 +26,7 @@
  */
 
 import { randomUUID } from 'node:crypto'
+import dns from 'node:dns/promises'
 import { createReadStream, createWriteStream as nodeCreateWriteStream } from 'node:fs'
 import {
   access,
@@ -42,6 +43,7 @@ import {
   stat as fsStat,
   unlink
 } from 'node:fs/promises'
+import net from 'node:net'
 import path from 'node:path'
 import { addAbortSignal, Readable, Writable } from 'node:stream'
 import { finished, pipeline } from 'node:stream/promises'
@@ -57,6 +59,53 @@ const logger = loggerService.withContext('utils/file/fs')
 
 const notImplemented = (op: string): never => {
   throw new Error(`@main/utils/file/fs.${op}: not implemented (deferred to Phase 2)`)
+}
+
+function isPrivateAddress(address: string): boolean {
+  if (net.isIPv4(address)) {
+    const [a, b] = address.split('.').map(Number)
+    return (
+      a === 10 || a === 127 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168)
+    )
+  }
+  if (!net.isIPv6(address)) return true
+  const normalized = address.toLowerCase()
+  return (
+    normalized === '::1' ||
+    normalized === '::' ||
+    normalized.startsWith('fc') ||
+    normalized.startsWith('fd') ||
+    normalized.startsWith('fe8') ||
+    normalized.startsWith('fe9') ||
+    normalized.startsWith('fea') ||
+    normalized.startsWith('feb')
+  )
+}
+
+async function validateDownloadUrl(value: string): Promise<URL> {
+  if (allowPrivateDownloadHosts) {
+    const url = new URL(value)
+    if (url.protocol !== 'http:' && url.protocol !== 'https:')
+      throw new Error(`download(${value}): unsupported protocol`)
+    return url
+  }
+  const url = new URL(value)
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new Error(`download(${value}): unsupported protocol`)
+  const addresses = await dns.lookup(url.hostname, { all: true })
+  if (addresses.some(({ address }) => isPrivateAddress(address))) {
+    throw new Error(`download(${value}): private or reserved destination blocked`)
+  }
+  return url
+}
+
+let allowPrivateDownloadHosts = false
+
+/** Test seam: let `download` reach loopback/private hosts (local http fixtures). */
+export function __setAllowPrivateDownloadHostsForTesting(allow: boolean): void {
+  if (process.env.NODE_ENV !== 'test') {
+    throw new Error('__setAllowPrivateDownloadHostsForTesting may only be called in tests')
+  }
+  allowPrivateDownloadHosts = allow
 }
 
 /** Read file content as text with optional encoding detection. */
@@ -862,7 +911,16 @@ export async function download(url: string, dest: AbsoluteFilePath): Promise<voi
 
 /** Download into a prepared tmp file without replacing `dest` yet. */
 export async function prepareAtomicDownload(url: string, dest: AbsoluteFilePath): Promise<PreparedAtomicWrite> {
-  const response = await fetch(url)
+  let current = await validateDownloadUrl(url)
+  let response: Response
+  for (let redirect = 0; ; redirect++) {
+    response = await fetch(current, { redirect: 'manual' })
+    if (![301, 302, 303, 307, 308].includes(response.status)) break
+    if (redirect >= 5) throw new Error(`download(${url}): too many redirects`)
+    const location = response.headers.get('location')
+    if (!location) throw new Error(`download(${url}): redirect without location`)
+    current = await validateDownloadUrl(new URL(location, current).toString())
+  }
   if (!response.ok) {
     throw new Error(`download(${url}): HTTP ${response.status} ${response.statusText}`)
   }

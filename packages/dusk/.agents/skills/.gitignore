@@ -4,12 +4,12 @@
 !.gitignore
 !README*.md
 !public-skills.txt
-!cherry-electron-dev/
-!cherry-electron-dev/**
-!cherry-pr-test/
-!cherry-pr-test/**
 !create-skill/
 !create-skill/**
+!dusk-electron-dev/
+!dusk-electron-dev/**
+!dusk-pr-test/
+!dusk-pr-test/**
 !gh-create-issue/
 !gh-create-issue/**
 !gh-create-pr/

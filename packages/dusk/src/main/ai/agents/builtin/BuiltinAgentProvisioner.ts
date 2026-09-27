@@ -36,9 +36,13 @@ const logger = loggerService.withContext('BuiltinAgentProvisioner')
  */
 const LEGACY_STOCK_SOUL_SHA256_BY_SIZE: ReadonlyMap<number, ReadonlySet<string>> = new Map([
   // v2.0.0-rc.5 — restrictive "identity/grounding/working-principles" persona.
+  // First hash: Dusk-branded revision; second: the upstream original it replaced.
   [3600, new Set(['61ad24c3bb6bb1032c3664e847988b0f13a429a3d0e5d5048c74a65f6b35faa9'])],
+  [3544, new Set(['d467593a213e4a4f47e109500efcdf15b4eacf281f445b84ec772ddc0af7d6a2'])],
   // Interim "restore normal agent capabilities" persona (PR #17870, pre-release).
-  [321, new Set(['6aeb1da6822e43670bed8a683ecc22194a1517b9c377988c1f77d48d872618e8'])]
+  // First hash: Dusk-branded revision; second: the upstream original.
+  [321, new Set(['6aeb1da6822e43670bed8a683ecc22194a1517b9c377988c1f77d48d872618e8'])],
+  [292, new Set(['6d98f2a84863108c7f6389b44891676682d3501e0dfb5283affc97a26daa43d0'])]
 ])
 
 function sha256(buffer: Buffer): string {

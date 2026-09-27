@@ -1,13 +1,11 @@
 import type { UpdateInfo } from 'builder-util-runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { appEditionState, netFetchMock, releaseNotesCheckMock, releaseNotesUpdaterInstances } =
-  vi.hoisted(() => ({
-    appEditionState: { current: 'global' as 'global' | 'cn' },
-    netFetchMock: vi.fn(),
-    releaseNotesCheckMock: vi.fn(),
-    releaseNotesUpdaterInstances: [] as Array<Record<string, unknown>>
-  }))
+const { netFetchMock, releaseNotesCheckMock, releaseNotesUpdaterInstances } = vi.hoisted(() => ({
+  netFetchMock: vi.fn(),
+  releaseNotesCheckMock: vi.fn(),
+  releaseNotesUpdaterInstances: [] as Array<Record<string, unknown>>
+}))
 
 vi.mock('@logger', () => ({
   loggerService: {
@@ -47,14 +45,6 @@ vi.mock('@main/core/lifecycle', () => {
 
 vi.mock('@main/core/platform', () => ({
   isWin: false
-}))
-
-vi.mock('@main/utils/appEdition', () => ({
-  getAppEdition: () => appEditionState.current
-}))
-
-vi.mock('@main/services/RegionService', () => ({
-  regionService: { getCountry: vi.fn(async () => 'US') }
 }))
 
 vi.mock('@main/utils/systemInfo', () => ({
@@ -113,7 +103,6 @@ vi.mock('electron-updater', () => {
 })
 
 import { application } from '@application'
-import { regionService } from '@main/services/RegionService'
 import { UpgradeChannel } from '@shared/data/preference/preferenceTypes'
 import { APP_NAME } from '@shared/utils/constants'
 import { MockMainPreferenceServiceUtils } from '@test-mocks/main/PreferenceService'
@@ -131,10 +120,8 @@ describe('AppUpdaterService', () => {
     MockMainPreferenceServiceUtils.setPreferenceValue('app.dist.test_plan.enabled', false)
     MockMainPreferenceServiceUtils.setPreferenceValue('app.dist.test_plan.channel', UpgradeChannel.LATEST)
     vi.mocked(app.getVersion).mockReturnValue('1.0.0')
-    vi.mocked(regionService.getCountry).mockResolvedValue('US')
     vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue(null)
     netFetchMock.mockReset()
-    appEditionState.current = 'global'
     releaseNotesCheckMock.mockReset().mockResolvedValue(null)
     releaseNotesUpdaterInstances.length = 0
     autoUpdater.requestHeaders = {}
@@ -145,7 +132,7 @@ describe('AppUpdaterService', () => {
   })
 
   describe('managed update feed', () => {
-    it('uses the latest channel and global region outside China', async () => {
+    it('uses the latest channel', async () => {
       await (appUpdater as any).configureUpdaterForCheck()
 
       expect(autoUpdater.channel).toBe(UpgradeChannel.LATEST)
@@ -155,37 +142,13 @@ describe('AppUpdaterService', () => {
         'Client-Id': 'test-client-id',
         'App-Name': APP_NAME,
         'App-Version': 'v1.0.0',
-        OS: process.platform,
-        'X-Edition': 'global',
-        'X-Region': 'global'
+        OS: process.platform
       })
       expect(autoUpdater.requestHeaders).not.toHaveProperty('X-Release-Channel')
+      expect(autoUpdater.requestHeaders).not.toHaveProperty('X-Edition')
+      expect(autoUpdater.requestHeaders).not.toHaveProperty('X-Region')
       expect(autoUpdater.allowDowngrade).toBe(false)
       expect(autoUpdater.disableDifferentialDownload).toBe(true)
-    })
-
-    it('uses the China region for users in China', async () => {
-      vi.mocked(regionService.getCountry).mockResolvedValue('CN')
-
-      await (appUpdater as any).configureUpdaterForCheck()
-
-      expect(autoUpdater.channel).toBe(UpgradeChannel.LATEST)
-      expect(autoUpdater.requestHeaders).toMatchObject({
-        'X-Region': 'cn'
-      })
-      expect(autoUpdater.requestHeaders).not.toHaveProperty('X-Release-Channel')
-    })
-
-    it('uses the China edition stable channel', async () => {
-      appEditionState.current = 'cn'
-
-      await (appUpdater as any).configureUpdaterForCheck()
-
-      expect(autoUpdater.channel).toBe('latest-cn')
-      expect(autoUpdater.requestHeaders).toMatchObject({
-        'X-Edition': 'cn',
-        'X-Region': 'global'
-      })
     })
 
     it('keeps existing updater request headers', async () => {
@@ -194,8 +157,7 @@ describe('AppUpdaterService', () => {
       await (appUpdater as any).configureUpdaterForCheck()
 
       expect(autoUpdater.requestHeaders).toMatchObject({
-        Authorization: 'existing-header',
-        'X-Region': 'global'
+        Authorization: 'existing-header'
       })
     })
 
@@ -210,22 +172,6 @@ describe('AppUpdaterService', () => {
 
       expect(autoUpdater.channel).toBe(channel)
     })
-
-    it.each([
-      ['RC', UpgradeChannel.RC, 'rc-cn'],
-      ['Beta', UpgradeChannel.BETA, 'beta-cn']
-    ])(
-      'requests the China edition %s manifest when that test channel is enabled',
-      async (_label, channel, expected) => {
-        appEditionState.current = 'cn'
-        MockMainPreferenceServiceUtils.setPreferenceValue('app.dist.test_plan.enabled', true)
-        MockMainPreferenceServiceUtils.setPreferenceValue('app.dist.test_plan.channel', channel)
-
-        await (appUpdater as any).configureUpdaterForCheck()
-
-        expect(autoUpdater.channel).toBe(expected)
-      }
-    )
 
     it('uses the selected test channel when the installed prerelease came from another channel', async () => {
       vi.mocked(app.getVersion).mockReturnValue('2.0.0-rc.1')
@@ -244,8 +190,7 @@ describe('AppUpdaterService', () => {
       expect(autoUpdater.checkForUpdates).not.toHaveBeenCalled()
     })
 
-    it('uses the China edition channel for the latest release notes request', async () => {
-      appEditionState.current = 'cn'
+    it('uses the configured channel for the latest release notes request', async () => {
       MockMainPreferenceServiceUtils.setPreferenceValue('app.dist.test_plan.enabled', true)
       MockMainPreferenceServiceUtils.setPreferenceValue('app.dist.test_plan.channel', UpgradeChannel.RC)
       releaseNotesCheckMock.mockResolvedValue(null)
@@ -254,8 +199,7 @@ describe('AppUpdaterService', () => {
 
       expect(releaseNotesUpdaterInstances).toHaveLength(1)
       expect(releaseNotesUpdaterInstances[0]).toMatchObject({
-        channel: 'rc-cn',
-        requestHeaders: expect.objectContaining({ 'X-Edition': 'cn' })
+        channel: UpgradeChannel.RC
       })
     })
 

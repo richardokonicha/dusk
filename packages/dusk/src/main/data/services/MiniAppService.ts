@@ -145,7 +145,6 @@ function rowToMiniApp(row: MiniAppRow & InstallationExtras): MiniApp {
   if (presetMiniAppId !== null) {
     app.bordered = clean.bordered
     app.background = clean.background
-    app.supportedRegions = clean.supportedRegions
     app.configuration = clean.configuration
     app.nameKey = clean.nameKey
   }

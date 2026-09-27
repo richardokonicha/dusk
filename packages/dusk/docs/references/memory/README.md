@@ -13,7 +13,7 @@ Dusk provides three memory mechanisms that differ in who they serve,
 how they persist, and where they are stored: file-based memory for Agents
 (`SOUL.md` / `USER.md` / `FACT.md` / `JOURNAL.jsonl`), the Knowledge Base, and
 the built-in `@dusk/memory` MCP server. The v1 "Global Memory" toggle was
-removed in v2 ([#14250](https://github.com/dusk-archive/upstream/dusk-studio/issues/14250));
+removed in v2 (upstream #14250);
 see the overview for what to use instead.
 
 | Document | What it covers |

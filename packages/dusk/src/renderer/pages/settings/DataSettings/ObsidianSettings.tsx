@@ -1,14 +1,5 @@
 import { usePreference } from '@data/hooks/usePreference'
-import {
-  EmptyState,
-  RowFlex,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Spinner
-} from '@dusk/ui'
+import { EmptyState, RowFlex, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Spinner } from '@dusk/ui'
 import { loggerService } from '@logger'
 import {
   SettingDivider,

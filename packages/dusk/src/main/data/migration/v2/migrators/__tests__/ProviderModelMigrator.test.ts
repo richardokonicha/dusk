@@ -145,7 +145,6 @@ describe('ProviderModelMigrator', () => {
       expect(result.warnings?.some((w) => w.includes('duplicate'))).toBe(true)
     })
 
-    
     it('skips providers whose upstream services have retired', async () => {
       const migrationContext = createContext(dbh.db, {
         llm: {
@@ -340,9 +339,6 @@ describe('ProviderModelMigrator', () => {
       expect(pinRows[0].orderKey < pinRows[1].orderKey).toBe(true)
     })
 
-    
-    
-    
     it('projects system provider rows against the pinned final-v1 baseline', async () => {
       registryFixtures.providers = [
         {
@@ -1229,11 +1225,7 @@ describe('ProviderModelMigrator', () => {
 
       expect(result.success).toBe(true)
       const providers = await dbh.db.select().from(userProviderTable)
-      expect(
-        providers
-          .map((p) => p.providerId)
-          .sort()
-      ).toEqual(['no-models-null', 'no-models-undef'])
+      expect(providers.map((p) => p.providerId).sort()).toEqual(['no-models-null', 'no-models-undef'])
       const models = await dbh.db.select().from(userModelTable)
       expect(models).toEqual([])
     })
@@ -1261,9 +1253,7 @@ describe('ProviderModelMigrator', () => {
       expect(result.success).toBe(true)
 
       const providers = await dbh.db.select().from(userProviderTable)
-      expect(providers.map((p) => p.providerId)).toEqual(
-        ['openai']
-      )
+      expect(providers.map((p) => p.providerId)).toEqual(['openai'])
       const emptyIdRows = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, ''))
       expect(emptyIdRows).toEqual([])
     })

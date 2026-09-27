@@ -82,9 +82,7 @@ function validatePreparedRelease({ cwd, includeGeneratedManifest = false, target
   validateReleaseNotes(preparedReleaseNotes)
 
   const baseHistory = JSON.parse(readBaseFile(cwd, 'resources/dusk/release-history.json'))
-  const preparedHistory = JSON.parse(
-    fs.readFileSync(path.join(cwd, 'resources/dusk/release-history.json'), 'utf8')
-  )
+  const preparedHistory = JSON.parse(fs.readFileSync(path.join(cwd, 'resources/dusk/release-history.json'), 'utf8'))
   if (!stableRelease) {
     assert.deepStrictEqual(preparedHistory, baseHistory, 'Prerelease preparation must not change release history')
     return

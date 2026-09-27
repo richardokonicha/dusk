@@ -1893,9 +1893,9 @@
           "originalKey": "minAppRegion",
           "type": "PreferenceTypes.MiniAppRegionFilter",
           "defaultValue": "auto",
-          "status": "classified",
-          "category": "preferences",
-          "targetKey": "feature.mini_app.region"
+          "status": "deleted",
+          "category": null,
+          "targetKey": null
         },
         {
           "originalKey": "enableDataCollection",

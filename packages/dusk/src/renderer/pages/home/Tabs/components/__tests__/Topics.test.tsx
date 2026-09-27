@@ -1843,7 +1843,7 @@ describe('Topics', () => {
     })
 
     expect(await screen.findByText('Alpha topic')).toBeInTheDocument()
-    expect(toast.error).toHaveBeenCalledWith('Error: rename failed')
+    await vi.waitFor(() => expect(toast.error).toHaveBeenCalledWith('Error: rename failed'))
     expect(toast.success).not.toHaveBeenCalled()
   })
 
@@ -1875,8 +1875,8 @@ describe('Topics', () => {
       pendingUpdate.reject(new Error('Automatic rename failed'))
     })
 
-    expect(toast.error).toHaveBeenCalledWith('Automatic rename failed')
-    expect(topicRenameMocks.cancelTopicRenaming).toHaveBeenCalledWith('topic-a')
+    await vi.waitFor(() => expect(toast.error).toHaveBeenCalledWith('Automatic rename failed'))
+    await vi.waitFor(() => expect(topicRenameMocks.cancelTopicRenaming).toHaveBeenCalledWith('topic-a'))
     expect(topicRenameMocks.finishTopicRenaming).not.toHaveBeenCalled()
   })
 

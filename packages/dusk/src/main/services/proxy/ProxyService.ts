@@ -68,15 +68,6 @@ export class ProxyService extends BaseService {
     apply: (config) => this.applyProxyConfig(config)
   })
 
-  /**
-   * Key of the currently applied proxy config (null before the first apply).
-   * Exposed so RegionService can invalidate its cached egress country the
-   * moment the proxy — and thus the egress IP — changes.
-   */
-  get appliedProxyKey(): string | null {
-    return this.appliedKey
-  }
-
   /** Routing policy for isolated runtimes. All proxy/bypass semantics stay in main. */
   async getRoutingSnapshot(): Promise<ProxyRoutingSnapshot> {
     await this.proxyReconciler.flush()
@@ -131,7 +122,18 @@ export class ProxyService extends BaseService {
   }
 
   private async applyProxyConfig(config: ProxyConfig): Promise<void> {
-    logger.info(`apply proxy: ${config.mode} ${config.proxyRules ?? ''} ${config.proxyBypassRules ?? ''}`)
+    let proxyRules = config.proxyRules ?? ''
+    try {
+      const parsed = new URL(proxyRules)
+      if (parsed.username || parsed.password) {
+        parsed.username = '***'
+        parsed.password = '***'
+        proxyRules = parsed.toString()
+      }
+    } catch {
+      // Preserve the existing log path for non-URL system proxy values.
+    }
+    logger.info(`apply proxy: ${config.mode} ${proxyRules} ${config.proxyBypassRules ?? ''}`)
     // In system mode, poll the OS proxy so external changes re-converge through the reconciler.
     if (config.mode === 'system') this.ensureSystemProxyMonitor()
     else this.clearSystemProxyMonitor()

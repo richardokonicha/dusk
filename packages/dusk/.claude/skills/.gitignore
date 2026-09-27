@@ -3,9 +3,9 @@
 *
 !.gitignore
 !README*.md
-!cherry-electron-dev
-!cherry-pr-test
 !create-skill
+!dusk-electron-dev
+!dusk-pr-test
 !gh-create-issue
 !gh-create-pr
 !gh-pr-review

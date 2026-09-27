@@ -11,7 +11,6 @@ const fixedSamplingParameterSupport = {
 export default openaiCompatible({
   id: 'moonshot',
   name: 'Moonshot AI',
-  availableInEditions: ['global', 'cn'],
   baseUrl: 'https://api.moonshot.cn',
   reasoningFormat: {
     type: 'openai-chat',

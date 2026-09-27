@@ -11,7 +11,6 @@ const thinkingWire: ReasoningWireProfile = modeWire('thinking.type', {
 export default defineProvider({
   id: 'longcat',
   name: 'LongCat',
-  availableInEditions: ['global', 'cn'],
   defaultChatEndpoint: 'openai-chat-completions',
   modelListSource: 'registry',
   endpointConfigs: {

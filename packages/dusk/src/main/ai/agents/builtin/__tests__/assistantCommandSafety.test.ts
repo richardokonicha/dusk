@@ -91,17 +91,17 @@ describe('isLarkFormSubmissionCommand', () => {
 
 describe('isGitHubIssueCreationCommand', () => {
   it.each([
-    'gh issue create --repo the upstream the upstream project project/dusk --title "Bug" --body-file report.md',
-    '  gh issue create --repo the upstream the upstream project project/dusk',
-    '/usr/local/bin/gh issue create --repo the upstream the upstream project project/dusk',
+    'gh issue create --repo fugoku.inc/dusk --title "Bug" --body-file report.md',
+    '  gh issue create --repo fugoku.inc/dusk',
+    '/usr/local/bin/gh issue create --repo fugoku.inc/dusk',
     'cd /workspace && "C:\\Program Files\\GitHub CLI\\gh" issue create --title "Bug"'
   ])('detects %s', (command) => {
     expect(isGitHubIssueCreationCommand(command)).toBe(true)
   })
 
   it.each([
-    'gh issue list --repo the upstream the upstream project project/dusk',
-    'gh search issues "startup crash" --repo the upstream the upstream project project/dusk',
+    'gh issue list --repo fugoku.inc/dusk',
+    'gh search issues "startup crash" --repo fugoku.inc/dusk',
     'printf "gh issue create"',
     'echo gh issue create',
     'laugh issue create'

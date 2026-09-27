@@ -1,13 +1,4 @@
-import {
-  Alert,
-  Button,
-  Checkbox,
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@dusk/ui'
+import { Alert, Button, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@dusk/ui'
 import { loggerService } from '@logger'
 import { ipcApi } from '@renderer/ipc'
 import { createPopup, popup, type PopupInjectedProps } from '@renderer/services/popup'

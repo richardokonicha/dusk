@@ -4,7 +4,8 @@ import type {
   ComposerMessageSnapshot,
   ComposerMessageToken,
   ComposerMessageTokenPayload,
-  DuskProviderMetadata} from '@shared/data/types/uiParts'
+  DuskProviderMetadata
+} from '@shared/data/types/uiParts'
 import { FileTypeSchema } from '@shared/types/file'
 import type { Editor, JSONContent } from '@tiptap/core'
 

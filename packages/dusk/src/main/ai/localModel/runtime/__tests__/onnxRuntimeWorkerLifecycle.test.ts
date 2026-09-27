@@ -1,7 +1,24 @@
 import { once } from 'node:events'
+import { existsSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { Worker } from 'node:worker_threads'
 
 import { describe, expect, it } from 'vitest'
+
+// True only where a bundled onnxruntime-node binding exists for this platform —
+// upstream ships none for darwin-x64, so the load-under-termination contract is
+// untestable there (same gate pattern as the anydoc smoke tests).
+const hasNativeBinding = (() => {
+  try {
+    return existsSync(
+      createRequire(import.meta.url)
+        .resolve('onnxruntime-node/package.json')
+        .replace(/package\.json$/, `bin/napi-v6/${process.platform}/${process.arch}/onnxruntime_binding.node`)
+    )
+  } catch {
+    return false
+  }
+})()
 
 async function loadTransformersInWorker(): Promise<unknown> {
   const worker = new Worker(
@@ -26,7 +43,7 @@ async function loadTransformersInWorker(): Promise<unknown> {
   }
 }
 
-describe('transformers worker lifecycle', () => {
+describe.skipIf(!hasNativeBinding)('transformers worker lifecycle', () => {
   it('loads again after a worker using its ONNX native binding is terminated', async () => {
     await expect(loadTransformersInWorker()).resolves.toEqual({ hasPipeline: true })
     await expect(loadTransformersInWorker()).resolves.toEqual({ hasPipeline: true })

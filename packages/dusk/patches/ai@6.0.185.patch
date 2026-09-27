@@ -58,9 +58,9 @@ index 5774837..a06b785 100644
  }
  
  // src/ui-message-stream/read-ui-message-stream.ts
-+// PATCHED(cherry): structural-sharing snapshot (mirrors vercel/ai#18692) — structuredClone here
++// PATCHED: structural-sharing snapshot (mirrors vercel/ai#18692) — structuredClone here
 +// was O(message bytes) per chunk, melting the renderer on long fast streams (vercel/ai#18624).
-+function cherrySnapshotUIMessage(message) {
++function duskSnapshotUIMessage(message) {
 +  const snapshot = { ...message, parts: message.parts.map((part) => ({ ...part })) };
 +  if ("metadata" in message) {
 +    const metadata = message.metadata;
@@ -76,7 +76,7 @@ index 5774837..a06b785 100644
            state,
            write: () => {
 -            controller == null ? void 0 : controller.enqueue(structuredClone(state.message));
-+            controller == null ? void 0 : controller.enqueue(cherrySnapshotUIMessage(state.message));
++            controller == null ? void 0 : controller.enqueue(duskSnapshotUIMessage(state.message));
            }
          });
        },
@@ -178,9 +178,9 @@ index 6862f01..ccdb020 100644
  }
  
  // src/ui-message-stream/read-ui-message-stream.ts
-+// PATCHED(cherry): structural-sharing snapshot (mirrors vercel/ai#18692) — structuredClone here
++// PATCHED: structural-sharing snapshot (mirrors vercel/ai#18692) — structuredClone here
 +// was O(message bytes) per chunk, melting the renderer on long fast streams (vercel/ai#18624).
-+function cherrySnapshotUIMessage(message) {
++function duskSnapshotUIMessage(message) {
 +  const snapshot = { ...message, parts: message.parts.map((part) => ({ ...part })) };
 +  if ("metadata" in message) {
 +    const metadata = message.metadata;
@@ -196,7 +196,7 @@ index 6862f01..ccdb020 100644
            state,
            write: () => {
 -            controller == null ? void 0 : controller.enqueue(structuredClone(state.message));
-+            controller == null ? void 0 : controller.enqueue(cherrySnapshotUIMessage(state.message));
++            controller == null ? void 0 : controller.enqueue(duskSnapshotUIMessage(state.message));
            }
          });
        },

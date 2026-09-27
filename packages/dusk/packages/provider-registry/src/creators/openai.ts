@@ -38,6 +38,8 @@ export default defineCreator({
     // gpt-5.2 and later minor versions inherit the 5.2 vocabulary
     { pattern: '^gpt-5[.-]\\d+(?!.*chat)', effort: ['none', 'low', 'medium', 'high', 'xhigh'] },
     { pattern: '^gpt-5(?![.-]\\d)(?!.*chat)', effort: ['minimal', 'low', 'medium', 'high'] },
+    // GPT-6 astra SKUs (astra-pro is the non-reasoning sibling)
+    { pattern: '^gpt-6-astra(?!-pro)', effort: ['none', 'low', 'medium', 'high', 'xhigh', 'max'] },
     { pattern: '^gpt-oss', effort: ['low', 'medium', 'high'] },
     // o-series reasoning SKUs (excluding the non-reasoning previews)
     { pattern: '^o1(?!-preview|-mini)|^o3|^o4', effort: ['low', 'medium', 'high'] },

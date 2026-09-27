@@ -780,7 +780,7 @@ describe('writeCliConfigDraft', () => {
       const providerWithRequestOptions = {
         ...openaiCompatProvider,
         settings: {
-          extraHeaders: { 'HTTP-Referer': 'https://dusk-ai.com', 'X-Title': 'Dusk' }
+          extraHeaders: { 'HTTP-Referer': 'https://dusk.app', 'X-Title': 'Dusk' }
         }
       } as Provider
       mockGet({
@@ -796,7 +796,7 @@ describe('writeCliConfigDraft', () => {
 
       const options = JSON.parse(opencodeWrite().content).provider['dusk-DeepSeek'].options
       expect(options.headers).toEqual({
-        'HTTP-Referer': 'https://dusk-ai.com',
+        'HTTP-Referer': 'https://dusk.app',
         'X-Title': 'Dusk'
       })
     })
@@ -1353,15 +1353,6 @@ describe('writeCliConfigDraft', () => {
         defaultModel: 'deepseek:deepseek-chat'
       })
       expect(dataApiService.get).not.toHaveBeenCalledWith('/providers/deepseek')
-    })
-
-    it('rejects the DuskLegacy managed default model and writes nothing', async () => {
-      mockGet({ '/models/': () => ({ id: 'qwen' }) })
-
-      await expect(
-        writeCliConfigDraft({ cliTool: CodeCli.CLAUDE_CODE, modelId: 'duskai::qwen', gateway })
-      ).rejects.toThrow(/gateway/)
-      expect(writes).toEqual([])
     })
 
     it('rebuilds from the edited draft: preserves hand-edited unmanaged fields and injects the fresh key', async () => {

@@ -277,10 +277,7 @@ describe('MessageListSearch', () => {
 
     await user.click(next)
     view.rerender(
-      <MessageListSearch
-        {...props}
-        partsByMessageId={{ a1: [{ type: 'text', text: 'banana' } as DuskMessagePart] }}
-      />
+      <MessageListSearch {...props} partsByMessageId={{ a1: [{ type: 'text', text: 'banana' } as DuskMessagePart] }} />
     )
     view.rerender(
       <MessageListSearch

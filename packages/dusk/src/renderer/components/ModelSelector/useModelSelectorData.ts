@@ -105,9 +105,7 @@ export function useModelSelectorData({
   )
 
   const agentOnlyProviderIds = useMemo(() => {
-    return new Set(
-      providers.filter((provider) => isAgentOnlyProvider(provider)).map((provider) => provider.id)
-    )
+    return new Set(providers.filter((provider) => isAgentOnlyProvider(provider)).map((provider) => provider.id))
   }, [providers])
 
   const sortedProviders = useMemo(

@@ -239,7 +239,7 @@ describe('NewMiniAppPanel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'miniApp.add.developer_docs' }))
     expect(mocks.ipcRequest).toHaveBeenCalledWith(
       'system.shell.open_website',
-      'https://github.com/the upstream the upstream project project/dusk-miniapps'
+      'https://docs.dusk.app/advanced-basic/miniapps'
     )
 
     rerender(

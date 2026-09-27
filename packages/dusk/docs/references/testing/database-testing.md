@@ -206,31 +206,13 @@ or declare a local `vi.mock('node:fs', ...)` with the
 
 ## Gotchas
 
-### better-sqlite3 native module ABI
+### better-sqlite3 native module
 
-better-sqlite3 is a native module, and unlike the repo's other natives it is
-NOT N-API — so it is ABI-specific and must be compiled for whichever runtime
-loads it. A native `.node` has a single build slot / one ABI, and the app
-(Electron) and the tests (system Node) want different ABIs.
-
-We keep the module at the **Node ABI** for tests — that's what `pnpm install`
-produces and what Vitest (running under system Node) needs. The `main` project
-loads the real native module, so `pnpm test:main` first runs `pnpm rebuild:node`
-(via its `pretest:main` hook) to guarantee the Node ABI, then runs the suite;
-`pnpm test` does the same via its `pretest` hook. The other Vitest projects
-never load better-sqlite3, so their ABI is irrelevant.
-
-The Electron-app entry scripts (`dev`, `dev:watch`, `debug`, `start`) and
-packaging need the **Electron ABI** instead; each app entry script prepends
-`pnpm rebuild:electron` with `--force`. Switching between the app and DB tests
-therefore flips the ABI automatically through `pretest`/`pretest:main` and the
-app entry scripts.
-
-If you use an interactive runner (`pnpm test:watch`, `pnpm test:coverage`, a
-bare `vitest`, or an IDE's Vitest) right after `pnpm dev`, flip back first with
-`pnpm rebuild:node` (or run `pnpm test:main` once). Those commands do not all
-have a `pre*` hook. CI installs and tests under system Node, so it uses the Node
-ABI as well.
+better-sqlite3 is a native module, but since v13 it is N-API: the npm package
+ships prebuilt binaries for every supported platform/arch, and **one binary
+serves both Node and Electron** — there is no per-runtime ABI and no rebuild
+step. `pnpm install` puts the right prebuild in place and nothing else is
+needed: `pnpm test`, `pnpm dev`, and packaging all load the same file.
 
 ### FTS5 and NULL content
 

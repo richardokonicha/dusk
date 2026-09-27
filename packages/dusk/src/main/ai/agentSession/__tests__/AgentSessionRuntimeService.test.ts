@@ -36,7 +36,7 @@ const mocks = vi.hoisted(() => ({
   getSessionById: vi.fn(),
   getAgent: vi.fn(),
   ensureTraceId: vi.fn(),
-  recordUsage: vi.fn(),
+  recordUsage: vi.fn()
 }))
 
 vi.mock('@data/services/AgentSessionService', () => ({

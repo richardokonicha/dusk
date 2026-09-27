@@ -19,7 +19,7 @@ serial queue, `:54`, `:111`) → `processIncoming` resolves the bound session+ag
 | Layer | Where | What it does |
 |---|---|---|
 | **Output secret-redaction** | `channels/security/OutputSanitizer.ts` (`sanitizeChannelOutput`, called `ChannelMessageHandler.ts:282`) | Redacts PEM keys, AWS/GitHub/Anthropic/OpenAI keys, bearer tokens, etc. **before** any agent output leaves through the channel |
-| **Workspace isolation** | session `workspace.path`; attachments persisted under `${workspace}/.dusk-studio/channel-*` | The agent's fs reach is bounded to the session workspace — but **only as strong as the agent's tool policy**: a channel-bound agent with broad `Bash`/`Write` and no per-channel narrowing (see G3) is not effectively bounded |
+| **Workspace isolation** | session `workspace.path`; attachments persisted under `${workspace}/.dusk/channel-{images,files}` | The agent's fs reach is bounded to the session workspace — but **only as strong as the agent's tool policy**: a channel-bound agent with broad `Bash`/`Write` and no per-channel narrowing (see G3) is not effectively bounded |
 | **Channel allow-listing** | per-adapter allow-list config (`allowedChatIds` / `allowedChannelIds`) in `channels/adapters/<platform>/<Platform>Adapter.ts` | Inbound from a non-allow-listed chat/channel is silently dropped |
 | **Per-chat serialization** | `ChannelMessageHandler.ts:111` | One stream per chat; no concurrent interleave |
 

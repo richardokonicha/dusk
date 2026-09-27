@@ -182,7 +182,7 @@ describe('builtin mini apps', () => {
     expect(install.source).toBe('builtin')
     // No manifest URL exists, so the three url-only columns must stay NULL or the
     // `mai_source_consistency` CHECK rejects the row.
-    expect([install.sourceUrl, install.sourceOrigin, install.sourceOriginCn]).toEqual([null, null, null])
+    expect([install.sourceUrl, install.sourceOrigin]).toEqual([null, null])
   })
 
   it('reports an update through the SAME check the url path uses', async () => {

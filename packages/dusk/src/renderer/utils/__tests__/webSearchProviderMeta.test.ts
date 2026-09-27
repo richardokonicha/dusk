@@ -50,7 +50,7 @@ const providers: WebSearchProvider[] = [
 describe('webSearchProviderMeta', () => {
   it('returns provider display metadata', () => {
     expect(getWebSearchProviderDescriptionKey('exa-mcp')).toBe('settings.tool.websearch.provider_description.exa_mcp')
-    expect(getWebSearchProviderIconRef('fetch')).toMatchObject({ kind: 'provider', key: 'duskin' })
+    expect(getWebSearchProviderIconRef('fetch')).toMatchObject({ kind: 'provider', key: 'openai' })
     expect(getWebSearchProviderOfficialWebsite('jina')).toBe('https://jina.ai/reader')
     expect(getWebSearchProviderApiKeyWebsite('jina')).toBe('https://jina.ai')
     expect(getWebSearchProviderIconRef('parallel')).toMatchObject({ kind: 'provider', key: 'parallel' })

@@ -3,7 +3,6 @@ import { defineProvider } from './types'
 export default defineProvider({
   id: 'ovms',
   name: 'OpenVINO Model Server',
-  availableInEditions: ['global', 'cn'],
   authOptional: true,
   endpointConfigs: {
     'openai-chat-completions': {

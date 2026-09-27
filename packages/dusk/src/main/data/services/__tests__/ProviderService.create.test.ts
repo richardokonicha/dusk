@@ -9,19 +9,19 @@ import { setupTestDatabase } from '@test-helpers/db'
 import { eq } from 'drizzle-orm'
 import { describe, expect, it, vi } from 'vitest'
 
-// Stub the registry loader so the preset lookup returns a minimal DuskLegacySub row
-// (its gemini / OpenAI endpoints tagged `duskin`) without reading the
-// shipped providers.json, whose path is mocked away in the test harness.
+// Stub the registry loader so the preset lookup returns a minimal new-api row
+// (its endpoints tagged `newapi`) without reading the shipped providers.json,
+// whose path is mocked away in the test harness.
 vi.mock('@dusk/provider-registry/node', () => {
   class RegistryLoader {
     loadProviders() {
       return [
         {
-          id: 'duskin',
+          id: 'new-api',
           endpointConfigs: {
-            'google-generate-content': { adapterFamily: 'duskin', baseUrl: 'https://open.duskin.net' },
-            'openai-responses': { adapterFamily: 'duskin', baseUrl: 'https://open.duskin.net' },
-            'openai-chat-completions': { adapterFamily: 'duskin', baseUrl: 'https://open.duskin.net' }
+            'google-generate-content': { adapterFamily: 'newapi', baseUrl: 'http://localhost:3000' },
+            'openai-responses': { adapterFamily: 'newapi', baseUrl: 'http://localhost:3000' },
+            'openai-chat-completions': { adapterFamily: 'newapi', baseUrl: 'http://localhost:3000' }
           },
           defaultChatEndpoint: 'openai-chat-completions'
         }
@@ -59,38 +59,38 @@ describe('ProviderService.create — endpoint config overrides', () => {
     ).toThrowError(expect.objectContaining({ code: ErrorCode.INVALID_OPERATION }))
   })
 
-  it('resolves adapterFamily from the preset for a preset-derived instance (custom DuskLegacySub host)', async () => {
-    // Mirrors the "add DuskLegacySub instance" flow: user-entered baseUrls only, no
+  it('resolves adapterFamily from the preset for a preset-derived instance (custom gateway host)', async () => {
+    // Mirrors the "add gateway instance" flow: user-entered baseUrls only, no
     // adapterFamily. Without read-time resolution the gemini endpoint resolves
     // to openai-compatible and image generation POSTs to /v1/images/generations.
     const created = providerService.create({
-      providerId: 'duskin-express',
-      presetProviderId: 'duskin',
-      name: 'DuskIn Express',
+      providerId: 'newapi-express',
+      presetProviderId: 'new-api',
+      name: 'New API Express',
       defaultChatEndpoint: ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS,
       endpointConfigs: {
-        [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: { baseUrl: 'https://express-ent-admin.duskin.ai' },
-        [ENDPOINT_TYPE.GOOGLE_GENERATE_CONTENT]: { baseUrl: 'https://express-ent-admin.duskin.ai/v1beta' },
-        [ENDPOINT_TYPE.OPENAI_RESPONSES]: { baseUrl: 'https://express-ent-admin.duskin.ai' }
+        [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: { baseUrl: 'https://relay.example.com' },
+        [ENDPOINT_TYPE.GOOGLE_GENERATE_CONTENT]: { baseUrl: 'https://relay.example.com/v1beta' },
+        [ENDPOINT_TYPE.OPENAI_RESPONSES]: { baseUrl: 'https://relay.example.com' }
       }
     })
 
     // baseUrls are preserved; adapterFamily is derived.
     expect(created.endpointConfigs?.[ENDPOINT_TYPE.GOOGLE_GENERATE_CONTENT]).toEqual({
-      baseUrl: 'https://express-ent-admin.duskin.ai/v1beta',
-      adapterFamily: 'duskin'
+      baseUrl: 'https://relay.example.com/v1beta',
+      adapterFamily: 'newapi'
     })
-    expect(created.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]?.adapterFamily).toBe('duskin')
-    expect(created.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_RESPONSES]?.adapterFamily).toBe('duskin')
+    expect(created.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]?.adapterFamily).toBe('newapi')
+    expect(created.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_RESPONSES]?.adapterFamily).toBe('newapi')
 
     // The row persists only the user-owned override shape — adapterFamily is
     // registry-owned and supplied at read time, never frozen into the row.
     const [row] = await dbh.db
       .select()
       .from(userProviderTable)
-      .where(eq(userProviderTable.providerId, 'duskin-express'))
+      .where(eq(userProviderTable.providerId, 'newapi-express'))
     expect(row.endpointConfigs?.[ENDPOINT_TYPE.GOOGLE_GENERATE_CONTENT]).toEqual({
-      baseUrl: 'https://express-ent-admin.duskin.ai/v1beta'
+      baseUrl: 'https://relay.example.com/v1beta'
     })
     expect(row.defaultChatEndpoint).toBeNull()
   })

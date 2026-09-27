@@ -15,7 +15,9 @@ const loader = new RegistryLoader({
 describe('Ling 3.0 Flash catalog', () => {
   it.each([
     ['ling-3-0-flash', 'inclusionai/ling-3.0-flash'],
-    ['ling-3-0-flash-fin', 'inclusionai/ling-3.0-flash-fin:free']
+    // The paid fin row wins the OR merge with its `:free` twin; `sante:free` covers the free tier.
+    ['ling-3-0-flash-fin', 'inclusionai/ling-3.0-flash-fin'],
+    ['ling-3-0-flash-sante', 'inclusionai/ling-3.0-flash-sante:free']
   ])('serves %s through its OpenRouter wire id', (modelId, apiModelId) => {
     expect(loader.findOverride('openrouter', apiModelId)).toMatchObject({
       apiModelId,

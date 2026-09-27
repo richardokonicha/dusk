@@ -1,16 +1,10 @@
 import { MODEL_CAPABILITY } from '@shared/data/types/model'
-import type { AppEdition } from '@shared/types/appEdition'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
-  appEdition: 'cn' as AppEdition,
   getProvider: vi.fn(),
   listProviders: vi.fn(),
   listModels: vi.fn()
-}))
-
-vi.mock('@main/utils/appEdition', () => ({
-  getAppEdition: () => mocks.appEdition
 }))
 
 vi.mock('@data/services/ProviderService', () => ({
@@ -37,7 +31,6 @@ import { getModels, resolveGatewayModelAddress } from '../models'
 describe('api gateway model listing', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.appEdition = 'cn'
     mocks.getProvider.mockReturnValue({ id: 'openai', name: 'OpenAI', isEnabled: true })
     mocks.listProviders.mockReturnValue([
       { id: 'openai', name: 'DuskLegacy' },
@@ -194,9 +187,7 @@ describe('api gateway model listing', () => {
   })
 
   it('does not expose models of a provider id containing ":" (un-addressable through the gateway)', async () => {
-    mocks.listProviders.mockReturnValue([
-      { id: 'corp:west', name: 'Corp West' }
-    ])
+    mocks.listProviders.mockReturnValue([{ id: 'corp:west', name: 'Corp West' }])
     mocks.listModels.mockImplementation(() => [
       { id: 'corp:west::gpt-4o', providerId: 'corp:west', apiModelId: 'gpt-4o', ownedBy: 'Corp', capabilities: [] }
     ])
@@ -206,4 +197,3 @@ describe('api gateway model listing', () => {
     expect(response.data).toEqual([])
   })
 })
-

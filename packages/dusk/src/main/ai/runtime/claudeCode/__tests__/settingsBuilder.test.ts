@@ -1198,10 +1198,10 @@ describe('buildClaudeCodeSessionSettings', () => {
         })
       )
 
-    const directGhCommand = 'gh issue create --repo the upstream the upstream project project/dusk --title "Bug" --body-file report.md'
+    const directGhCommand = 'gh issue create --repo fugoku.inc/dusk --title "Bug" --body-file report.md'
     const bashCommands = [
       directGhCommand,
-      `bash -lc 'gh issue create --repo the upstream the upstream project project/dusk --title "Bug" --body-file report.md'`,
+      `bash -lc 'gh issue create --repo fugoku.inc/dusk --title "Bug" --body-file report.md'`,
       'pnpm test'
     ]
     // Interactive default mode: every Support Bash call requires a live per-call decision.
@@ -2499,10 +2499,7 @@ describe('buildClaudeCodeSessionSettings', () => {
     })
 
     const duskServer = (settings.mcpServers?.['dusk-tools'] as any)?.instance
-    const listed = await duskServer.server._requestHandlers.get('tools/list')(
-      { method: 'tools/list', params: {} },
-      {}
-    )
+    const listed = await duskServer.server._requestHandlers.get('tools/list')({ method: 'tools/list', params: {} }, {})
     expect(listed.tools.map((tool: { name: string }) => tool.name)).toContain('notify')
     expect(mocks.getTurnTrustedNotifyChannels).not.toHaveBeenCalled()
   })
@@ -2599,10 +2596,7 @@ describe('buildClaudeCodeSessionSettings', () => {
     ).resolves.toMatchObject({ behavior: 'allow' })
 
     const duskServer = (settings.mcpServers?.['dusk-tools'] as any)?.instance
-    const listed = await duskServer.server._requestHandlers.get('tools/list')(
-      { method: 'tools/list', params: {} },
-      {}
-    )
+    const listed = await duskServer.server._requestHandlers.get('tools/list')({ method: 'tools/list', params: {} }, {})
     expect(listed.tools.map((tool: { name: string }) => tool.name)).not.toEqual(
       expect.arrayContaining(['kb_search', 'kb_read', 'kb_list', 'kb_manage'])
     )

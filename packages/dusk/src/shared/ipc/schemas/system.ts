@@ -30,7 +30,6 @@ export const systemRequestSchemas = {
   }),
   'system.toggle_dev_tools': defineRoute({ input: z.void(), output: z.void() }),
   'system.get_fonts': defineRoute({ input: z.void(), output: z.array(z.string()) }),
-  'system.get_ip_country': defineRoute({ input: z.void(), output: z.string() }),
   'system.mac.is_process_trusted': defineRoute({ input: z.void(), output: z.boolean() }),
   'system.mac.request_process_trust': defineRoute({ input: z.void(), output: z.boolean() }),
   'system.mac.screen_capture_status': defineRoute({

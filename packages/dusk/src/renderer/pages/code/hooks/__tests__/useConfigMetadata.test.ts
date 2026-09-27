@@ -142,7 +142,6 @@ describe('useConfigMetadata.makeModelFilter (gateway)', () => {
     expect(filter(model('openai', 'dall-e-3', [MODEL_CAPABILITY.IMAGE_GENERATION]))).toBe(false)
   })
 
-  
   it('excludes non-chat audio/video generation and transcription models', () => {
     const { result } = renderHook(() =>
       useConfigMetadata(CodeCli.CLAUDE_CODE, [

@@ -83,7 +83,7 @@ The AI pipeline selects a provider, runs a middleware chain (context, knowledge,
 ## Monorepo Structure
 
 ```
-dusk-studio
+dusk
 ├── src/
 │   ├── main/                    # Main process (Node.js) — directory layout in ./main-process.md
 │   │

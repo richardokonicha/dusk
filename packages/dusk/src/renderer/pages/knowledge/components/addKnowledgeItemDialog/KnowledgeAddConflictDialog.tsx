@@ -1,12 +1,4 @@
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@dusk/ui'
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@dusk/ui'
 import type { KnowledgeAddItemConflict, KnowledgeItemType } from '@shared/data/types/knowledge'
 import { FileText, Folder, Link2, type LucideIcon, StickyNote } from 'lucide-react'
 import { useTranslation } from 'react-i18next'

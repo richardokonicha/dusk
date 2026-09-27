@@ -1,12 +1,4 @@
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@dusk/ui'
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@dusk/ui'
 import { toast } from '@renderer/services/toast'
 import { Check, Copy, TriangleAlert } from 'lucide-react'
 import type { FC } from 'react'

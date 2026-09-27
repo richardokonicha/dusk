@@ -6,7 +6,7 @@
 
 | Data | Source | Notes |
 |------|--------|-------|
-| Global quick phrases | Dexie `quick_phrases` | Creates prompts with `visibility = global`; optional table in the v1 `DuskStudio` IndexedDB database |
+| Global quick phrases | Dexie `quick_phrases` | Creates prompts with `visibility = global`; optional table in the v1 `Dusk` IndexedDB database |
 | Assistant quick phrases | Redux `state.assistants.assistants[].regularPhrases` | Creates prompts with `visibility = restricted` plus bindings to the migrated assistant |
 | Preset quick phrases | Redux `state.assistants.presets[].regularPhrases` | Presets share the v1 Assistant shape and are migrated as assistants |
 | Default assistant quick phrases | Redux `state.assistants.defaultAssistant.regularPhrases` | Uses AssistantMigrator's remapped ID; fills the phrase source only when an earlier slot for the same Assistant has no populated phrase array |

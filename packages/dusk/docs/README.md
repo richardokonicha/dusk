@@ -9,7 +9,7 @@
 | [Contributing](../CONTRIBUTING.md) | How to contribute code |
 | [🌿 Branching Strategy](./contrib/branching-strategy.md) | Branch model for contributions, pull request guidelines, and version tag management targeting main |
 | [🖥️ Develop](./contrib/development.md) | Developer environment setup covering IDE configuration, Windows symlink support, and project install steps |
-| [Linux Packaging](./contrib/linux-packaging.md) | Linux packaging flow using pinned better-sqlite3 prebuilds, with build commands and prebuild update steps |
+| [Linux Packaging](./contrib/linux-packaging.md) | Linux packaging flow with better-sqlite3 N-API prebuilds embedded in the npm package, with build commands |
 | [Test Plan](./contrib/test-plan.md) | The Test Plan process for beta and rc testing, covering user participation and maintainer PR workflow |
 
 ## References

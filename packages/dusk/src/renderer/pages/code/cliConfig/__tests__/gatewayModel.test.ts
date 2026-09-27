@@ -13,9 +13,7 @@ describe('formatGatewayModelId', () => {
     expect(formatGatewayModelId('deepseek', 'deepseek-chat')).toBe('deepseek:deepseek-chat')
     expect(formatGatewayModelId('openai', 'gpt-4o')).not.toContain('::')
   })
-
-  
-  })
+})
 
 describe('gatewayExpectedModel', () => {
   it('formats the gateway address for a valid stored UniqueModelId', () => {
@@ -33,5 +31,4 @@ describe('gatewayExpectedModel', () => {
     expect(gatewayExpectedModel(undefined)).toBeUndefined()
     expect(gatewayExpectedModel('not-a-unique-id')).toBeUndefined()
   })
-
-  })
+})

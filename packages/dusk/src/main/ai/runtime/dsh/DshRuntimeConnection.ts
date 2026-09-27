@@ -6,12 +6,7 @@ import { application } from '@application'
 import type { TokenUsage } from '@deepseek-ai/dsh-llm'
 import type { HarnessClient, NotificationSubscription } from '@deepseek-ai/dsh-sdk-client'
 import type { SessionEvent, TurnEndReason } from '@deepseek-ai/dsh-session'
-import {
-  BRIDGE_SOCKET_ENV,
-  BRIDGE_TOKEN_ENV,
-  type BridgePermissionMode,
-  type BridgePolicy
-} from '@dusk/dsh-bridge'
+import { BRIDGE_SOCKET_ENV, BRIDGE_TOKEN_ENV, type BridgePermissionMode, type BridgePolicy } from '@dusk/dsh-bridge'
 import { loggerService } from '@logger'
 import { ensureAgentDataDirectory } from '@main/ai/agents/agentDataDirectory'
 import { resolveAgentCapabilities, resolveMountedMcpServers } from '@main/ai/agents/builtin/builtinAgentCapabilities'

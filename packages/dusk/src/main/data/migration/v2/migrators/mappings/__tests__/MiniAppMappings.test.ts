@@ -66,17 +66,6 @@ describe('MiniAppMappings', () => {
         expect(emptyLogo.logoKey).toBeNull()
       })
 
-      it('should filter supportedRegions', () => {
-        const valid = transformMiniApp(
-          createCustomSource({ supportedRegions: ['CN', 'Global', 'Invalid'] }),
-          'enabled' as MiniAppStatus
-        )
-        expect(valid.supportedRegions).toEqual(['CN', 'Global'])
-
-        const empty = transformMiniApp(createCustomSource({ supportedRegions: [] }), 'enabled' as MiniAppStatus)
-        expect(empty.supportedRegions).toBeNull()
-      })
-
       it('should default bordered to true when neither field is present', () => {
         const source = createCustomSource()
         const result = transformMiniApp(source, 'enabled' as MiniAppStatus)
@@ -91,7 +80,6 @@ describe('MiniAppMappings', () => {
           logo: 'https://stale-old-logo.png',
           bordered: false,
           background: '#fff',
-          supportedRegions: ['CN'],
           nameKey: 'minapp.openai-stale'
         })
 

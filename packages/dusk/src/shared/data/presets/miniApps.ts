@@ -10,7 +10,6 @@ export interface MiniAppPreset {
   id: string
   name: string
   nameKey?: string
-  supportedRegions?: ('CN' | 'Global')[]
   logo?: string
   url: string
   bordered?: boolean
@@ -24,38 +23,33 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     name: 'AMD GPU Cloud',
     url: 'https://developer.amd.com.cn/radeon/',
     logo: 'radeon-cloud',
-    bordered: true,
-    supportedRegions: ['CN', 'Global']
+    bordered: true
   },
   {
     id: 'openai',
     name: 'ChatGPT',
     url: 'https://chatgpt.com/',
     logo: 'openai',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'gemini',
     name: 'Gemini',
     url: 'https://gemini.google.com/',
     logo: 'gemini',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'silicon',
     name: 'SiliconFlow',
     url: 'https://cloud.siliconflow.cn/playground/chat',
-    logo: 'silicon',
-    supportedRegions: ['CN', 'Global']
+    logo: 'silicon'
   },
   {
     id: 'deepseek',
     name: 'DeepSeek',
     url: 'https://chat.deepseek.com/',
-    logo: 'deepseek',
-    supportedRegions: ['CN', 'Global']
+    logo: 'deepseek'
   },
   {
     id: 'yi',
@@ -63,8 +57,7 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.wanzhi',
     url: 'https://www.wanzhi.com/',
     logo: 'zeroone',
-    bordered: true,
-    supportedRegions: ['CN']
+    bordered: true
   },
   {
     id: 'zhipu',
@@ -72,31 +65,27 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.chatglm',
     url: 'https://chatglm.cn/main/alltoolsdetail',
     logo: 'zhipu',
-    bordered: true,
-    supportedRegions: ['CN']
+    bordered: true
   },
   {
     id: 'moonshot',
     name: 'Kimi',
     url: 'https://kimi.moonshot.cn/',
-    logo: 'Moonshot',
-    supportedRegions: ['CN', 'Global']
+    logo: 'Moonshot'
   },
   {
     id: 'baichuan',
     name: 'Baichuan',
     nameKey: 'miniApps.baichuan',
     url: 'https://ying.baichuan-ai.com/chat',
-    logo: 'baichuan',
-    supportedRegions: ['CN']
+    logo: 'baichuan'
   },
   {
     id: 'dashscope',
     name: 'Qwen',
     nameKey: 'miniApps.qwen',
     url: 'https://www.qianwen.com',
-    logo: 'qwen',
-    supportedRegions: ['CN']
+    logo: 'qwen'
   },
   {
     id: 'stepfun',
@@ -104,23 +93,20 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.stepfun',
     url: 'https://stepfun.com',
     logo: 'step',
-    bordered: true,
-    supportedRegions: ['CN']
+    bordered: true
   },
   {
     id: 'doubao',
     name: 'Doubao',
     nameKey: 'miniApps.doubao',
     url: 'https://www.doubao.com/chat/',
-    logo: 'doubao',
-    supportedRegions: ['CN']
+    logo: 'doubao'
   },
   {
     id: 'cici',
     name: 'Cici',
     url: 'https://www.cici.com/chat/',
-    logo: 'bytedance',
-    supportedRegions: ['Global']
+    logo: 'bytedance'
   },
   {
     id: 'hailuo',
@@ -128,8 +114,7 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.hailuo',
     url: 'https://hailuoai.com/',
     logo: 'hailuo',
-    bordered: true,
-    supportedRegions: ['CN']
+    bordered: true
   },
   {
     id: 'minimax-agent',
@@ -137,8 +122,7 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.minimax-agent',
     url: 'https://agent.minimaxi.com/',
     logo: 'minimax',
-    bordered: true,
-    supportedRegions: ['CN']
+    bordered: true
   },
   {
     id: 'minimax-agent-global',
@@ -146,8 +130,7 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.minimax-global',
     url: 'https://agent.minimax.io/',
     logo: 'minimax',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'ima',
@@ -155,22 +138,19 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.ima',
     url: 'https://ima.qq.com/',
     logo: 'ima',
-    bordered: true,
-    supportedRegions: ['CN']
+    bordered: true
   },
   {
     id: 'groq',
     name: 'Groq',
     url: 'https://chat.groq.com/',
-    logo: 'groq',
-    supportedRegions: ['Global']
+    logo: 'groq'
   },
   {
     id: 'anthropic',
     name: 'Claude',
     url: 'https://claude.ai/',
-    logo: 'claude',
-    supportedRegions: ['Global']
+    logo: 'claude'
   },
   {
     id: 'google',
@@ -180,16 +160,14 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     bordered: true,
     style: {
       padding: 5
-    },
-    supportedRegions: ['Global']
+    }
   },
   {
     id: 'baidu-ai-chat',
     name: 'Wenxin',
     nameKey: 'miniApps.wenxin',
     logo: 'wenxin',
-    url: 'https://yiyan.baidu.com/',
-    supportedRegions: ['CN', 'Global']
+    url: 'https://yiyan.baidu.com/'
   },
   {
     id: 'baidu-ai-search',
@@ -200,8 +178,7 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     bordered: true,
     style: {
       padding: 5
-    },
-    supportedRegions: ['CN']
+    }
   },
   {
     id: 'tencent-yuanbao',
@@ -209,8 +186,7 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.tencent-yuanbao',
     logo: 'yuanbao',
     url: 'https://yuanbao.tencent.com/chat',
-    bordered: true,
-    supportedRegions: ['CN', 'Global']
+    bordered: true
   },
   {
     id: 'sensetime-chat',
@@ -218,44 +194,38 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.sensechat',
     logo: 'sensetime',
     url: 'https://chat.sensetime.com/wb/chat',
-    bordered: true,
-    supportedRegions: ['CN']
+    bordered: true
   },
   {
     id: 'spark-desk',
     name: 'SparkDesk',
     logo: 'xinghuo',
-    url: 'https://xinghuo.xfyun.cn/desk',
-    supportedRegions: ['CN']
+    url: 'https://xinghuo.xfyun.cn/desk'
   },
   {
     id: 'metaso',
     name: 'Metaso',
     nameKey: 'miniApps.metaso',
     logo: 'metaso',
-    url: 'https://metaso.cn/',
-    supportedRegions: ['CN', 'Global']
+    url: 'https://metaso.cn/'
   },
   {
     id: 'poe',
     name: 'Poe',
     logo: 'poe',
-    url: 'https://poe.com',
-    supportedRegions: ['Global']
+    url: 'https://poe.com'
   },
   {
     id: 'perplexity',
     name: 'Perplexity',
     logo: 'perplexity',
-    url: 'https://www.perplexity.ai/',
-    supportedRegions: ['Global']
+    url: 'https://www.perplexity.ai/'
   },
   {
     id: 'devv',
     name: 'DEVV_',
     logo: 'devv',
-    url: 'https://devv.ai/',
-    supportedRegions: ['CN', 'Global']
+    url: 'https://devv.ai/'
   },
   {
     id: 'tiangong-ai',
@@ -263,31 +233,27 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.tiangong-ai',
     logo: 'tng',
     url: 'https://www.tiangong.cn/',
-    bordered: true,
-    supportedRegions: ['CN']
+    bordered: true
   },
   {
     id: 'Felo',
     name: 'Felo',
     logo: 'felo',
     url: 'https://felo.ai/',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'duckduckgo',
     name: 'DuckDuckGo',
     logo: 'duck',
-    url: 'https://duck.ai',
-    supportedRegions: ['Global']
+    url: 'https://duck.ai'
   },
   {
     id: 'bolt',
     name: 'bolt',
     logo: 'bolt',
     url: 'https://bolt.new/',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'nm',
@@ -295,8 +261,7 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.nami-ai',
     logo: 'namiai',
     url: 'https://bot.n.cn/',
-    bordered: true,
-    supportedRegions: ['CN']
+    bordered: true
   },
   {
     id: 'thinkany',
@@ -306,68 +271,59 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     bordered: true,
     style: {
       padding: 5
-    },
-    supportedRegions: ['CN', 'Global']
+    }
   },
   {
     id: 'github-copilot',
     name: 'GitHub Copilot',
     logo: 'githubcopilot',
-    url: 'https://github.com/copilot',
-    supportedRegions: ['Global']
+    url: 'https://github.com/copilot'
   },
   {
     id: 'genspark',
     name: 'Genspark',
     logo: 'genspark',
-    url: 'https://www.genspark.ai/',
-    supportedRegions: ['Global']
+    url: 'https://www.genspark.ai/'
   },
   {
     id: 'grok',
     name: 'Grok',
     logo: 'grok',
     url: 'https://grok.com',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'grok-x',
     name: 'Grok / X',
     logo: 'twitter',
     url: 'https://x.com/i/grok',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'qwenlm',
     name: 'QwenChat',
     logo: 'qwen',
-    url: 'https://chat.qwen.ai',
-    supportedRegions: ['Global']
+    url: 'https://chat.qwen.ai'
   },
   {
     id: 'flowith',
     name: 'Flowith',
     logo: 'flowith',
     url: 'https://www.flowith.io/',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: '3mintop',
     name: '3MinTop',
     logo: 'mintop3',
     url: 'https://3min.top',
-    bordered: false,
-    supportedRegions: ['CN', 'Global']
+    bordered: false
   },
   {
     id: 'aistudio',
     name: 'AI Studio',
     logo: 'aistudio',
-    url: 'https://aistudio.google.com/',
-    supportedRegions: ['Global']
+    url: 'https://aistudio.google.com/'
   },
   {
     id: 'xiaoyi',
@@ -375,23 +331,20 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.xiaoyi',
     logo: 'xiaoyi',
     url: 'https://xiaoyi.huawei.com/chat/',
-    bordered: true,
-    supportedRegions: ['CN']
+    bordered: true
   },
   {
     id: 'notebooklm',
     name: 'NotebookLM',
     logo: 'notebooklm',
-    url: 'https://notebooklm.google.com/',
-    supportedRegions: ['Global']
+    url: 'https://notebooklm.google.com/'
   },
   {
     id: 'coze',
     name: 'Coze',
     logo: 'coze',
     url: 'https://www.coze.com/space',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'dify',
@@ -401,8 +354,7 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     bordered: true,
     style: {
       padding: 5
-    },
-    supportedRegions: ['Global']
+    }
   },
   {
     id: 'wpslingxi',
@@ -410,47 +362,41 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.wps-copilot',
     logo: 'lingxi',
     url: 'https://copilot.wps.cn/',
-    bordered: true,
-    supportedRegions: ['CN']
+    bordered: true
   },
   {
     id: 'lechat',
     name: 'LeChat',
     logo: 'mistral',
     url: 'https://chat.mistral.ai/chat',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'abacus',
     name: 'Abacus',
     logo: 'abacus',
     url: 'https://apps.abacus.ai/chatllm',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'lambdachat',
     name: 'Lambda Chat',
     logo: 'lambda',
     url: 'https://lambda.chat/',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'monica',
     name: 'Monica',
     logo: 'monica',
     url: 'https://monica.im/home/',
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'you',
     name: 'You',
     logo: 'you',
-    url: 'https://you.com/',
-    supportedRegions: ['Global']
+    url: 'https://you.com/'
   },
   {
     id: 'zhihu',
@@ -458,8 +404,7 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.zhihu',
     logo: 'zhida',
     url: 'https://zhida.zhihu.com/',
-    bordered: true,
-    supportedRegions: ['CN']
+    bordered: true
   },
   {
     id: 'dangbei',
@@ -467,16 +412,14 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.dangbei',
     logo: 'dangbei',
     url: 'https://ai.dangbei.com/',
-    bordered: true,
-    supportedRegions: ['CN', 'Global']
+    bordered: true
   },
   {
     id: `zai`,
     name: `Z.ai`,
     logo: 'zai',
     url: `https://chat.z.ai/`,
-    bordered: true,
-    supportedRegions: ['Global']
+    bordered: true
   },
   {
     id: 'n8n',
@@ -486,16 +429,14 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     bordered: true,
     style: {
       padding: 5
-    },
-    supportedRegions: ['Global']
+    }
   },
   {
     id: 'longcat',
     name: 'LongCat',
     logo: 'longcat',
     url: 'https://longcat.chat/',
-    bordered: true,
-    supportedRegions: ['CN', 'Global']
+    bordered: true
   },
   {
     id: 'ling',
@@ -506,8 +447,7 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     bordered: true,
     style: {
       padding: 6
-    },
-    supportedRegions: ['CN', 'Global']
+    }
   },
   {
     id: 'huggingchat',
@@ -517,8 +457,7 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     bordered: true,
     style: {
       padding: 6
-    },
-    supportedRegions: ['Global']
+    }
   }
 ]
 

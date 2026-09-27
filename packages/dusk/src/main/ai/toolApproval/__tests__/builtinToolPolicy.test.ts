@@ -30,12 +30,10 @@ describe('builtinToolPolicy', () => {
       'auto'
     )
     expect(findBuiltinToolPolicy('mcp__skills__install_skill', WITHOUT_HOST_TOOLS)?.approval).toBe('runtime')
-    expect(findBuiltinToolPolicy(toDuskBuiltinRuntimeName(SESSION_SEND_TOOL_NAME), WITHOUT_HOST_TOOLS)).toMatchObject(
-      {
-        approval: 'required',
-        bypassApproval: 'enforce'
-      }
-    )
+    expect(findBuiltinToolPolicy(toDuskBuiltinRuntimeName(SESSION_SEND_TOOL_NAME), WITHOUT_HOST_TOOLS)).toMatchObject({
+      approval: 'required',
+      bypassApproval: 'enforce'
+    })
   })
 
   it('filters Assistant-only entries when their MCP servers are not mounted', () => {

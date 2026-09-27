@@ -1,12 +1,4 @@
-import {
-  FormControl,
-  NormalTooltip,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@dusk/ui'
+import { FormControl, NormalTooltip, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@dusk/ui'
 import { cn } from '@dusk/ui/lib/utils'
 import type { PermissionMode, PermissionModeCard } from '@renderer/types/agent'
 import type { TFunction } from 'i18next'

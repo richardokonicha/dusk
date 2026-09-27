@@ -1,13 +1,16 @@
 ---
-description: Linux packaging flow using pinned better-sqlite3 prebuilds, with build commands and prebuild update steps
+description: Linux packaging flow with better-sqlite3 N-API prebuilds embedded in the npm package, with build commands
 sources:
-  - scripts/linux-native
+  - electron-builder.yml
 ---
 
 # Linux Packaging
 
-Linux packages use x64 and ARM64 `better-sqlite3` prebuilds from the pinned
-[`the upstream project/dusk-studio-better-sqlite3`](https://github.com/dusk-archive/upstream/dusk-studio-better-sqlite3) GitHub Release.
+Linux builds use the `better-sqlite3` prebuilt binaries that ship inside the
+npm package itself (v13+ is N-API): one prebuild per platform/arch
+(`linux-x64`, `linux-arm64`, including musl) is installed by `pnpm install`
+and bundled as-is. There is no custom prebuild repository, no pinned Release
+download, and no Docker/QEMU step.
 
 ## Build
 
@@ -20,24 +23,15 @@ pnpm build:linux:x64
 pnpm build:linux:arm64
 ```
 
-The first build requires network access to populate the Git-ignored `scripts/linux-native/prebuilt/` cache. Dusk
-Studio packaging itself does not require Docker or QEMU; those tools are only needed when publishing new prebuilds
-from the separate repository.
+## Native-module handling
 
-## Packaging Flow
+`better-sqlite3` resolves its prebuild via `fs.existsSync` at require time,
+so the `node_modules/better-sqlite3/**` entry in `asarUnpack`
+(electron-builder.yml) keeps the binary on disk instead of inside the asar
+archive, where that lookup would fail.
 
-1. `beforePack` downloads the target artifact and verifies its pinned Release checksum.
-2. electron-builder performs its normal native dependency rebuild.
-3. `afterPack` verifies the Electron ABI, module version, ELF architecture, checksum, and maximum
-   GLIBC/GLIBCXX/CXXABI requirements before replacing the packaged `better_sqlite3.node`.
+The upstream prebuilds are built against glibc 2.34 / GLIBCXX 3.4.29 — that is
+the oldest Linux runtime the packages support.
 
-A missing, stale, or incompatible artifact stops packaging.
-
-## Updating the Prebuild
-
-When Electron or `better-sqlite3` changes:
-
-1. Publish a verified Release from the prebuild repository.
-2. Update `scripts/linux-native/release.json` with the exact tag, filenames, metadata, and SHA-256 values.
-
-Never point application builds at a floating `latest` Release.
+When upgrading `better-sqlite3`, nothing packaging-specific needs to change:
+bump the dependency, and the new prebuilds arrive with `pnpm install`.

@@ -111,10 +111,9 @@ describe('MiniAppManifestSchema', () => {
     expect(() =>
       MiniAppDistributionManifestSchema.parse({
         ...valid,
-        update: { url: 'https://x/m.json', urlCn: 'https://x.cn/m.json' },
+        update: { url: 'https://x/m.json' },
         package: {
           url: 'https://x/p.miniapp',
-          urlCn: 'https://x.cn/p.miniapp',
           sha256: 'a'.repeat(64),
           size: MINI_APP_MAX_PACKAGE_BYTES + 1
         }
@@ -126,10 +125,9 @@ describe('MiniAppManifestSchema', () => {
     expect(
       MiniAppDistributionManifestSchema.parse({
         ...valid,
-        update: { url: 'https://x/m.json', urlCn: 'https://x.cn/m.json' },
+        update: { url: 'https://x/m.json' },
         package: {
           url: 'https://x/p.miniapp',
-          urlCn: 'https://x.cn/p.miniapp',
           sha256: 'a'.repeat(64),
           size: MINI_APP_MAX_PACKAGE_BYTES
         }
@@ -252,35 +250,21 @@ describe('MiniAppManifestSchema', () => {
     expect(MiniAppManifestSchema.parse({ ...valid, version: '1.10.0-beta.1' }).version).toBe('1.10.0-beta.1')
   })
 
-  it('accepts an update block with or without a China accelerator', () => {
-    // Third-party authors are not required to run a mirror; one endpoint is a complete declaration.
+  it('requires an update block to name exactly one endpoint', () => {
     expect(() => MiniAppManifestSchema.parse({ ...valid, update: { url: 'https://x/m.json' } })).not.toThrow()
-    expect(() =>
-      MiniAppManifestSchema.parse({ ...valid, update: { url: 'https://x/m.json', urlCn: 'https://x.cn/m.json' } })
-    ).not.toThrow()
   })
 
-  it('keeps the update and package accelerators both-or-neither in a distribution manifest', () => {
-    // A package mirror with no update mirror has no origin to be pinned to; the reverse
-    // sends Chinese users to the global package while the manifest promised a mirror.
+  it('refuses an unknown accelerator key in the update and package blocks', () => {
+    // The schema is closed: an author declaring a second endpoint gets a parse error,
+    // not a silently ignored field.
     const pkg = { url: 'https://x/p.miniapp', sha256: 'a'.repeat(64), size: 1024 }
-    expect(() =>
-      MiniAppDistributionManifestSchema.parse({ ...valid, update: { url: 'https://x/m.json' }, package: pkg })
-    ).not.toThrow()
     expect(() =>
       MiniAppDistributionManifestSchema.parse({
         ...valid,
         update: { url: 'https://x/m.json' },
         package: { ...pkg, urlCn: 'https://x.cn/p.miniapp' }
       })
-    ).toThrow(/together/)
-    expect(() =>
-      MiniAppDistributionManifestSchema.parse({
-        ...valid,
-        update: { url: 'https://x/m.json', urlCn: 'https://x.cn/m.json' },
-        package: pkg
-      })
-    ).toThrow(/together/)
+    ).toThrow()
   })
 
   it('caps a name table at 20 locales', () => {

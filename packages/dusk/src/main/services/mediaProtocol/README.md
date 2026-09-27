@@ -69,7 +69,7 @@ Two modules with "protocol" in the name, no overlap:
 | | `services/protocol/ProtocolService` | this module |
 |---|---|---|
 | Direction | external → app (the OS hands us a URL) | in-process (a renderer asks us for bytes) |
-| Scheme | `duskstudio://` deep links | `dusk-media://` |
+| Scheme | `dusk://` deep links | `dusk-media://` |
 | Electron API | `app.setAsDefaultProtocolClient` + `open-url` / `second-instance` | `protocol.registerSchemesAsPrivileged` + `protocol.handle` |
 | Registration timing | after the app is ready is fine | privileges must be declared *before* the app is ready |
 | State | pending URLs awaiting a ready renderer | binary entries awaiting a renderer request |

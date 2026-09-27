@@ -219,22 +219,6 @@ describe('ProviderSettingsPage', () => {
     expect(navigateMock).toHaveBeenCalledWith({ to: '/settings/provider', search: {}, replace: true })
   })
 
-  it('does not select DuskLegacy when it is remembered or requested by URL', async () => {
-    MockUseCacheUtils.setPersistCacheValue('settings.provider.last_selected_provider_id', 'duskai')
-    searchMock = { id: 'duskai' }
-    useProvidersMock.mockReturnValue({
-      providers: [{ id: 'duskai', name: 'DuskLegacy', isEnabled: true }, ...providers]
-    })
-
-    render(<ProviderSettingsPage />)
-
-    await waitFor(() => {
-      expect(screen.getByText('provider-setting-openai')).toBeInTheDocument()
-    })
-    expect(screen.getByTestId('selected-provider-id')).toHaveTextContent('openai')
-    expect(screen.queryByText('provider-setting-duskai')).not.toBeInTheDocument()
-  })
-
   it('falls back when the remembered provider is no longer returned', async () => {
     MockUseCacheUtils.setPersistCacheValue('settings.provider.last_selected_provider_id', 'openai')
     useProvidersMock.mockReturnValue({
