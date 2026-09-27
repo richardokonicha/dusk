@@ -4,11 +4,11 @@
 
 ### Patch Changes
 
-- [#13840](https://github.com/dusk-archive/upstream/dusk-studio/pull/13840) [`ae13786`](https://github.com/dusk-archive/upstream/dusk-studio/commit/ae13786b552bedce222c9b4e9a36ba0f9feeee71) Thanks [@EurFelux](https://github.com/EurFelux)! - Add local tsconfig.json to fix dts build failure in packages:build
+- upstream #13840 (ae13786) Thanks [@EurFelux](https://github.com/EurFelux)! - Add local tsconfig.json to fix dts build failure in packages:build
 
-- [#13817](https://github.com/dusk-archive/upstream/dusk-studio/pull/13817) [`7c2610b`](https://github.com/dusk-archive/upstream/dusk-studio/commit/7c2610b1e39dd04c850385af654cc1bbc4b43c9c) Thanks [@EurFelux](https://github.com/EurFelux)! - Remove reference to non-existent tsconfig.build.json to fix CI build failure
+- upstream #13817 (7c2610b) Thanks [@EurFelux](https://github.com/EurFelux)! - Remove reference to non-existent tsconfig.build.json to fix CI build failure
 
-- [#12783](https://github.com/dusk-archive/upstream/dusk-studio/pull/12783) [`336176b`](https://github.com/dusk-archive/upstream/dusk-studio/commit/336176be086c8294d9aa21da9ce83242af8aa9a8) Thanks [@EurFelux](https://github.com/EurFelux)! - Baseline release for previously unmanaged package changes while introducing changesets-based publishing
+- upstream #12783 (336176b) Thanks [@EurFelux](https://github.com/EurFelux)! - Baseline release for previously unmanaged package changes while introducing changesets-based publishing
 
 ## 3.0.11
 

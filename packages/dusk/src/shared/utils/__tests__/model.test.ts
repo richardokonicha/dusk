@@ -139,7 +139,6 @@ describe('shared model capability helpers', () => {
       expect(isGatewayRoutableModel(createModel([MODEL_CAPABILITY.AUDIO_TRANSCRIPT]))).toBe(false)
     })
 
-    
     it('excludes models of a provider id containing ":" (the gateway address cannot round-trip it)', () => {
       const colonProvider: Model = {
         ...createModel(),

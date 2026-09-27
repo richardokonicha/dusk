@@ -99,6 +99,7 @@ asarUnpack:
   - "node_modules/@firecrawl/anydoc-*/**" # native N-API binary must be unpacked for runtime loading
   - "node_modules/node-screenshots-*/**" # native N-API binary must be unpacked for runtime loading
   - "node_modules/node-mac-permissions/**" # native N-API binary must be unpacked for runtime loading
+  - "node_modules/better-sqlite3/**" # N-API prebuild resolved via fs.existsSync at require time — must live on disk
 extraResources:
   - from: "migrations/sqlite-drizzle"
     to: "migrations/sqlite-drizzle"
@@ -115,7 +116,7 @@ win:
     - target: portable
   signtoolOptions:
     sign: scripts/win-sign.js
-  verifyUpdateCodeSignature: false
+  verifyUpdateCodeSignature: true
 nsis:
   # Preserve the existing global installer identity so either edition replaces the same Windows installation.
   guid: 41a4ccd8-bcc0-5710-9eee-0e164da68057
@@ -134,8 +135,10 @@ portable:
   # electron-builder 26.15.6 uses true for a unique $PLUGINSDIR on every launch.
   unpackDirName: true
 mac:
+  hardenedRuntime: true
+  gatekeeperAssess: true
   entitlementsInherit: build/entitlements.mac.plist
-  notarize: false
+  notarize: true
   artifactName: ${productName}-${version}-${arch}.${ext}
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
@@ -169,9 +172,7 @@ rpm:
 # TODO(dusk): point at Dusk update server when it exists
 # publish:
 #   provider: generic
-#   url: https://releases.dusk-ai.com
-electronDownload:
-  mirror: https://npmmirror.com/mirrors/electron/
+#   url: https://releases.dusk.app
 beforePack: scripts/before-pack.js
 afterPack: scripts/after-pack.js
 afterSign: scripts/notarize.js

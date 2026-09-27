@@ -18,7 +18,11 @@ async function writeSource(tempDir: string, relativePath: string, source: string
 }
 
 describe('fix-tailwind-canonical-classes', () => {
-  it('rewrites canonical Tailwind suggestions in JSX className strings', async () => {
+  // Building the Tailwind design system scans every @source tree; on a busy
+  // machine that alone can exceed the 20s default, so allow generous headroom.
+  const designSystemTests = { timeout: 120_000 }
+
+  it('rewrites canonical Tailwind suggestions in JSX className strings', designSystemTests, async () => {
     const tempDir = await createTempDir()
     const filePath = await writeSource(
       tempDir,
@@ -39,7 +43,7 @@ describe('fix-tailwind-canonical-classes', () => {
     expect(source).toContain('className="w-105 sm:max-w-120 min-h-18 w-fit! text-(--color-foreground-secondary)"')
   })
 
-  it('rewrites static cn string arguments and object keys', async () => {
+  it('rewrites static cn string arguments and object keys', designSystemTests, async () => {
     const tempDir = await createTempDir()
     const filePath = await writeSource(
       tempDir,

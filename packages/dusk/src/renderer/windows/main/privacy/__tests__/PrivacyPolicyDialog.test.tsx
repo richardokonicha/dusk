@@ -43,7 +43,7 @@ describe('privacy policy resource selection', () => {
 
   it('builds a Windows-safe dark theme file URL', () => {
     expect(buildPrivacyPolicyUrl('C:\\Program Files\\Dusk\\resources', 'zh-TW', ThemeMode.dark)).toBe(
-      'file:///C:/Program%20Files/Dusk%20Studio/resources/dusk/privacy-zh.html?theme=dark'
+      'file:///C:/Program%20Files/Dusk/resources/dusk/privacy-zh.html?theme=dark'
     )
   })
 })
@@ -62,7 +62,7 @@ describe('PrivacyPolicyDialog', () => {
     await waitFor(() => {
       expect(screen.getByTitle('privacy_policy.title')).toHaveAttribute(
         'src',
-        'file:///Applications/Dusk%20Studio.app/Contents/Resources/dusk/privacy-en.html?theme=light'
+        'file:///Applications/Dusk.app/Contents/Resources/dusk/privacy-en.html?theme=light'
       )
     })
     expect(mocks.ipcRequest).toHaveBeenCalledWith('app.get_info')

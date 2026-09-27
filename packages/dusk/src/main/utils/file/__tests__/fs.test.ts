@@ -20,6 +20,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { hashContent } from '../contentHash'
 import {
+  __setAllowPrivateDownloadHostsForTesting,
   atomicWriteFile,
   atomicWriteIfUnchanged,
   copy as fsCopy,
@@ -863,6 +864,7 @@ describe('download', () => {
   let routes: Map<string, { status: number; body: Uint8Array | string; type?: string }>
 
   beforeEach(async () => {
+    __setAllowPrivateDownloadHostsForTesting(true)
     tmp = await mkdtemp(path.join(tmpdir(), 'dusk-fm-fs-test-'))
     routes = new Map()
     const http = await import('node:http')
@@ -882,6 +884,7 @@ describe('download', () => {
     baseUrl = `http://127.0.0.1:${addr.port}`
   })
   afterEach(async () => {
+    __setAllowPrivateDownloadHostsForTesting(false)
     await rm(tmp, { recursive: true, force: true })
     await new Promise<void>((resolve) => server.close(() => resolve()))
   })
@@ -901,6 +904,14 @@ describe('download', () => {
     expect(await exists(dest)).toBe(false)
     const entries = await readdir(tmp)
     expect(entries.filter((e) => e.includes('.tmp-'))).toEqual([])
+  })
+
+  it('blocks loopback destinations when the test seam is off (SSRF guard)', async () => {
+    __setAllowPrivateDownloadHostsForTesting(false)
+    routes.set('/file.bin', { status: 200, body: Buffer.from([0x01]) })
+    const dest = path.join(tmp, 'out.bin') as AbsoluteFilePath
+    await expect(fsDownload(`${baseUrl}/file.bin`, dest)).rejects.toThrow('private or reserved destination blocked')
+    expect(await exists(dest)).toBe(false)
   })
 })
 

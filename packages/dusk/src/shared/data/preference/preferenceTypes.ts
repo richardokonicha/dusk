@@ -406,11 +406,6 @@ export type FileProcessorOverride = {
 
 export type FileProcessorOverrides = Partial<Record<FileProcessorId, FileProcessorOverride>>
 
-/** Region types for miniApps visibility */
-export type MiniAppRegion = 'CN' | 'Global'
-
-export type MiniAppRegionFilter = 'auto' | MiniAppRegion
-
 /** User-configurable settings for BinaryManager's isolated mise install environment. */
 export type BinaryInstallSettings = {
   githubMirror: string

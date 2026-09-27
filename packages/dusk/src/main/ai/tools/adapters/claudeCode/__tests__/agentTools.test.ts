@@ -255,12 +255,10 @@ describe('createClaudeAgentToolPolicySnapshot — production approval-gate wirin
     expect(findBuiltinToolPolicy(toDuskBuiltinRuntimeName(KB_MANAGE_TOOL_NAME), DUSK_ONLY_SERVERS)?.approval).toBe(
       'required'
     )
-    expect(
-      findBuiltinToolPolicy(toDuskBuiltinRuntimeName(CLI_INSTALL_TOOL_NAME), DUSK_ONLY_SERVERS)?.approval
-    ).toBe('required')
-    expect(
-      findBuiltinToolPolicy(toDuskBuiltinRuntimeName(SESSION_CREATE_TOOL_NAME), DUSK_ONLY_SERVERS)
-    ).toMatchObject({
+    expect(findBuiltinToolPolicy(toDuskBuiltinRuntimeName(CLI_INSTALL_TOOL_NAME), DUSK_ONLY_SERVERS)?.approval).toBe(
+      'required'
+    )
+    expect(findBuiltinToolPolicy(toDuskBuiltinRuntimeName(SESSION_CREATE_TOOL_NAME), DUSK_ONLY_SERVERS)).toMatchObject({
       approval: 'required',
       bypassApproval: 'enforce'
     })

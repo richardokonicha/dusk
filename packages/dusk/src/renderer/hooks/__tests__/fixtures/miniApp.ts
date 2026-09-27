@@ -1,4 +1,4 @@
-import type { MiniApp, MiniAppRegion, SiteMiniApp } from '@shared/data/types/miniApp'
+import type { MiniApp, SiteMiniApp } from '@shared/data/types/miniApp'
 
 /**
  * Shared test fixtures for MiniApp-related hooks.
@@ -12,7 +12,7 @@ import type { MiniApp, MiniAppRegion, SiteMiniApp } from '@shared/data/types/min
  *
  * @example
  * createMiniApp('app1')
- * createMiniApp('app1', { status: 'pinned', supportedRegions: ['Global'] })
+ * createMiniApp('app1', { status: 'pinned' })
  */
 export const createMiniApp = (appId: string, overrides?: Partial<SiteMiniApp>): MiniApp => ({
   kind: 'site',
@@ -25,14 +25,6 @@ export const createMiniApp = (appId: string, overrides?: Partial<SiteMiniApp>): 
   ...overrides
 })
 
-/** Shorthand: create a Global-supporting app */
-export const createGlobalApp = (appId: string, overrides?: Partial<SiteMiniApp>): MiniApp =>
-  createMiniApp(appId, { supportedRegions: ['Global'] as MiniAppRegion[], ...overrides })
-
-/** Shorthand: create a CN-only app */
-export const createCnOnlyApp = (appId: string, overrides?: Partial<SiteMiniApp>): MiniApp =>
-  createMiniApp(appId, { supportedRegions: ['CN'] as MiniAppRegion[], ...overrides })
-
 /**
  * Pre-built app sets for common test scenarios.
  */
@@ -43,13 +35,6 @@ export const appFixtures = {
     enabled2: createMiniApp('enabled2', { status: 'enabled' }),
     disabled1: createMiniApp('disabled1', { status: 'disabled' }),
     pinned1: createMiniApp('pinned1', { status: 'pinned' })
-  },
-
-  /** Three apps with different region support */
-  mixedRegion: {
-    globalApp: createGlobalApp('global-app'),
-    cnOnlyApp: createCnOnlyApp('cn-app'),
-    noRegionApp: createMiniApp('no-region-app')
   },
 
   /** Two apps for LRU eviction tests */

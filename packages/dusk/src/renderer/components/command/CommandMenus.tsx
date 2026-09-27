@@ -824,9 +824,7 @@ export function CommandPopupMenu({
       window.requestAnimationFrame(action)
     }
   }, [])
-  const handleDuskSelectItem = deferActionsUntilClosed
-    ? handleDuskSelectItemAfterClose
-    : handleDuskSelectItemAfterFrame
+  const handleDuskSelectItem = deferActionsUntilClosed ? handleDuskSelectItemAfterClose : handleDuskSelectItemAfterFrame
 
   if (disabled || combinedItems.length === 0) {
     return <>{children}</>

@@ -29,8 +29,7 @@ vi.mock('@application', async () => {
 // Only the shared-artifact leaf is stubbed: the storage service above it — path resolution and
 // the on-disk scan that decides every status — stays real, against a temp directory.
 vi.mock('../../acquisition/tarballArtifact', () => ({
-  artifactRegistryOrder: (preference: 'china-first' | 'global-first') =>
-    preference === 'china-first' ? ['npmmirror', 'npmjs'] : ['npmjs', 'npmmirror'],
+  ARTIFACT_REGISTRY_ORDER: ['npmjs'] as const,
   isArtifactInstalled: artifactInstalled,
   installArtifact,
   artifactEntryPath: () => '/binding.node',
@@ -78,7 +77,6 @@ const BUNDLE: CatalogTypesModule.ModelBundle = {
 }
 
 const INSTALL_SUBDIR = 'org/model'
-const GLOBAL_FIRST = async () => 'global-first' as const
 
 let terminateRuntimeThen: ReturnType<typeof vi.fn>
 let acquireRemovalGuard: ReturnType<typeof vi.fn>
@@ -180,7 +178,7 @@ describe('download', () => {
     // ~614MB of weights that already landed.
     writeFiles('onnx/model.onnx')
 
-    await expect(manager.download(GLOBAL_FIRST)).resolves.toBe('ready')
+    await expect(manager.download()).resolves.toBe('ready')
 
     expect(downloadBundleFiles).toHaveBeenCalledWith(
       BUNDLE,
@@ -202,7 +200,7 @@ describe('download', () => {
       installComplete()
     })
 
-    await expect(manager.download(GLOBAL_FIRST)).resolves.toBe('ready')
+    await expect(manager.download()).resolves.toBe('ready')
 
     // Two phases on one scale — a phase restarting at 0 is what snapped the bar back.
     const percents = statusUpdates().map((payload) => payload.percent)
@@ -220,7 +218,7 @@ describe('download', () => {
         })
     )
 
-    const download = manager.download(GLOBAL_FIRST)
+    const download = manager.download()
     await vi.waitFor(() => expect(manager.getStatusSnapshot()).toEqual({ status: 'downloading', percent: 40 }))
 
     const cancellation = manager.cancel()
@@ -231,7 +229,7 @@ describe('download', () => {
   it('coalesces concurrent callers into a single download', async () => {
     // The settings card and the knowledge-base entry hit the same manager; two downloads
     // would write the same files twice and double the bytes fetched.
-    const [first, second] = await Promise.all([manager.download(GLOBAL_FIRST), manager.download(GLOBAL_FIRST)])
+    const [first, second] = await Promise.all([manager.download(), manager.download()])
 
     expect(first).toBe('ready')
     expect(second).toBe('ready')
@@ -244,7 +242,7 @@ describe('download', () => {
       return Promise.reject(options.signal.reason ?? new Error('aborted'))
     })
 
-    await expect(manager.download(GLOBAL_FIRST)).resolves.toBe('cancelled')
+    await expect(manager.download()).resolves.toBe('cancelled')
 
     expect(statusUpdates().some((payload) => payload.status === 'error')).toBe(false)
     expect(statusUpdates().at(-1)).toMatchObject({ status: 'not_downloaded', percent: 0 })
@@ -257,26 +255,20 @@ describe('download', () => {
       void manager.cancel()
     })
 
-    await expect(manager.download(GLOBAL_FIRST)).resolves.toBe('ready')
+    await expect(manager.download()).resolves.toBe('ready')
 
     expect(finalizeSharedArtifacts).not.toHaveBeenCalled()
     expect(statusUpdates().at(-1)).toEqual({ status: 'ready', percent: 100 })
     expect(manager.getStatus()).toBe('ready')
   })
 
-  it('can cancel while the mirror region decision is pending', async () => {
-    let resolveRegion: ((value: 'china-first') => void) | undefined
-    const regionDecision = new Promise<'china-first'>((resolve) => {
-      resolveRegion = resolve
-    })
-
-    const download = manager.download(() => regionDecision)
+  it('can cancel before the download starts', async () => {
+    const download = manager.download()
     expect(statusUpdates()).toEqual([{ status: 'downloading', percent: 0 }])
     const cancellation = manager.cancel()
     await expect(download).resolves.toBe('cancelled')
     await expect(cancellation).resolves.toBeUndefined()
     expect(downloadBundleFiles).not.toHaveBeenCalled()
-    resolveRegion?.('china-first')
   })
 
   it('keeps a failed attempt draining until cleanup finishes, then starts a fresh retry', async () => {
@@ -289,13 +281,13 @@ describe('download', () => {
         })
     )
 
-    const first = manager.download(GLOBAL_FIRST)
+    const first = manager.download()
     void first.catch(() => {})
     await vi.waitFor(() => expect(finishCleanup).toBeDefined())
     expect(manager.getStatus()).toBe('downloading')
     expect(statusUpdates().some((payload) => payload.status === 'error')).toBe(false)
 
-    const retry = manager.download(GLOBAL_FIRST)
+    const retry = manager.download()
     expect(downloadBundleFiles).toHaveBeenCalledOnce()
     finishCleanup?.()
 
@@ -320,10 +312,10 @@ describe('download', () => {
         })
     )
 
-    const first = manager.download(GLOBAL_FIRST)
+    const first = manager.download()
     await vi.waitFor(() => expect(downloadBundleFiles).toHaveBeenCalledOnce())
     const cancellation = manager.cancel()
-    const retry = manager.download(GLOBAL_FIRST)
+    const retry = manager.download()
     await vi.waitFor(() => expect(finishCleanup).toBeDefined())
     expect(downloadBundleFiles).toHaveBeenCalledOnce()
 
@@ -341,7 +333,7 @@ describe('download', () => {
     artifactInstalled.mockReturnValue(false)
     installArtifact.mockRejectedValueOnce(new Error('every registry mirror failed'))
 
-    await expect(manager.download(GLOBAL_FIRST)).rejects.toThrow('every registry mirror failed')
+    await expect(manager.download()).rejects.toThrow('every registry mirror failed')
 
     expect(downloadBundleFiles).not.toHaveBeenCalled()
     expect(readdirSync(path.join(rootDir, INSTALL_SUBDIR))).toContain('config.json')
@@ -351,7 +343,7 @@ describe('download', () => {
     installComplete()
     artifactInstalled.mockReturnValue(false)
     installArtifact.mockRejectedValueOnce(new Error('every registry mirror failed'))
-    await expect(manager.download(GLOBAL_FIRST)).rejects.toThrow()
+    await expect(manager.download()).rejects.toThrow()
     expect(manager.getStatusInfo()).toEqual({ status: 'error', errorCode: 'download_failed' })
 
     // A fresh manager stands in for an app restart, which clears the in-memory
@@ -394,7 +386,7 @@ describe('remove', () => {
           options.signal.addEventListener('abort', () => reject(options.signal.reason), { once: true })
         })
     )
-    const download = manager.download(GLOBAL_FIRST)
+    const download = manager.download()
     await vi.waitFor(() => expect(downloadBundleFiles).toHaveBeenCalledOnce())
 
     const removal = manager.remove()
@@ -418,7 +410,7 @@ describe('remove', () => {
     const pending = manager.remove()
     await vi.waitFor(() => expect(finishDeletion).toBeDefined())
     expect(releaseRemovalGuard).not.toHaveBeenCalled()
-    await expect(manager.download(GLOBAL_FIRST)).rejects.toThrow(/being removed/)
+    await expect(manager.download()).rejects.toThrow(/being removed/)
 
     finishDeletion?.()
     await expect(pending).resolves.toEqual({ removed: true })

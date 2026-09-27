@@ -150,7 +150,7 @@ Release notes are for **end users**, not developers. Exclude anything users don'
 
 1. **`package.json`**: Update the `"version"` field to the new version.
 2. **`electron-builder.yml`**: Replace the content under `releaseInfo.releaseNotes: |` with the generated notes. Preserve the 4-space YAML indentation for the block scalar content.
-3. **`resources/dusk-studio/release-history.json`**: Never edit by hand; the notes must match `electron-builder.yml` byte for byte. Run `node scripts/release/sync-release-history.js --target-version {version}`, which prepends (or replaces) the entry for a stable release and leaves the file untouched for a prerelease. In GitHub Actions, the workflow runs this itself after the Claude step.
+3. **`resources/dusk/release-history.json`**: Never edit by hand; the notes must match `electron-builder.yml` byte for byte. Run `node scripts/release/sync-release-history.js --target-version {version}`, which prepends (or replaces) the entry for a stable release and leaves the file untouched for a prerelease. In GitHub Actions, the workflow runs this itself after the Claude step.
 4. **Validate source metadata**: For an interactive local run, run `node scripts/release/validate-prepared-release.js --target-version {version}` before generating the product manifest, and stop if it rejects the changed paths, version ordering, bilingual sections, or stable history. In GitHub Actions, leave validation to the workflow step that runs after Claude.
 5. **Built-in knowledge**: For an interactive local run, run `pnpm build:builtin-knowledge` after validation. This refreshes `resources/builtin-agents/dusk-assistant/product-manifest.json` with the new package version. Never edit the generated manifest by hand. In GitHub Actions, do not run the generator: the workflow runs the same validator first, then runs the trusted generator itself.
 
@@ -182,10 +182,10 @@ Otherwise, ask the user to confirm before proceeding to Step 6.
    gh api --paginate --slurp "repos/$REPO/releases?per_page=100" | TAG="v{version}" node scripts/release/validate-release-state.js prepare
    test -z "$(git ls-remote --heads origin refs/heads/release/v{version})"
    git status --short
-   UNEXPECTED_RELEASE_PATHS="$(git status --porcelain | cut -c4- | grep -Ev '^(package\.json|electron-builder\.yml|resources/dusk-studio/release-history\.json|resources/builtin-agents/dusk-assistant/product-manifest\.json)$' || true)"
+   UNEXPECTED_RELEASE_PATHS="$(git status --porcelain | cut -c4- | grep -Ev '^(package\.json|electron-builder\.yml|resources/dusk/release-history\.json|resources/builtin-agents/dusk-assistant/product-manifest\.json)$' || true)"
    test -z "$UNEXPECTED_RELEASE_PATHS"
    git checkout -b release/v{version}
-   git add package.json electron-builder.yml resources/dusk-studio/release-history.json resources/builtin-agents/dusk-assistant/product-manifest.json
+   git add package.json electron-builder.yml resources/dusk/release-history.json resources/builtin-agents/dusk-assistant/product-manifest.json
    git commit -S --signoff -m "chore(release): prepare v{version}"
    git cat-file commit HEAD | grep -q '^gpgsig '
    git log -1 --format=%B | grep -q '^Signed-off-by: '
@@ -206,7 +206,7 @@ Otherwise, ask the user to confirm before proceeding to Step 6.
 ## Constraints
 
 - Always read `electron-builder.yml` before modifying it to understand the current format.
-- Never retain changes outside `package.json`, `electron-builder.yml`, `resources/dusk-studio/release-history.json`, and the generated `resources/builtin-agents/dusk-assistant/product-manifest.json`.
+- Never retain changes outside `package.json`, `electron-builder.yml`, `resources/dusk/release-history.json`, and the generated `resources/builtin-agents/dusk-assistant/product-manifest.json`.
 - Never push directly to `main`.
 - Never create the release metadata PR before the GitHub Release is published; `post-release.yml` owns that step.
 - Always show the generated release notes to the user before creating the release branch (unless running in CI with no interactive user).

@@ -50,11 +50,7 @@ describe('DuskSupportSeeder', () => {
         orderKey: 'a'
       })
       .run()
-    dbh.db
-      .update(agentTable)
-      .set({ model: 'openai::gpt-4o' })
-      .where(eq(agentTable.id, assistant.id))
-      .run()
+    dbh.db.update(agentTable).set({ model: 'openai::gpt-4o' }).where(eq(agentTable.id, assistant.id)).run()
 
     new DuskSupportSeeder().run(dbh.db)
 

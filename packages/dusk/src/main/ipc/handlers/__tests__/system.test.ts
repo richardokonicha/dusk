@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const {
   appGetMock,
   getDeviceTypeMock,
-  getCountryMock,
   getFontsMock,
   isTrustedMock,
   openPathMock,
@@ -17,7 +16,6 @@ const {
 } = vi.hoisted(() => ({
   appGetMock: vi.fn(),
   getDeviceTypeMock: vi.fn(),
-  getCountryMock: vi.fn(),
   getFontsMock: vi.fn(),
   isTrustedMock: vi.fn(),
   openPathMock: vi.fn(),
@@ -32,7 +30,6 @@ const {
 
 vi.mock('@application', () => ({ application: { get: appGetMock } }))
 vi.mock('@main/utils/system', () => ({ getDeviceType: getDeviceTypeMock }))
-vi.mock('@main/services/RegionService', () => ({ regionService: { getCountry: getCountryMock } }))
 vi.mock('@main/utils/externalUrlSafety', () => ({ isSafeExternalUrl: isSafeMock }))
 vi.mock('@main/core/platform', () => ({
   get isMac() {
@@ -81,11 +78,6 @@ describe('systemHandlers', () => {
 
     nativeThemeMock.shouldUseDarkColors = true
     expect(await systemHandlers['system.get_native_theme'](undefined, ctx('w1'))).toBe('dark')
-  })
-
-  it('get_ip_country delegates to RegionService', async () => {
-    getCountryMock.mockResolvedValue('US')
-    expect(await systemHandlers['system.get_ip_country'](undefined, ctx('w1'))).toBe('US')
   })
 
   it('get_fonts strips wrapping quotes and drops empties', async () => {

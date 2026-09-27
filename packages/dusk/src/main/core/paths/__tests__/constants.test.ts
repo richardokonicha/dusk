@@ -105,9 +105,9 @@ describe('LOGS_DIR dev diversion', () => {
     expect(LOGS_DIR).toBe(path.join(`${DEFAULT_USER_DATA}Dev`, 'logs'))
   })
 
-  it('dev: honors the configured CS_DEV_USER_DATA_SUFFIX', async () => {
+  it('dev: honors the configured DUSK_DEV_USER_DATA_SUFFIX', async () => {
     stubPlatform('darwin')
-    vi.stubEnv('CS_DEV_USER_DATA_SUFFIX', 'DevQuito')
+    vi.stubEnv('DUSK_DEV_USER_DATA_SUFFIX', 'DevQuito')
     stubElectron()
     const { LOGS_DIR } = await loadConstants()
     expect(LOGS_DIR).toBe(`${DEFAULT_LOGS}DevQuito`)
@@ -115,7 +115,7 @@ describe('LOGS_DIR dev diversion', () => {
 
   it('dev: blank configured suffix falls back to Dev', async () => {
     stubPlatform('darwin')
-    vi.stubEnv('CS_DEV_USER_DATA_SUFFIX', '   ')
+    vi.stubEnv('DUSK_DEV_USER_DATA_SUFFIX', '   ')
     stubElectron()
     const { LOGS_DIR } = await loadConstants()
     expect(LOGS_DIR).toBe(`${DEFAULT_LOGS}Dev`)
@@ -123,7 +123,7 @@ describe('LOGS_DIR dev diversion', () => {
 
   it('dev: a traversal suffix aborts startup instead of collapsing LOGS_DIR onto the packaged directory', async () => {
     stubPlatform('darwin')
-    vi.stubEnv('CS_DEV_USER_DATA_SUFFIX', '/../Dusk')
+    vi.stubEnv('DUSK_DEV_USER_DATA_SUFFIX', '/../Dusk')
     stubElectron()
     await expect(loadConstants()).rejects.toThrow(/single path component/)
   })
@@ -131,7 +131,7 @@ describe('LOGS_DIR dev diversion', () => {
 
 // Falling back to `Dev` would silently merge a profile meant to be isolated
 // into the shared dev one, so an unusable suffix has to stop the run.
-describe('CS_DEV_USER_DATA_SUFFIX validation', () => {
+describe('DUSK_DEV_USER_DATA_SUFFIX validation', () => {
   it.each([
     ['/../Dusk', 'POSIX traversal'],
     ['\\..\\Dusk', 'Windows traversal'],
@@ -144,7 +144,7 @@ describe('CS_DEV_USER_DATA_SUFFIX validation', () => {
     ['Dev.', 'trailing dot']
   ])('aborts startup for %j (%s)', async (value) => {
     stubPlatform('darwin')
-    vi.stubEnv('CS_DEV_USER_DATA_SUFFIX', value)
+    vi.stubEnv('DUSK_DEV_USER_DATA_SUFFIX', value)
     stubElectron()
     await expect(loadConstants()).rejects.toThrow(/single path component/)
   })
@@ -155,7 +155,7 @@ describe('CS_DEV_USER_DATA_SUFFIX validation', () => {
     'accepts path component %j',
     async (value) => {
       stubPlatform('darwin')
-      vi.stubEnv('CS_DEV_USER_DATA_SUFFIX', value)
+      vi.stubEnv('DUSK_DEV_USER_DATA_SUFFIX', value)
       stubElectron()
       const { LOGS_DIR } = await loadConstants()
       expect(LOGS_DIR).toBe(`${DEFAULT_LOGS}${value}`)
@@ -164,7 +164,7 @@ describe('CS_DEV_USER_DATA_SUFFIX validation', () => {
 
   it('trims surrounding whitespace before validating', async () => {
     stubPlatform('darwin')
-    vi.stubEnv('CS_DEV_USER_DATA_SUFFIX', '  Dev2  ')
+    vi.stubEnv('DUSK_DEV_USER_DATA_SUFFIX', '  Dev2  ')
     stubElectron()
     const { LOGS_DIR } = await loadConstants()
     expect(LOGS_DIR).toBe(`${DEFAULT_LOGS}Dev2`)

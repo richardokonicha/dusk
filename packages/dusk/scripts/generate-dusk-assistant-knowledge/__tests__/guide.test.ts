@@ -65,9 +65,7 @@ describe('Dusk Assistant guide', () => {
 
     expect(agent.instructions['en-US']).toContain('built-in general-purpose Agent and onboarding guide')
     expect(agent.instructions['en-US']).toContain('complete any request using the available tools')
-    expect(agent.instructions['en-US']).toContain(
-      'taking particular ownership of helping them succeed with Dusk'
-    )
+    expect(agent.instructions['en-US']).toContain('taking particular ownership of helping them succeed with Dusk')
     expect(agent.instructions['en-US']).toContain(
       'Use `dusk-feedback` unless the user explicitly asks for a GitHub Issue'
     )

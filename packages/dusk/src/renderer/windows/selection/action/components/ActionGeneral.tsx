@@ -114,8 +114,7 @@ const ActionGeneral: FC<Props> = React.memo(({ action, scrollToBottom }) => {
   const latestAssistantUIMsg = useMemo<DuskUIMessage | undefined>(() => liveAssistants.at(-1), [liveAssistants])
 
   const partsMap = useMemo<Record<string, DuskMessagePart[]>>(
-    () =>
-      latestAssistantUIMsg ? { [latestAssistantUIMsg.id]: latestAssistantUIMsg.parts as DuskMessagePart[] } : {},
+    () => (latestAssistantUIMsg ? { [latestAssistantUIMsg.id]: latestAssistantUIMsg.parts as DuskMessagePart[] } : {}),
     [latestAssistantUIMsg]
   )
 

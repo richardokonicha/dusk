@@ -3,7 +3,6 @@ import { openaiCompatible } from './types'
 export default openaiCompatible({
   id: 'lanyun',
   name: 'LANYUN',
-  availableInEditions: ['global'],
   baseUrl: 'https://maas-api.lanyun.net',
   website: {
     apiKey: 'https://maas.lanyun.net/#/system/apiKey',

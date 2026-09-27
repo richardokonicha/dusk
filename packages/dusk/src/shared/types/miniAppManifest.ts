@@ -178,7 +178,7 @@ export const MINI_APP_BUILTIN_ID_PREFIX = 'com.dusk.miniapp.'
  * SINGLE-TENANT ORIGINS ONLY. An origin is scheme + host + port with no path
  * (RFC 6454), so a shared host puts every other tenant inside the trust boundary and
  * the "an update may not change its origin" rule then protects nothing — same origin,
- * different author. `https://github.com/the upstream the upstream project project/` cannot be an entry for that reason,
+ * different author. `https://gitlab.com/fugoku.inc/` cannot be an entry for that reason,
  * and separately because fetching anything downloadable from github.com redirects
  * (raw./objects.githubusercontent.com) while this design uses `redirect: 'error'`.
  * A per-org GitHub Pages subdomain would qualify; a shared host needs a signed
@@ -339,12 +339,12 @@ export const MiniAppManifestSchema = z
       .refine((hosts) => new Set(hosts).size === hosts.length, 'network hosts must be unique')
       .default([]),
     /**
-     * Where the host checks for updates. `urlCn` is an OPTIONAL China accelerator serving
-     * the same bytes; when present, `mirrorOrder` prefers it for users in China and falls
-     * back to `url`. Every declared origin is pinned at install (design §10.1). A purely
-     * local package has no `update` block at all and downloads nothing.
+     * Where the host checks for updates. The declared origin is pinned at install
+     * (design §10.1). A purely local package has no `update` block at all and
+     * downloads nothing. Strict: a second endpoint is a parse error, not a
+     * silently ignored field.
      */
-    update: z.object({ url: z.url(), urlCn: z.url().optional() }).optional()
+    update: z.strictObject({ url: z.url() }).optional()
   })
   .superRefine((m, ctx) => {
     // AFTER expansion: `["storage.*"]` plus `["storage.get"]` does not overlap
@@ -401,11 +401,9 @@ export const MiniAppDistributionManifestSchema = MiniAppManifestSchema.safeExten
    * point. A purely local package legitimately has no update block; one SERVED over the
    * network without an endpoint has nowhere to be checked against.
    */
-  update: z.object({ url: z.url(), urlCn: z.url().optional() }),
-  package: z.object({
+  update: z.strictObject({ url: z.url() }),
+  package: z.strictObject({
     url: z.url(),
-    /** Optional accelerator; one hash for both, so which mirror served the bytes is irrelevant. */
-    urlCn: z.url().optional(),
     /**
      * Where the consent card can fetch the icon BEFORE the package downloads. Verified
      * against `icon.sha256` — the same digest the packaged icon must match at install —
@@ -418,15 +416,6 @@ export const MiniAppDistributionManifestSchema = MiniAppManifestSchema.safeExten
     size: z.int().positive().max(MINI_APP_MAX_PACKAGE_BYTES)
   })
 }).superRefine((m, ctx) => {
-  // Both-or-neither: a package mirror needs the update mirror's origin to be pinned to,
-  // and an update mirror with no package mirror leaves Chinese users downloading globally.
-  if ((m.update.urlCn === undefined) !== (m.package.urlCn === undefined)) {
-    ctx.addIssue({
-      code: 'custom',
-      path: ['package', 'urlCn'],
-      message: '`update.urlCn` and `package.urlCn` must be declared together'
-    })
-  }
   if (m.package.iconUrl !== undefined && m.icon === undefined) {
     ctx.addIssue({
       code: 'custom',

@@ -9,7 +9,7 @@ All paths are registered in `pathRegistry.ts` and accessed exclusively via `appl
 import { application } from '@application'
 
 const dir  = application.getPath('feature.files.data')
-//=> '/Users/alice/Library/Application Support/DuskStudio/Data/Files'
+//=> '/Users/alice/Library/Application Support/Dusk/Data/Files'
 
 const file = application.getPath('feature.files.data', 'avatar.png')
 //=> '.../Data/Files/avatar.png'
@@ -31,7 +31,7 @@ application.getPath('invalid.key')
 
 | Namespace | Ownership | Examples |
 |-----------|-----------|----------|
-| `dusk.*` | Generic infra under `~/.duskstudio` | `dusk.home`, `dusk.bin` |
+| `dusk.*` | Generic infra under `~/.dusk` | `dusk.home`, `dusk.bin` |
 | `sys.*` | OS-managed directories | `sys.home`, `sys.temp`, `sys.downloads` |
 | `app.*` | Electron app: install dir, userData, database, logs, temp root | `app.userdata`, `app.database.file` |
 | `feature.*` | Dusk-owned feature data (grouped by feature) | `feature.files.data`, `feature.mcp.oauth` |
@@ -87,7 +87,7 @@ Type-checked via `satisfies` — typos and stale references fail at compile time
 
 | Key | Physical location | Note |
 |-----|-------------------|------|
-| `feature.mcp.oauth` | `~/.duskstudio/config/mcp/oauth` | Under `config/`, not `mcp/` |
+| `feature.mcp.oauth` | `~/.dusk/config/mcp/oauth` | Under `config/`, not `mcp/` |
 | `feature.agents.skills.install.temp` | `{app.temp}/skill-install` | Sibling `feature.agents.skills` lives at `{userData}/Data/Skills` |
 | `feature.pdf_translation.babeldoc` | `{userData}/Runtime/models/babeldoc` | Grouped with the other downloaded model caches, not under a `pdf_translation/` dir |
 

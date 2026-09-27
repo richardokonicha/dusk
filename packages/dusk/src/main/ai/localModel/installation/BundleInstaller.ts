@@ -9,14 +9,13 @@ import type {
 } from '@shared/data/presets/localModel'
 
 import { downloadBundleFiles } from '../acquisition/bundleDownload'
-import { type DownloadSourcePreference, type ModelSourceId, modelSourceOrder } from '../acquisition/modelSource'
-import { type ArtifactRegistryId, artifactRegistryOrder } from '../acquisition/tarballArtifact'
+import { MODEL_SOURCE_ORDER } from '../acquisition/modelSource'
+import { ARTIFACT_REGISTRY_ORDER } from '../acquisition/tarballArtifact'
 import type { ModelBundle } from '../catalog/types'
 import { localModelStorageService } from './LocalModelStorageService'
 
 const logger = loggerService.withContext('BundleInstaller')
 
-export type ResolveDownloadSourcePreference = () => Promise<DownloadSourcePreference>
 export type PublishLocalModelStatus = (snapshot: LocalModelStatusSnapshot) => void
 
 interface DownloadAttempt {
@@ -117,7 +116,7 @@ export class BundleInstaller {
     return localModelStorageService.scanBundleFiles(this.bundle).status === 'installed' && this.artifactsReady()
   }
 
-  async download(resolvePreference: ResolveDownloadSourcePreference): Promise<LocalModelDownloadResult> {
+  async download(): Promise<LocalModelDownloadResult> {
     if (this.removalInFlight) throw new Error(`Local model bundle ${this.bundle.id} is being removed.`)
     if (!localModelStorageService.isBundleSupported(this.bundle)) {
       throw new Error(`Local ${this.bundle.capability} model download is not supported on this platform.`)
@@ -126,21 +125,18 @@ export class BundleInstaller {
     if (active) {
       if (active.phase === 'active') return active.promise
       await active.promise.catch(() => {})
-      return this.download(resolvePreference)
+      return this.download()
     }
 
     this.lastDownloadFailed = false
     const controller = new AbortController()
-    const promise = Promise.resolve().then(() => this.runDownloadAttempt(controller, resolvePreference))
+    const promise = Promise.resolve().then(() => this.runDownloadAttempt(controller))
     this.attempt = { controller, phase: 'active', percent: 0, promise }
     this.publishStatus({ status: 'downloading', percent: 0 })
     return promise
   }
 
-  private async runDownloadAttempt(
-    controller: AbortController,
-    resolvePreference: ResolveDownloadSourcePreference
-  ): Promise<LocalModelDownloadResult> {
+  private async runDownloadAttempt(controller: AbortController): Promise<LocalModelDownloadResult> {
     const { signal } = controller
     let releaseReservations: (() => void) | undefined
     let outcome: DownloadOutcome
@@ -148,9 +144,8 @@ export class BundleInstaller {
 
     try {
       releaseReservations = await localModelStorageService.reserveArtifacts(this.bundle.requires, signal)
-      const preference = await this.waitForSourcePreference(resolvePreference, signal)
       signal.throwIfAborted()
-      await this.performDownload(signal, modelSourceOrder(preference), artifactRegistryOrder(preference))
+      await this.performDownload(signal, MODEL_SOURCE_ORDER, ARTIFACT_REGISTRY_ORDER)
     } catch (error) {
       failure = { error }
     }
@@ -205,8 +200,8 @@ export class BundleInstaller {
    */
   private async performDownload(
     signal: AbortSignal,
-    sourceOrder: readonly [ModelSourceId, ...ModelSourceId[]],
-    registryOrder: readonly [ArtifactRegistryId, ...ArtifactRegistryId[]]
+    sourceOrder: readonly ['huggingface', ...'huggingface'[]],
+    registryOrder: readonly ['npmjs', ...'npmjs'[]]
   ): Promise<void> {
     const pending = localModelStorageService.pendingBundleFiles(this.bundle)
     const artifactWeight = this.bundle.requires.reduce(
@@ -263,36 +258,6 @@ export class BundleInstaller {
   async settle(): Promise<void> {
     await this.cancel()
     await this.removalInFlight?.catch(() => {})
-  }
-
-  private waitForSourcePreference(
-    resolvePreference: ResolveDownloadSourcePreference,
-    signal: AbortSignal
-  ): Promise<DownloadSourcePreference> {
-    if (signal.aborted) return Promise.reject(this.abortError(signal))
-
-    return new Promise<DownloadSourcePreference>((resolve, reject) => {
-      let settled = false
-      const finish = (callback: () => void) => {
-        if (settled) return
-        settled = true
-        signal.removeEventListener('abort', onAbort)
-        callback()
-      }
-      const onAbort = () => finish(() => reject(this.abortError(signal)))
-
-      signal.addEventListener('abort', onAbort, { once: true })
-      Promise.resolve()
-        .then(resolvePreference)
-        .then(
-          (preference) => finish(() => resolve(preference)),
-          (error) => finish(() => reject(error))
-        )
-    })
-  }
-
-  private abortError(signal: AbortSignal): Error {
-    return signal.reason instanceof Error ? signal.reason : new Error('aborted')
   }
 
   private async runSharedArtifactFinalizer(): Promise<void> {

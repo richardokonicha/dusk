@@ -93,5 +93,4 @@ describe('RuntimeExecutor.rerank', () => {
       documents: ['alpha']
     })
   })
-
-  })
+})

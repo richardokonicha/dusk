@@ -63,7 +63,6 @@ describe('MiniAppService', () => {
       logoKey: preset.logo ?? null,
       bordered: preset.bordered ?? true,
       background: preset.background ?? null,
-      supportedRegions: preset.supportedRegions ?? null,
       nameKey: preset.nameKey ?? null,
       status: 'enabled',
       orderKey: 'a0',
@@ -75,14 +74,13 @@ describe('MiniAppService', () => {
 
   describe('getByAppId', () => {
     it('should return a custom miniapp', async () => {
-      await seedCustom({ background: '#ffffff', supportedRegions: ['CN'] })
+      await seedCustom({ background: '#ffffff' })
       const result = expectSite(miniAppService.getByAppId('custom-app'))
       expect(result.appId).toBe('custom-app')
       expect(result.name).toBe('Custom App')
       expect(result.presetMiniAppId).toBeNull()
       expect(result.bordered).toBeUndefined()
       expect(result.background).toBeUndefined()
-      expect(result.supportedRegions).toBeUndefined()
     })
 
     it('should return a preset-derived miniapp with presetMiniAppId set', async () => {
@@ -91,7 +89,6 @@ describe('MiniAppService', () => {
       expect(result.appId).toBe('openai')
       expect(result.presetMiniAppId).toBe('openai')
       expect(result.bordered).toBe(true)
-      expect(result.supportedRegions).toEqual(['Global'])
     })
 
     it('should throw NOT_FOUND for nonexistent appId', async () => {
@@ -143,7 +140,6 @@ describe('MiniAppService', () => {
       expect(result.presetMiniAppId).toBeNull()
       expect(result.bordered).toBeUndefined()
       expect(result.background).toBeUndefined()
-      expect(result.supportedRegions).toBeUndefined()
       expect(result.configuration).toBeUndefined()
 
       const [row] = await dbh.db.select().from(miniAppTable).where(eq(miniAppTable.appId, 'new-app'))
@@ -209,7 +205,7 @@ describe('MiniAppService', () => {
     })
 
     it('should update user-facing fields on a custom miniapp', async () => {
-      await seedCustom({ background: '#ffffff', supportedRegions: ['CN'] })
+      await seedCustom({ background: '#ffffff' })
 
       const result = expectSite(
         miniAppService.update('custom-app', {
@@ -225,7 +221,6 @@ describe('MiniAppService', () => {
         logo: 'icon:renamed'
       })
       expect(result.background).toBeUndefined()
-      expect(result.supportedRegions).toBeUndefined()
     })
 
     it('should update status on a preset miniapp', async () => {

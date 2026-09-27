@@ -10,7 +10,6 @@ import { defineProvider } from './types'
 export default defineProvider({
   id: 'grok-cli',
   name: 'Grok CLI',
-  availableInEditions: ['global'],
   defaultChatEndpoint: 'openai-responses',
   modelListSource: 'registry',
   authMethods: ['oauth'],

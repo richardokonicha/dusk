@@ -446,7 +446,7 @@ const Ce = (e) => (t, n, r, a) => {
     e
       ? RegExp(`^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-${e}[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`)
       : /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/,
-  Ge = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/
+  Ge = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9-]*\.)+[A-Za-z]{2,}$/
 function Ke() {
   return RegExp(`^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`, `u`)
 }
@@ -1752,7 +1752,7 @@ var Bn,
     get(e) {
       let t = e._zod.parent
       if (t) {
-        let n = { ...(this.get(t) ?? {}) }
+        let n = { ...this.get(t) }
         delete n.id
         let r = { ...n, ...this._map.get(e) }
         return Object.keys(r).length ? r : void 0
@@ -2210,7 +2210,7 @@ const Kr =
     (e, t, n = {}) =>
     (r) => {
       let { libraryOptions: i, target: a } = r ?? {},
-        o = Ur({ ...(i ?? {}), target: a, io: t, processors: n })
+        o = Ur({ ...i, target: a, io: t, processors: n })
       return P(e, o), Wr(o, e), Gr(o, e)
     },
   Jr = { guid: `uuid`, url: `uri`, datetime: `date-time`, json_string: `json-string`, regex: `` },

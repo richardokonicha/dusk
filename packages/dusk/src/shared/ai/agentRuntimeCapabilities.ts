@@ -131,9 +131,7 @@ export const AGENT_RUNTIME_CAPABILITIES = {
     // Orphan models are rejected (pre-descriptor behavior): pi needs the provider's endpoint
     // config to resolve a wire protocol, so no provider ⇒ not drivable. The managed DuskLegacy
     // free-quota default is barred too — like claude, pi must not drive it directly.
-    isModelCompatible: (provider, model) =>
-      !!provider &&
-      isPiCompatibleModel(provider, model),
+    isModelCompatible: (provider, model) => !!provider && isPiCompatibleModel(provider, model),
     transport: 'pi-agent',
     builtinTools: () =>
       PI_BUILTIN_TOOLS.map((tool) => ({
@@ -161,9 +159,7 @@ export const AGENT_RUNTIME_CAPABILITIES = {
     createDefaults: { permissionMode: 'acceptEdits' },
     // Orphan models are rejected: dsh needs the provider's endpoint config to resolve a wire
     // protocol, so no provider ⇒ not drivable. The managed DuskLegacy default is barred like pi's.
-    isModelCompatible: (provider, model) =>
-      !!provider &&
-      isDshCompatibleModel(provider, model),
+    isModelCompatible: (provider, model) => !!provider && isDshCompatibleModel(provider, model),
     transport: 'dsh-agent',
     builtinTools: () => [
       ...DSH_BUILTIN_TOOLS.map((tool) => ({

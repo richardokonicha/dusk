@@ -1007,7 +1007,7 @@ describe('buildClaudeCodeQueryRequestForAgentSession resume-token precedence', (
 
     // Sorted canonical order — the retained custom header survives the merge.
     expect(request?.settings.env?.ANTHROPIC_CUSTOM_HEADERS).toBe(
-      'x-dusk-agent-session-id: session-1\nX-Dusk-Fast-Mode: true\nX-Dusk-Internal-Request-Token: internal-request-token\nx-dusk-internal-usage-token: internal-token\nX-Custom-Header: retained'
+      'X-Custom-Header: retained\nx-dusk-agent-session-id: session-1\nX-Dusk-Fast-Mode: true\nX-Dusk-Internal-Request-Token: internal-request-token\nx-dusk-internal-usage-token: internal-token'
     )
   })
 

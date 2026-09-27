@@ -1,13 +1,4 @@
-import {
-  Button,
-  InputNumber,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Tooltip
-} from '@dusk/ui'
+import { Button, InputNumber, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tooltip } from '@dusk/ui'
 import type { Model } from '@shared/data/types/model'
 import type { TFunction } from 'i18next'
 import { Plus, Trash2 } from 'lucide-react'

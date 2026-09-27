@@ -103,7 +103,7 @@ describe('getFunctionalKeys - Filter Non-Functional Keys', () => {
   it('should filter out $schema key', () => {
     const obj = {
       $schema: 'https://opencode.ai/config.json',
-      provider: { 'Dusk-Studio': { name: 'test' } },
+      provider: { Dusk: { name: 'test' } },
       model: 'test-model'
     }
     const result = getFunctionalKeys(obj)

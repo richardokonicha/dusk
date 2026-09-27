@@ -1,7 +1,6 @@
 import { application } from '@application'
 import { loggerService } from '@logger'
 import { isMac } from '@main/core/platform'
-import { regionService } from '@main/services/RegionService'
 import { isSafeExternalUrl } from '@main/utils/externalUrlSafety'
 import {
   getScreenCapturePermissionStatus,
@@ -52,7 +51,6 @@ export const systemHandlers: IpcHandlersFor<typeof systemRequestSchemas> = {
       return []
     }
   },
-  'system.get_ip_country': async () => regionService.getCountry(),
   'system.mac.is_process_trusted': async () => (isMac ? systemPreferences.isTrustedAccessibilityClient(false) : false),
   'system.mac.request_process_trust': async () =>
     isMac ? systemPreferences.isTrustedAccessibilityClient(true) : false,

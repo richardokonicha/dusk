@@ -1,6 +1,6 @@
 import { type Model, MODEL_CAPABILITY } from '@shared/data/types/model'
 import type { Provider } from '@shared/data/types/provider'
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import { createElement, type PropsWithChildren } from 'react'
 import { SWRConfig } from 'swr'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -44,14 +44,6 @@ function cloudModel(id: string): Model {
     apiModelId: id,
     name: id
   }
-}
-
-function deferred<T>() {
-  let resolve!: (value: T) => void
-  const promise = new Promise<T>((done) => {
-    resolve = done
-  })
-  return { promise, resolve }
 }
 
 function wrapper() {
@@ -136,54 +128,11 @@ describe('useAgentModelDisabled', () => {
     mocks.statusChanged = undefined
   })
 
-  it('keeps Cloud models disabled until the first snapshot arrives', () => {
-    mocks.ipcRequest.mockReturnValue(new Promise(() => undefined))
-    const cloud = cloudModel('deepseek-go')
+  it('never disables models since managed subscription gating was removed', () => {
     const { result } = renderHook(() => useAgentModelDisabled(), { wrapper: wrapper() })
 
-    expect(result.current(cloud)).toBe(true)
+    expect(result.current(cloudModel('deepseek-go'))).toBe(false)
     expect(result.current(model())).toBe(false)
-  })
-
-  it('applies entitlements and quota exhaustion from the synchronized snapshot', async () => {
-    const available = cloudModel('deepseek-go')
-    const exhausted = cloudModel('deepseek-free')
-    mocks.availability = {
-      entitledModelIds: [available.id, exhausted.id],
-      quotaExhaustedModelIds: [exhausted.id]
-    }
-    const { result } = renderHook(() => useAgentModelDisabled(), { wrapper: wrapper() })
-
-    await waitFor(() => expect(result.current(available)).toBe(false))
-    expect(result.current(exhausted)).toBe(true)
-  })
-
-  it('does not synchronize while disabled', async () => {
-    renderHook(() => useAgentModelDisabled(), { wrapper: wrapper() })
-
-    await act(async () => Promise.resolve())
     expect(mocks.ipcRequest).not.toHaveBeenCalled()
-  })
-
-  it('keeps models disabled when an older sign-in refresh finishes after sign out', async () => {
-    const cloud = cloudModel('deepseek-go')
-    mocks.availability = {
-      entitledModelIds: [cloud.id],
-      quotaExhaustedModelIds: []
-    }
-    const pendingRefresh = deferred<typeof mocks.availability>()
-    const { result } = renderHook(() => useAgentModelDisabled(), { wrapper: wrapper() })
-    await waitFor(() => expect(result.current(cloud)).toBe(false))
-
-    mocks.ipcRequest.mockImplementationOnce(() => pendingRefresh.promise)
-    act(() => mocks.statusChanged?.())
-    await waitFor(() => expect(mocks.ipcRequest).toHaveBeenCalledTimes(2))
-    act(() => mocks.statusChanged?.())
-    pendingRefresh.resolve({
-      entitledModelIds: [cloud.id],
-      quotaExhaustedModelIds: []
-    })
-
-    await waitFor(() => expect(result.current(cloud)).toBe(true))
   })
 })

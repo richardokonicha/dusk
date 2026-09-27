@@ -42,7 +42,6 @@ stats.html
 .eslintcache
 # Downloaded native binaries (mise, etc.)
 resources/binaries/
-scripts/linux-native/prebuilt/
 
 # ENV
 .env
@@ -69,7 +68,7 @@ CLAUDE.local.md
 AGENTS.override.md
 
 # Local Electron development
-.context/cherry-electron-dev/
+.context/dusk-electron-dev/
 
 # vitest
 coverage

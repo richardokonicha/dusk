@@ -10,7 +10,6 @@ import { openaiResponsesSummaryWire } from './wires'
 export default defineProvider({
   id: 'openai-codex',
   name: 'OpenAI Codex',
-  availableInEditions: ['global'],
   defaultChatEndpoint: 'openai-responses',
   modelListSource: 'registry',
   authMethods: ['oauth'],

@@ -1,7 +1,6 @@
 import { LOCAL_EMBEDDING_PROVIDER_ID } from '@shared/data/presets/localEmbedding'
 import { type Model, MODEL_CAPABILITY } from '@shared/data/types/model'
 import type { Provider } from '@shared/data/types/provider'
-import type { AppEdition } from '@shared/types/appEdition'
 import { renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -11,12 +10,6 @@ import { useModelSelectorData } from '../useModelSelectorData'
 const mockUseModels = vi.fn()
 const mockUseProviders = vi.fn()
 const mockUsePins = vi.fn()
-const mockGetAppEdition = vi.fn<() => AppEdition>(() => 'global')
-
-vi.mock('@renderer/utils/appEdition', () => ({
-  getAppEdition: () => mockGetAppEdition()
-}))
-
 vi.mock('@renderer/hooks/useModel', () => ({
   useModels: (...args: unknown[]) => mockUseModels(...args)
 }))
@@ -104,7 +97,6 @@ beforeEach(() => {
   mockUseModels.mockReset()
   mockUseProviders.mockReset()
   mockUsePins.mockReset()
-  mockGetAppEdition.mockReturnValue('global')
 })
 
 describe('useModelSelectorData', () => {
@@ -146,16 +138,16 @@ describe('useModelSelectorData', () => {
     expect(result.current.selectableModelsById.has('google::gemini-pro')).toBe(false)
   })
 
-  it.each(['duskai', LOCAL_EMBEDDING_PROVIDER_ID])('hides the provider settings action for %s', (providerId) => {
+  it(`hides the provider settings action for ${LOCAL_EMBEDDING_PROVIDER_ID}`, () => {
     wireDeps({
-      providers: [makeProvider(providerId)],
-      models: [makeModel('qwen', providerId)]
+      providers: [makeProvider(LOCAL_EMBEDDING_PROVIDER_ID)],
+      models: [makeModel('embedding', LOCAL_EMBEDDING_PROVIDER_ID)]
     })
 
     const { result } = renderHook(() => useModelSelectorData({ searchText: '' }))
 
     expect(result.current.listItems.find((item) => item.type === 'group')).toMatchObject({
-      key: `provider-${providerId}`,
+      key: `provider-${LOCAL_EMBEDDING_PROVIDER_ID}`,
       canNavigateToSettings: false
     })
   })

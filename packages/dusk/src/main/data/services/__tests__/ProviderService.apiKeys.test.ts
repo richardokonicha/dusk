@@ -12,8 +12,6 @@ import { MockMainCacheServiceUtils } from '@test-mocks/main/CacheService'
 import { eq } from 'drizzle-orm'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@main/utils/appEdition', () => ({ getAppEdition: () => 'global' }))
-
 // The API-key mutators are synchronous under better-sqlite3: failing calls throw
 // inline instead of rejecting a promise. Capture the thrown error to assert its shape.
 function captureError(fn: () => unknown): unknown {
@@ -57,7 +55,6 @@ describe('ProviderService API keys', () => {
     const [row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'openai'))
     return row?.apiKeys ?? []
   }
-
 
   it('adds a new API key as enabled and skips duplicate values', async () => {
     await seedProvider()

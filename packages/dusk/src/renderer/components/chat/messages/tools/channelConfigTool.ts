@@ -11,8 +11,7 @@ type ChannelConfigToolResponse = McpToolResponse | NormalToolResponse
 
 function isChannelConfigTool(toolResponse: ChannelConfigToolResponse): boolean {
   const { tool } = toolResponse
-  const isDuskTools =
-    ('serverId' in tool && tool.serverId === 'dusk-tools') || tool.name === 'mcp__dusk-tools__config'
+  const isDuskTools = ('serverId' in tool && tool.serverId === 'dusk-tools') || tool.name === 'mcp__dusk-tools__config'
   return tool.type === 'mcp' && isDuskTools && CONFIG_TOOL_NAMES.has(tool.name)
 }
 

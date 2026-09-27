@@ -474,4 +474,3 @@ describe('buildPiProviderInjection', () => {
     expect(() => buildPiProviderInjection(provider, makeModel({}), '')).toThrow(PiUnsupportedProviderError)
   })
 })
-

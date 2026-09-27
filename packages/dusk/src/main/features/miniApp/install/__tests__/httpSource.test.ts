@@ -8,36 +8,12 @@ import { MINI_APP_MAX_PACKAGE_BYTES } from '@shared/types/miniAppManifest'
 import { mockMainLoggerService } from '@test-mocks/MainLoggerService'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const isInChina = vi.fn(async () => false)
-vi.mock('@main/services/RegionService', () => ({ regionService: { isInChina } }))
-
 const fetch = vi.fn()
 vi.mock('electron', () => ({ net: { fetch } }))
 
-const { fetchIcon, fetchManifest, fetchPackage, mirrorOrder, MINI_APP_DOWNLOAD_IDLE_MS, MINI_APP_SOURCE_TIMEOUT_MS } =
-  await import('../httpSource')
-
-const GLOBAL = 'https://example.com/manifest.json'
-const CN = 'https://cdn.example.cn/manifest.json'
-
-const MANIFEST = {
-  id: 'com.example.mygame',
-  name: 'My Game',
-  description: 'A tiny sample game.',
-  version: '1.0.0',
-  entry: 'index.html',
-  permissions: [],
-  network: [],
-  // BOTH endpoints in both blocks — required since the dual-source gate landed, and this
-  // fixture is parsed by the real `MiniAppDistributionManifestSchema`.
-  update: { url: 'https://example.com/manifest.json', urlCn: 'https://cdn.example.cn/manifest.json' },
-  package: {
-    url: 'https://example.com/1.0.0.miniapp',
-    urlCn: 'https://cdn.example.cn/1.0.0.miniapp',
-    sha256: 'a'.repeat(64),
-    size: 1024
-  }
-}
+const { fetchIcon, fetchManifest, fetchPackage, MINI_APP_DOWNLOAD_IDLE_MS, MINI_APP_SOURCE_TIMEOUT_MS } = await import(
+  '../httpSource'
+)
 
 /** Like the real `net.fetch`: settles only when the signal aborts. */
 const hanging = (init: RequestInit) =>
@@ -47,70 +23,29 @@ const hanging = (init: RequestInit) =>
     else init.signal?.addEventListener('abort', refuse)
   })
 
-/** A streaming response, because `fetchManifest` counts bytes as they arrive. */
-const bodyOf = (value: unknown) => ({
-  ok: true,
-  body: (async function* () {
-    yield Buffer.from(JSON.stringify(value))
-  })()
-})
-
 // Neither `clearMocks` nor `restoreMocks` is set repo-wide, and these cases count calls.
 beforeEach(() => {
   fetch.mockReset()
-  isInChina.mockReset()
-  isInChina.mockResolvedValue(false)
 })
 
-describe('mirrorOrder', () => {
-  it('puts the region default first and keeps the other as fallback', async () => {
-    // Both directions: a hardcoded order passes whichever single case it happens to match.
-    isInChina.mockResolvedValueOnce(true)
-    expect(await mirrorOrder(GLOBAL, CN)).toEqual([CN, GLOBAL])
-
-    isInChina.mockResolvedValueOnce(false)
-    expect(await mirrorOrder(GLOBAL, CN)).toEqual([GLOBAL, CN])
-  })
-
-  it('degrades to the global default when region detection fails', async () => {
-    // Region detection is a network call of its own; failing it must not fail the download.
-    isInChina.mockRejectedValueOnce(new Error('offline'))
-
-    expect(await mirrorOrder(GLOBAL, CN)).toEqual([GLOBAL, CN])
-  })
-
-  it('returns the one url unchanged when no accelerator is declared', async () => {
-    expect(await mirrorOrder(GLOBAL, undefined)).toEqual([GLOBAL])
-  })
-})
-
-describe('mirror fallback', () => {
-  it('falls back to the next mirror when the first one fails', async () => {
-    fetch.mockRejectedValueOnce(new Error('ENOTFOUND')).mockResolvedValueOnce(bodyOf(MANIFEST))
-
-    await expect(fetchManifest([GLOBAL, CN])).resolves.toMatchObject({ id: MANIFEST.id })
-    expect(fetch).toHaveBeenCalledTimes(2)
-  })
-
-  it('gives up on a mirror that never answers and moves to the next', async () => {
-    // Without a deadline a server that accepts the connection and says nothing holds the
-    // check forever, and the fallback mirror is never tried.
+describe('fetchManifest', () => {
+  it('times out a source that never answers', async () => {
+    // Without a deadline a server that accepts the connection and says nothing holds
+    // the check forever.
     vi.useFakeTimers()
     try {
-      fetch
-        .mockImplementationOnce((_url: string, init: RequestInit) => hanging(init))
-        .mockResolvedValueOnce(bodyOf(MANIFEST))
-      const manifest = fetchManifest([GLOBAL, CN])
+      fetch.mockImplementationOnce((_url: string, init: RequestInit) => hanging(init))
+      const manifest = fetchManifest(['https://example.com/manifest.json'])
+      manifest.catch(() => undefined)
       await vi.advanceTimersByTimeAsync(MINI_APP_SOURCE_TIMEOUT_MS)
 
-      await expect(manifest).resolves.toMatchObject({ id: MANIFEST.id })
-      expect(fetch).toHaveBeenCalledTimes(2)
+      await expect(manifest).rejects.toThrow()
     } finally {
       vi.useRealTimers()
     }
   })
 
-  it('logs a failed mirror without its query, userinfo or fragment', async () => {
+  it('logs a failed request without its query, userinfo or fragment', async () => {
     // Presigned download urls carry their credential in the query, and warn logs persist.
     vi.mocked(mockMainLoggerService.warn).mockClear()
     fetch.mockRejectedValue(new Error('down'))
@@ -120,14 +55,6 @@ describe('mirror fallback', () => {
     const logged = JSON.stringify(vi.mocked(mockMainLoggerService.warn).mock.calls)
     expect(logged).toContain('https://example.com/m.json')
     expect(logged).not.toMatch(/SECRET|user:pw|frag/)
-  })
-
-  it('surfaces the LAST error when every mirror fails', async () => {
-    // The fallback's failure is the one a user can usually act on; rethrowing the first
-    // buries it, and "the download failed" with the wrong host in it costs a bug report.
-    fetch.mockRejectedValueOnce(new Error('global down')).mockRejectedValueOnce(new Error('cn down'))
-
-    await expect(fetchManifest([GLOBAL, CN])).rejects.toThrow(/cn down/)
   })
 })
 
@@ -139,7 +66,7 @@ describe('package origin pin', () => {
       fetchPackage(['https://attacker.io/p.miniapp'], {
         sha256: 'a'.repeat(64),
         size: 1024,
-        origins: ['https://example.com', 'https://cdn.example.cn']
+        origins: ['https://example.com']
       })
     ).rejects.toThrow(/not one of the pinned/i)
     expect(fetch).not.toHaveBeenCalled()

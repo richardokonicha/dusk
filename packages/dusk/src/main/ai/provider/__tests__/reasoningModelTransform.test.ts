@@ -1,8 +1,5 @@
 import { createExecutor } from '@dusk/ai-core'
-import {
-  applyReasoningModelMaxTokensConversion,
-  isOpenAIReasoningModelId
-} from '@dusk/ai-sdk-provider'
+import { applyReasoningModelMaxTokensConversion, isOpenAIReasoningModelId } from '@dusk/ai-sdk-provider'
 import { ENDPOINT_TYPE } from '@shared/data/types/model'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -195,7 +192,6 @@ describe('wire-body regression through real construction paths', () => {
     expect(body.max_tokens).toBeUndefined()
   })
 
-  
   it('DuskLegacy path (own providerSettings builder) rewrites max_tokens on the wire', async () => {
     const provider = makeProvider({
       id: 'deepseek',

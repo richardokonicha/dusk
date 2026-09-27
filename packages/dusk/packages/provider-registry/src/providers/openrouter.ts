@@ -4,7 +4,6 @@ import { defineProvider } from './types'
 export default defineProvider({
   id: 'openrouter',
   name: 'OpenRouter',
-  availableInEditions: ['global'],
   // OpenRouter's usage response carries the actual billed amount, so the cost
   // engine trusts it over locally computed pricing.
   reportsActualCost: true,

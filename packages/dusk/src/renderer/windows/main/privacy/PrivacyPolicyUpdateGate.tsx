@@ -1,13 +1,5 @@
 import { usePreference } from '@data/hooks/usePreference'
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@dusk/ui'
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@dusk/ui'
 import { useIsPrivacyUpdateRequired } from '@renderer/hooks/useIsPrivacyUpdateRequired'
 import { toast } from '@renderer/services/toast'
 import { LATEST_PRIVACY_POLICY_VERSION } from '@shared/utils/constants'

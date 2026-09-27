@@ -31,8 +31,7 @@ describe('MiniAppSeeder', () => {
       appId: preset.id,
       presetMiniAppId: preset.id,
       name: 'Stale Name',
-      url: preset.url,
-      supportedRegions: ['CN', 'Global'],
+      url: 'https://stale.example',
       status: 'enabled',
       orderKey: 'a0'
     })
@@ -42,7 +41,7 @@ describe('MiniAppSeeder', () => {
 
     const [row] = await dbh.db.select().from(miniAppTable).where(eq(miniAppTable.appId, preset.id))
     expect(row.name).toBe(preset.name)
-    expect(row.supportedRegions).toEqual(['Global'])
+    expect(row.url).toBe(preset.url)
   })
 
   it('should not overwrite user-modified status or orderKey on re-run', async () => {

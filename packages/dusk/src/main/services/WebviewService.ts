@@ -79,10 +79,10 @@ export class WebviewService extends BaseService {
     this.initKeyboardRelayPreload()
   }
 
-    /**
-     * Initialize the useragent of the webview session.
-     * Removes Dusk and Electron from the useragent.
-     */
+  /**
+   * Initialize the useragent of the webview session.
+   * Removes Dusk and Electron from the useragent.
+   */
   private initSessionUserAgent() {
     const wvSession = session.fromPartition(WEBVIEW_PARTITION)
     const originUA = wvSession.getUserAgent()

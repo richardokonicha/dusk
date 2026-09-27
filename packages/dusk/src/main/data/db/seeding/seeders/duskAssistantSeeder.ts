@@ -69,9 +69,7 @@ export class DuskAssistantSeeder implements ISeeder {
   private getNameForPreferredSystemLanguage(): string {
     try {
       const language = app.getPreferredSystemLanguages()[0]
-      return language?.toLowerCase().startsWith('zh')
-        ? DUSK_ASSISTANT_SEED.name.zh
-        : DUSK_ASSISTANT_SEED.name.default
+      return language?.toLowerCase().startsWith('zh') ? DUSK_ASSISTANT_SEED.name.zh : DUSK_ASSISTANT_SEED.name.default
     } catch {
       return DUSK_ASSISTANT_SEED.name.default
     }

@@ -1,12 +1,4 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-  Alert,
-  Button,
-  Scrollbar
-} from '@dusk/ui'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Alert, Button, Scrollbar } from '@dusk/ui'
 import { useEnableKnowledgeBaseEmbedding } from '@renderer/hooks/useKnowledgeBase'
 import { toast } from '@renderer/services/toast'
 import { formatErrorMessageWithPrefix } from '@renderer/utils/error'

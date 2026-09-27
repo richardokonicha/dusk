@@ -6,20 +6,13 @@
  * full data. The discriminator is preset membership, not a stored kind column.
  */
 
-import type { InsertMiniAppRow, MiniAppRegion, MiniAppStatus } from '@data/db/schemas/miniApp'
+import type { InsertMiniAppRow, MiniAppStatus } from '@data/db/schemas/miniApp'
 import { PRESETS_MINI_APPS } from '@shared/data/presets/miniApps'
 
 const presetMap = new Map(PRESETS_MINI_APPS.map((p) => [p.id, p]))
 
 function toNullable<T>(value: unknown): T | null {
   return (value ?? null) as T | null
-}
-
-function toNullableRegions(raw: unknown): MiniAppRegion[] | null {
-  if (!Array.isArray(raw)) return null
-  const validRegions = new Set<string>(['CN', 'Global'])
-  const regions = raw.filter((r): r is MiniAppRegion => typeof r === 'string' && validRegions.has(r))
-  return regions.length > 0 ? regions : null
 }
 
 function toRequired<T>(value: unknown, fallback: T): T {
@@ -66,7 +59,6 @@ export function transformMiniApp(
       logoKey: preset.logo ?? null,
       bordered: preset.bordered ?? true,
       background: preset.background ?? null,
-      supportedRegions: preset.supportedRegions ?? null,
       nameKey: preset.nameKey ?? null,
       status
     }
@@ -90,7 +82,6 @@ export function transformMiniApp(
     // Prefer the correctly spelled 'bordered' field; fall back to the typo field
     bordered: toRequired(source.bordered ?? source.bodered, true),
     background: toNullable<string>(source.background),
-    supportedRegions: toNullableRegions(source.supportedRegions),
     nameKey: toNullable<string>(source.nameKey)
   }
 }

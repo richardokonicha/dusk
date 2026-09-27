@@ -8,20 +8,20 @@ import { setupTestDatabase } from '@test-helpers/db'
 import { eq } from 'drizzle-orm'
 import { describe, expect, it, vi } from 'vitest'
 
-// Stub the registry loader so the preset lookup returns a minimal DuskLegacySub row
-// (its anthropic / gemini / OpenAI endpoints tagged `duskin`) without
+// Stub the registry loader so the preset lookup returns a minimal new-api row
+// (its anthropic / gemini / OpenAI endpoints tagged `newapi`) without
 // reading the shipped providers.json, whose path is mocked away in the harness.
 vi.mock('@dusk/provider-registry/node', () => {
   class RegistryLoader {
     loadProviders() {
       return [
         {
-          id: 'duskin',
+          id: 'new-api',
           endpointConfigs: {
-            'anthropic-messages': { adapterFamily: 'duskin', baseUrl: 'https://open.duskin.net' },
-            'google-generate-content': { adapterFamily: 'duskin', baseUrl: 'https://open.duskin.net' },
-            'openai-responses': { adapterFamily: 'duskin', baseUrl: 'https://open.duskin.net' },
-            'openai-chat-completions': { adapterFamily: 'duskin', baseUrl: 'https://open.duskin.net' }
+            'anthropic-messages': { adapterFamily: 'newapi', baseUrl: 'http://localhost:3000' },
+            'google-generate-content': { adapterFamily: 'newapi', baseUrl: 'http://localhost:3000' },
+            'openai-responses': { adapterFamily: 'newapi', baseUrl: 'http://localhost:3000' },
+            'openai-chat-completions': { adapterFamily: 'newapi', baseUrl: 'http://localhost:3000' }
           }
         }
       ]
@@ -70,45 +70,45 @@ describe('ProviderService.update — endpoint config overrides', () => {
   })
 
   it('persists a { baseUrl }-only override when a settings PATCH adds an endpoint', async () => {
-    // A correctly-created preset-derived instance (openai-chat tagged `duskin`).
+    // A correctly-created preset-derived instance (openai-chat tagged `newapi`).
     providerService.create({
-      providerId: 'duskin-express',
-      presetProviderId: 'duskin',
-      name: 'DuskIn Express',
+      providerId: 'newapi-express',
+      presetProviderId: 'new-api',
+      name: 'New API Express',
       defaultChatEndpoint: ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS,
       endpointConfigs: {
-        [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: { baseUrl: 'https://express-ent-admin.duskin.ai' }
+        [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: { baseUrl: 'https://relay.example.com' }
       }
     })
 
     // The "add endpoint" drawer PATCHes the public baseUrl-only shape.
-    providerService.update('duskin-express', {
+    providerService.update('newapi-express', {
       endpointConfigs: {
         [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: {
-          baseUrl: 'https://express-ent-admin.duskin.ai'
+          baseUrl: 'https://relay.example.com'
         },
-        [ENDPOINT_TYPE.ANTHROPIC_MESSAGES]: { baseUrl: 'https://express-ent-admin.duskin.ai/v1' }
+        [ENDPOINT_TYPE.ANTHROPIC_MESSAGES]: { baseUrl: 'https://relay.example.com/v1' }
       }
     })
 
     const [row] = await dbh.db
       .select()
       .from(userProviderTable)
-      .where(eq(userProviderTable.providerId, 'duskin-express'))
+      .where(eq(userProviderTable.providerId, 'newapi-express'))
 
     // Rows persist only the user-owned override shape — the echoed
     // adapterFamily is stripped for preset-linked providers.
     expect(row.endpointConfigs?.[ENDPOINT_TYPE.ANTHROPIC_MESSAGES]).toEqual({
-      baseUrl: 'https://express-ent-admin.duskin.ai/v1'
+      baseUrl: 'https://relay.example.com/v1'
     })
     expect(row.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]).toEqual({
-      baseUrl: 'https://express-ent-admin.duskin.ai'
+      baseUrl: 'https://relay.example.com'
     })
     // The runtime read supplies the preset family for the newly-added
     // endpoint instead of the openai-compatible fallback.
-    const runtime = providerService.getByProviderId('duskin-express')
-    expect(runtime.endpointConfigs?.[ENDPOINT_TYPE.ANTHROPIC_MESSAGES]?.adapterFamily).toBe('duskin')
-    expect(runtime.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]?.adapterFamily).toBe('duskin')
+    const runtime = providerService.getByProviderId('newapi-express')
+    expect(runtime.endpointConfigs?.[ENDPOINT_TYPE.ANTHROPIC_MESSAGES]?.adapterFamily).toBe('newapi')
+    expect(runtime.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]?.adapterFamily).toBe('newapi')
   })
 
   it('preserves a main-only legacy adapterFamily when a custom provider baseUrl is updated', async () => {
@@ -142,31 +142,31 @@ describe('ProviderService.update — endpoint config overrides', () => {
     expect(runtime.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]?.adapterFamily).toBe('newapi')
   })
 
-  it('uses the preset adapter family when adding the DuskLegacySub Responses endpoint', async () => {
+  it('uses the preset adapter family when adding the Responses endpoint', async () => {
     providerService.create({
-      providerId: 'duskin-express-2',
-      presetProviderId: 'duskin',
-      name: 'DuskIn Express 2',
+      providerId: 'newapi-express-2',
+      presetProviderId: 'new-api',
+      name: 'New API Express 2',
       defaultChatEndpoint: ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS,
       endpointConfigs: {
-        [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: { baseUrl: 'https://express-ent-admin.duskin.ai' }
+        [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: { baseUrl: 'https://relay.example.com' }
       }
     })
 
-    providerService.update('duskin-express-2', {
+    providerService.update('newapi-express-2', {
       endpointConfigs: {
-        [ENDPOINT_TYPE.OPENAI_RESPONSES]: { baseUrl: 'https://express-ent-admin.duskin.ai' }
+        [ENDPOINT_TYPE.OPENAI_RESPONSES]: { baseUrl: 'https://relay.example.com' }
       }
     })
 
     const [row] = await dbh.db
       .select()
       .from(userProviderTable)
-      .where(eq(userProviderTable.providerId, 'duskin-express-2'))
+      .where(eq(userProviderTable.providerId, 'newapi-express-2'))
     expect(row.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_RESPONSES]).toEqual({
-      baseUrl: 'https://express-ent-admin.duskin.ai'
+      baseUrl: 'https://relay.example.com'
     })
-    const runtime = providerService.getByProviderId('duskin-express-2')
-    expect(runtime.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_RESPONSES]?.adapterFamily).toBe('duskin')
+    const runtime = providerService.getByProviderId('newapi-express-2')
+    expect(runtime.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_RESPONSES]?.adapterFamily).toBe('newapi')
   })
 })

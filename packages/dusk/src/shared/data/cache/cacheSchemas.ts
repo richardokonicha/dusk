@@ -1,7 +1,7 @@
 import type { AiUsageRecordListSortBy, AiUsageRecordSortOrder } from '@shared/data/api/schemas/aiUsageRecords'
 import type { JobProgress, JobSnapshot } from '@shared/data/api/schemas/jobs'
 import type { LocalModelStatusSnapshots } from '@shared/data/presets/localModel'
-import type { MiniAppRegion, TransientMiniApp } from '@shared/data/types/miniApp'
+import type { TransientMiniApp } from '@shared/data/types/miniApp'
 import type { Currency } from '@shared/data/types/model'
 import type { AutoBackupType } from '@shared/types/backup'
 import type { AbsoluteFilePath } from '@shared/types/file'
@@ -147,7 +147,6 @@ export type UseCacheSchema = {
   'mini_app.split_id': string
   'mini_app.show': boolean
   'mini_app.opened_oneoff': CacheValueTypes.CacheMiniAppType | null
-  'mini_app.detected_region': MiniAppRegion | null
 
   // Topic management
   'topic.renaming': string[]
@@ -235,7 +234,6 @@ export const DefaultUseCache: UseCacheSchema = {
   'mini_app.split_id': '',
   'mini_app.show': false,
   'mini_app.opened_oneoff': null,
-  'mini_app.detected_region': null,
 
   // Topic management
   'topic.renaming': [],

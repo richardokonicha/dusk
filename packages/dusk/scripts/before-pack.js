@@ -4,8 +4,6 @@ const fs = require('fs')
 const path = require('path')
 const { parse } = require('yaml')
 
-const { ensureLinuxNativeArtifact } = require('./linux-native/download')
-
 // if you want to add new prebuild binaries packages with different architectures, you can add them here
 // please add to allX64 and allArm64 from pnpm-lock.yaml
 const packages = [
@@ -121,10 +119,10 @@ const keepPackages = (platform, arch) => {
 // Anything kept for this arch but never installed is a native module the app would fail to
 // load at runtime, so stop here instead of shipping it. musl builds are excluded: pnpm
 // installs them only on a musl host, and releases are built on glibc.
-const assertPrebuiltPackages = (platform, arch) => {
+const assertPrebuiltPackages = (platform, arch, packagesRoot = path.join(__dirname, '..', 'node_modules')) => {
   const missingPackages = keepPackages(platform, arch)
     .filter((p) => !p.includes('musl'))
-    .filter((p) => !fs.existsSync(path.join(__dirname, '..', 'node_modules', p)))
+    .filter((p) => !fs.existsSync(path.join(packagesRoot, p)))
   if (missingPackages.length > 0) {
     throw new Error(
       `Missing prebuilt packages for ${platform}-${arch}: ${missingPackages.join(', ')}\n` +
@@ -140,20 +138,8 @@ exports.default = async function (context) {
   const arch = context.arch === Arch.arm64 ? 'arm64' : 'x64'
   const platformName = context.packager.platform.name
   const platform = platformToArch[platformName]
-  const projectRoot = path.join(__dirname, '..')
 
   assertPrebuiltPackages(platform, arch)
-
-  if (platform === 'linux') {
-    const linuxArch = context.arch === Arch.arm64 ? 'arm64' : context.arch === Arch.x64 ? 'x64' : null
-    if (!linuxArch) throw new Error(`Unsupported Linux packaging architecture: ${context.arch}`)
-
-    const artifact = ensureLinuxNativeArtifact({ projectRoot, arch: linuxArch })
-    process.stdout.write(
-      `${artifact.cached ? 'Verified cached' : 'Downloaded'} GLIBC-compatible better-sqlite3 for ` +
-        `linux-${linuxArch} (${artifact.inspection.sha256})\n`
-    )
-  }
 
   console.log(`Downloading bundled binaries for ${platform}-${arch}...`)
   execSync(`node "${path.join(__dirname, 'download-binaries.js')}" ${platform} ${arch} --packaging`, {

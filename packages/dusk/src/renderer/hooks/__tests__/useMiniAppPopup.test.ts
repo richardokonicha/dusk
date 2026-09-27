@@ -567,15 +567,12 @@ describe('useMiniAppPopup', () => {
         result.current.openSmartMiniApp({
           appId: 'releases',
           name: 'Releases',
-          url: 'file:///Applications/Dusk%20Studio/resources/releases.html?theme=dark',
+          url: 'file:///Applications/Dusk/resources/releases.html?theme=dark',
           logo: 'icon'
         })
       })
 
-      expect(mocks.request).toHaveBeenCalledWith(
-        'system.shell.open_path',
-        '/Applications/Dusk/resources/releases.html'
-      )
+      expect(mocks.request).toHaveBeenCalledWith('system.shell.open_path', '/Applications/Dusk/resources/releases.html')
       expect(mocks.request).not.toHaveBeenCalledWith('system.shell.open_website', expect.anything())
       expect(mockTabs.openTab).not.toHaveBeenCalled()
       expect(getKeepAlive()).toEqual([])
@@ -629,7 +626,7 @@ describe('useMiniAppPopup', () => {
       expect(mockClearWebviewState).not.toHaveBeenCalledWith('existing')
     })
 
-    // Regression for https://github.com/the upstream the upstream project project/dusk/pull/14049 —
+    // Regression for https://gitlab.com/fugoku.inc/dusk/pull/14049 —
     // before the fix, switching between miniapp tabs that the user had pinned
     // in the AppShell tab bar would still evict them from keep-alive (the
     // hook didn't know about pin status), so the side-bar mini-tab list

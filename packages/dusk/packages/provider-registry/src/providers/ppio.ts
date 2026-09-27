@@ -7,11 +7,10 @@ const editAndGenerate = (mode: ImageModeDef) => ({ edit: mode, generate: mode })
 export default openaiCompatible({
   id: 'ppio',
   name: 'PPIO',
-  availableInEditions: ['global', 'cn'],
   baseUrl: 'https://api.ppinfra.com/v3/openai/',
   website: {
     apiKey: 'https://ppio.com/settings/key-management',
-    docs: 'https://docs.dusk-ai.com/pre-basic/providers/ppio',
+    docs: 'https://ppio.com/docs',
     models: 'https://ppio.com/model-api/product/llm-api',
     official: 'https://ppio.com/'
   },

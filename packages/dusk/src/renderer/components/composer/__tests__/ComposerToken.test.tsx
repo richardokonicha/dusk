@@ -356,7 +356,7 @@ describe('ComposerToken', () => {
           id: 'link:1',
           kind: 'link',
           label: 'Dusk',
-          promptText: 'https://dusk-ai.com'
+          promptText: 'https://dusk.app'
         }}
       />
     )

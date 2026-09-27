@@ -1,12 +1,4 @@
-import {
-  Button,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue
-} from '@dusk/ui'
+import { Button, Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from '@dusk/ui'
 import { cn } from '@renderer/utils/style'
 import type { Group } from '@shared/data/types/group'
 import { Plus, X } from 'lucide-react'

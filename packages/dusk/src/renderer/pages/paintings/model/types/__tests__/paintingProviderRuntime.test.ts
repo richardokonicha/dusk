@@ -6,8 +6,8 @@ import { resolvePaintingApiHost } from '../paintingProviderRuntime'
 
 function provider(overrides: Partial<Provider> = {}): Provider {
   return {
-    id: 'duskin',
-    name: 'DuskLegacySub',
+    id: 'new-api',
+    name: 'New API',
     apiKeys: [],
     authType: 'api-key',
     reportsActualCost: false,
@@ -28,7 +28,7 @@ describe('resolvePaintingApiHost', () => {
           }
         }),
         {
-          [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: { baseUrl: 'https://open.duskin.net/' }
+          [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: { baseUrl: 'https://open.newapi.example/' }
         }
       )
     ).toBe('https://proxy.example/v1')
@@ -37,9 +37,9 @@ describe('resolvePaintingApiHost', () => {
   it('uses registry preset endpoint configs for an OpenAI-compatible painting provider', () => {
     expect(
       resolvePaintingApiHost(provider({ defaultChatEndpoint: ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS }), {
-        [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: { baseUrl: 'https://open.duskin.net/' }
+        [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: { baseUrl: 'https://open.newapi.example/' }
       })
-    ).toBe('https://open.duskin.net')
+    ).toBe('https://open.newapi.example')
   })
 
   it('does not apply the OpenAI-compatible fallback to unrelated providers', () => {

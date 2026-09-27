@@ -110,6 +110,7 @@ vi.mock('@renderer/services/toast', () => ({
 vi.mock('@renderer/i18n/label', () => ({
   getSidebarIconLabelKey: (key: SidebarAppId) =>
     ({
+      workspaces: 'Workspaces',
       assistants: 'Chat',
       agents: 'Agent',
       store: 'Library',

@@ -73,7 +73,7 @@ describe('initCrashTelemetry', () => {
 
     expect(crashReporterStartMock).toHaveBeenCalledTimes(1)
     expect(crashReporterStartMock).toHaveBeenCalledWith({
-      companyName: 'the upstream the upstream project project',
+      companyName: 'fugoku.inc/dusk',
       productName: 'Dusk',
       submitURL: '',
       uploadToServer: false

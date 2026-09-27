@@ -39,10 +39,7 @@ describe('withMessagePartDiagnosis', () => {
     // The DataApi PATCH body is validated by UpdateAgentSessionMessageSchema →
     // MessageDataSchema, a shallow z.custom that must not strip dusk meta.
     const parsed = UpdateAgentSessionMessageSchema.parse({ data: { parts: next } })
-    const parsedPart = (parsed.data.parts as DuskMessagePart[])[0] as Extract<
-      DuskMessagePart,
-      { type: 'data-error' }
-    >
+    const parsedPart = (parsed.data.parts as DuskMessagePart[])[0] as Extract<DuskMessagePart, { type: 'data-error' }>
 
     expect(readDuskMeta(parsedPart)?.diagnosis).toEqual(diagnosis)
   })

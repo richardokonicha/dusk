@@ -118,7 +118,7 @@ describe('MarkdownFilePreview links', () => {
   })
 
   it('keeps external links out of the local file opener', async () => {
-    mocks.readText.mockResolvedValue('[Dusk](https://dusk-ai.com)')
+    mocks.readText.mockResolvedValue('[Dusk](https://dusk.app)')
     const openFile = vi.fn()
 
     renderArtifactPreview(openFile)

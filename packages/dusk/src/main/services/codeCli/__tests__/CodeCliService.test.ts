@@ -97,10 +97,6 @@ vi.mock('@main/utils/bundledGit', () => ({
   getBundledGitDir: bundledGitMock.getBundledGitDir
 }))
 
-vi.mock('@main/services/RegionService', () => ({
-  regionService: { isInChina: vi.fn().mockResolvedValue(false) }
-}))
-
 vi.mock('child_process', () => ({
   // run() awaits the child's spawn/error race before reporting success, so the
   // fake child must emit 'spawn' to its listener.

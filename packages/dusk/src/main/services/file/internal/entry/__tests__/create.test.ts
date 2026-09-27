@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 
 import { hashContent } from '@main/utils/file/contentHash'
+import { __setAllowPrivateDownloadHostsForTesting } from '@main/utils/file/index'
 import { type AbsoluteFilePath, AbsoluteFilePathSchema } from '@shared/types/file'
 import { setupTestDatabase } from '@test-helpers/db'
 import { MockMainDbServiceUtils } from '@test-mocks/main/DbService'
@@ -173,6 +174,7 @@ describe('internal/entry/create.createInternal', () => {
     let routes: Map<string, { status: number; body: Buffer; type?: string }>
 
     beforeEach(async () => {
+      __setAllowPrivateDownloadHostsForTesting(true)
       routes = new Map()
       const http = await import('node:http')
       server = http.createServer((req, res) => {
@@ -192,6 +194,7 @@ describe('internal/entry/create.createInternal', () => {
     })
 
     afterEach(async () => {
+      __setAllowPrivateDownloadHostsForTesting(false)
       await new Promise<void>((resolve) => server.close(() => resolve()))
     })
 
