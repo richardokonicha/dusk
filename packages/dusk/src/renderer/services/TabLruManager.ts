@@ -7,18 +7,18 @@ const logger = loggerService.withContext('TabLRU')
  * Tab LRU limits configuration
  *
  * Controls when inactive tabs should be hibernated to save memory.
- * TODO: 后续可从偏好设置注入
+ * TODO: Can be injected from preferences later
  */
 export const TAB_LIMITS = {
   /**
-   * 软上限：活跃标签数超过此值时触发 LRU 休眠
-   * 默认 10，可根据实际内存使用情况调整
+   * Soft cap: trigger LRU hibernation when active tab count exceeds this value
+   * Default 10, adjustable based on actual memory usage
    */
   softCap: 10,
 
   /**
-   * 硬保险丝：极端兜底，防止 runaway
-   * 当活跃标签数超过此值时，强制休眠超额部分
+   * Hard fuse: extreme fallback to prevent runaway
+   * When active tab count exceeds this value, force hibernation of excess
    */
   hardCap: 22
 }
@@ -26,12 +26,12 @@ export const TAB_LIMITS = {
 export type TabLimits = typeof TAB_LIMITS
 
 /**
- * TabLruManager - 管理标签页的 LRU 休眠策略
+ * TabLruManager - Manages tab LRU hibernation strategy
  *
- * 功能：
- * - 当活跃标签数超过软上限时，选择 LRU 候选进行休眠
- * - 硬保险丝作为极端兜底，防止内存失控
- * - 支持豁免机制：当前标签、默认聊天标签、置顶标签不参与软上限休眠
+ * Features:
+ * - When active tab count exceeds soft cap, select LRU candidates for hibernation
+ * - Hard fuse as extreme fallback to prevent memory runaway
+ * - Supports exemption mechanism: current tab, default chat tab, pinned tabs don't participate in soft cap hibernation
  */
 export class TabLruManager {
   private softCap: number
@@ -43,21 +43,21 @@ export class TabLruManager {
   }
 
   /**
-   * 检查并返回需要休眠的标签 ID 列表
+   * Check and return list of tab IDs that need hibernation
    *
-   * 策略：
-   * - 超过 softCap：休眠到 softCap
-   * - 超过 hardCap：强制休眠到 softCap（忽略部分豁免，仅保留当前+默认聊天标签）
+   * Strategy:
+   * - Exceeds softCap: hibernate down to softCap
+   * - Exceeds hardCap: force hibernate down to softCap (ignore some exemptions, keep only current + default chat tabs)
    *
-   * @param tabs 所有标签
-   * @param activeTabId 当前活动标签 ID
-   * @returns 需要休眠的标签 ID 数组
+   * @param tabs All tabs
+   * @param activeTabId Currently active tab ID
+   * @returns Array of tab IDs to hibernate
    */
   checkAndGetDormantCandidates(tabs: Tab[], activeTabId: string): string[] {
     const activeTabs = tabs.filter((t) => !t.isDormant)
     const activeCount = activeTabs.length
 
-    // 未超软上限，无需休眠
+    // Below soft cap, no hibernation needed
     if (activeCount <= this.softCap) {
       return []
     }
@@ -79,7 +79,7 @@ export class TabLruManager {
       })
     }
 
-    // 只能休眠可用的候选数量
+    // Can only hibernate available candidates
     toHibernateCount = Math.min(toHibernateCount, candidates.length)
 
     const afterHibernation = activeCount - toHibernateCount
@@ -117,7 +117,7 @@ export class TabLruManager {
   }
 
   /**
-   * 硬保险丝候选列表（仅豁免当前标签和默认聊天标签）
+   * Hard fuse candidate list (only exempt current tab and default chat tab)
    */
   private getHardCapCandidates(tabs: Tab[], activeTabId: string): Tab[] {
     return tabs
@@ -136,25 +136,25 @@ export class TabLruManager {
   }
 
   /**
-   * 判断标签是否豁免休眠
+   * Check if tab is exempt from hibernation
    *
-   * 豁免条件：
-   * - 当前活动标签
-   * - 默认聊天标签 (id === 'home')
-   * - 置顶标签 (isPinned)
-   * - 已休眠的标签（不重复处理）
+   * Exemption conditions:
+   * - Current active tab
+   * - Default chat tab (id === 'home')
+   * - Pinned tab (isPinned)
+   * - Already dormant tab (don't process again)
    */
   private isExempt(tab: Tab, activeTabId: string): boolean {
     return (
-      tab.id === activeTabId || // 当前活动标签
-      tab.id === 'home' || // 默认聊天标签（须与 TabsContext 的 DEFAULT_TAB.id 一致）
-      tab.isPinned === true || // 置顶标签
-      tab.isDormant === true // 已休眠的不再参与
+      tab.id === activeTabId || // Current active tab
+      tab.id === 'home' || // Default chat tab (must match TabsContext DEFAULT_TAB.id)
+      tab.isPinned === true || // Pinned tab
+      tab.isDormant === true // Already dormant, don't process again
     )
   }
 
   /**
-   * 更新软上限（供未来设置页使用）
+   * Update soft cap (for future settings page)
    */
   updateSoftCap(newSoftCap: number): void {
     this.softCap = newSoftCap
@@ -162,7 +162,7 @@ export class TabLruManager {
   }
 
   /**
-   * 更新硬上限（供未来设置页使用）
+   * Update hard cap (for future settings page)
    */
   updateHardCap(newHardCap: number): void {
     this.hardCap = newHardCap
@@ -170,7 +170,7 @@ export class TabLruManager {
   }
 
   /**
-   * 获取当前配置
+   * Get current configuration
    */
   getLimits(): TabLimits {
     return {

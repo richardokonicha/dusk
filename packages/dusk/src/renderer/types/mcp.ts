@@ -3,11 +3,11 @@ import { isBuiltinMcpServerName } from '@shared/utils/mcp'
 import * as z from 'zod'
 
 /**
- * 定义 MCP 服务器的通信类型。
- * stdio: 通过标准输入/输出与子进程通信 (最常见)。
- * sse:  通过HTTP Server-Sent Events 通信。
+ * Define MCP server communication types.
+ * stdio: Communicate with subprocess via stdin/stdout (most common).
+ * sse:  Communicate via HTTP Server-Sent Events.
  *
- * 允许 inMemory 作为合法字段，需要额外校验 name 是否 builtin
+ * Allow inMemory as a valid field, requires additional validation that name is builtin
  */
 export const McpServerTypeSchema = z
   .string()
@@ -19,103 +19,103 @@ export const McpServerTypeSchema = z
       return type
     }
   })
-  .pipe(z.union([z.literal('stdio'), z.literal('sse'), z.literal('streamableHttp'), z.literal('inMemory')])) // 大多数情况下默认使用 stdio
+  .pipe(z.union([z.literal('stdio'), z.literal('sse'), z.literal('streamableHttp'), z.literal('inMemory')])) // Most cases default to stdio
 
 export const McpServerInstallSourceSchema = z.enum(['builtin', 'manual', 'protocol', 'unknown']).default('unknown')
 export type McpServerInstallSource = z.infer<typeof McpServerInstallSourceSchema>
 
 /**
- * 定义单个 MCP 服务器的配置。
- * FIXME: 为了兼容性，暂时允许用户编辑任意字段，这可能会导致问题。
- * 除了类型匹配以外，目前唯一显式禁止的行为是将 type 设置为 inMemory
+ * Define a single MCP server configuration.
+ * FIXME: For compatibility, temporarily allow users to edit arbitrary fields, which may cause issues.
+ * Other than type matching, the only explicitly prohibited behavior is setting type to inMemory
  */
 export const McpServerConfigSchema = z
   .object({
     /**
-     * 服务器内部ID
-     * 可选。用于内部标识服务器的唯一标识符。
+     * Server internal ID
+     * Optional. Used to uniquely identify the server internally.
      */
     id: z.string().optional().describe('Server internal id.'),
     /**
-     * 服务器名称
-     * 可选。用于标识和显示服务器。
+     * Server name
+     * Optional. Used to identify and display the server.
      */
     name: z.string().optional().describe('Server name for identification and display'),
     /**
-     * 服务器的通信类型。
-     * 可选。如果未指定，默认为 "stdio"。
+     * Server communication type.
+     * Optional. Defaults to "stdio" if not specified.
      */
     type: McpServerTypeSchema.optional(),
     /**
-     * 服务器描述
-     * 可选。用于描述服务器的功能和用途。
+     * Server description
+     * Optional. Describes the server's functionality and purpose.
      */
     description: z.string().optional().describe('Server description'),
     /**
-     * 服务器的URL地址
-     * 可选。用于指定服务器的访问地址。
+     * Server URL address
+     * Optional. Specifies the server's access address.
      */
     url: z.string().optional().describe('Server URL address'),
     /**
-     * url 的内部别名，优先使用 baseUrl 字段。
-     * 可选。用于指定服务器的访问地址。
+     * Internal alias for url, baseUrl field takes priority.
+     * Optional. Specifies the server's access address.
      */
     baseUrl: z.string().optional().describe('Server URL address'),
     /**
-     * 启动服务器的命令 (如 "uvx", "npx")。
-     * 可选。
+     * Command to start the server (e.g., "uvx", "npx").
+     * Optional.
      */
     command: z.string().optional().describe("The command to execute (e.g., 'uvx', 'npx')"),
     /**
-     * registry URL
-     * 可选。用于指定服务器的 registry 地址。
+     * Registry URL
+     * Optional. Specifies the server's registry address.
      */
     registryUrl: z.string().optional().describe('Registry URL for the server'),
     /**
-     * 传递给命令的参数数组。
-     * 通常第一个参数是脚本路径或包名。
-     * 可选。
+     * Array of arguments passed to the command.
+     * Usually the first argument is the script path or package name.
+     * Optional.
      */
     args: z.array(z.string()).optional().describe('The arguments to pass to the command'),
     /**
-     * 启动时注入的环境变量对象。
-     * 键为变量名，值为字符串。
-     * 可选。
+     * Environment variables object injected at startup.
+     * Keys are variable names, values are strings.
+     * Optional.
      */
     env: z.record(z.string(), z.string()).optional().describe('Environment variables for the server process'),
     /**
-     * 请求头配置
-     * 可选。用于设置请求时的自定义headers。
+     * Request header configuration
+     * Optional. Used to set custom headers for requests.
      */
     headers: z.record(z.string(), z.string()).optional().describe('Custom headers configuration'),
     /**
-     * provider 名称
-     * 可选。用于指定服务器的提供商。
+     * Provider name
+     * Optional. Specifies the server's provider.
      */
     provider: z.string().optional().describe('Provider name for the server'),
     /**
-     * provider URL
-     * 可选。用于指定服务器提供商的网站或文档地址。
+     * Provider URL
+     * Optional. Specifies the provider's website or documentation address.
      */
     providerUrl: z.string().optional().describe('URL of the provider website or documentation'),
     /**
-     * logo URL
-     * 可选。用于指定服务器的logo图片地址。
+     * Logo URL
+     * Optional. Specifies the server's logo image address.
      */
     logoUrl: z.string().optional().describe('URL of the server logo'),
     /**
-     * 服务器标签
-     * 可选。用于对服务器进行分类和标记。
+     * Server tags
+     * Optional. Used to categorize and label servers.
      */
     tags: z.array(z.string()).optional().describe('Server tags for categorization'),
     /**
-     * 是否为长期运行的服务器
-     * 可选。用于标识服务器是否需要持续运行。
+     * Whether the server is long-running
+     * Optional. Identifies whether the server needs to run continuously.
      */
     longRunning: z.boolean().optional().describe('Whether the server is long running'),
     /**
-     * 请求超时时间
-     * 可选。单位为秒，默认为60秒。
+     * Request timeout
+     * Optional. In seconds, defaults to 60 seconds.
      */
     timeout: z
       .preprocess((val) => {
@@ -127,51 +127,51 @@ export const McpServerConfigSchema = z
       }, z.number().optional())
       .describe('Timeout in seconds for requests to this server'),
     /**
-     * DXT包版本号
-     * 可选。用于标识DXT包的版本。
+     * DXT package version
+     * Optional. Identifies the DXT package version.
      */
     dxtVersion: z.string().optional().describe('Version of the DXT package'),
     /**
-     * DXT包解压路径
-     * 可选。指定DXT包解压后的存放路径。
+     * DXT package extraction path
+     * Optional. Specifies where the DXT package was extracted.
      */
     dxtPath: z.string().optional().describe('Path where the DXT package was extracted'),
     /**
-     * 参考链接
-     * 可选。服务器的文档或主页链接。
+     * Reference link
+     * Optional. Documentation or homepage link for the server.
      */
     reference: z.string().optional().describe('Reference link for the server'),
     /**
-     * 搜索关键字
-     * 可选。用于服务器搜索的关键字。
+     * Search keywords
+     * Optional. Keywords for server search.
      */
     searchKey: z.string().optional().describe('Search key for the server'),
     /**
-     * 配置示例
-     * 可选。服务器配置的示例。
+     * Configuration sample
+     * Optional. Example configuration for the server.
      */
     configSample: McpConfigSampleSchema.optional().describe('Configuration sample for the server'),
     /**
-     * 禁用的工具列表
-     * 可选。用于指定该服务器上禁用的工具。
+     * List of disabled tools
+     * Optional. Specifies tools disabled on this server.
      */
     disabledTools: z.array(z.string()).optional().describe('List of disabled tools for this server'),
     /**
-     * 禁用自动批准的工具列表
-     * 可选。用于指定该服务器上禁用自动批准的工具。
+     * List of tools disabled for auto-approval
+     * Optional. Specifies tools disabled for auto-approval on this server.
      */
     disabledAutoApproveTools: z
       .array(z.string())
       .optional()
       .describe('List of tools that are disabled for auto-approval on this server'),
     /**
-     * 是否应该配置
-     * 可选。用于标识服务器是否需要配置。
+     * Whether configuration is required
+     * Optional. Identifies whether the server needs configuration.
      */
     shouldConfig: z.boolean().optional().describe('Whether the server should be configured'),
     /**
-     * 是否激活
-     * 可选。用于标识服务器是否处于激活状态。
+     * Whether the server is active
+     * Optional. Identifies whether the server is in active state.
      */
     isActive: z.boolean().optional().describe('Whether the server is active'),
     installSource: McpServerInstallSourceSchema.optional().describe('Where the MCP server was installed from'),
@@ -180,7 +180,7 @@ export const McpServerConfigSchema = z
     installedAt: z.number().optional().describe('Timestamp when the server was installed')
   })
   .strict()
-  // 在这里定义额外的校验逻辑
+  // Additional validation logic defined here
   .refine(
     (schema) => {
       if (schema.type === 'inMemory' && schema.name && !isBuiltinMcpServerName(schema.name)) {
@@ -193,10 +193,10 @@ export const McpServerConfigSchema = z
     }
   )
   .transform((schema) => {
-    // 显式传入的type会覆盖掉从url推断的逻辑
+    // Explicitly provided type overrides url-inferred logic
     if (!schema.type) {
       const url = schema.baseUrl ?? schema.url ?? null
-      // NOTE: url 暗示了服务器的类型为 streamableHttp 或 sse，未来可能会扩展其他类型
+      // NOTE: url implies server type is streamableHttp or sse, may extend other types in future
       if (url !== null) {
         const type = getMcpServerType(url)
         return {
@@ -208,42 +208,42 @@ export const McpServerConfigSchema = z
     return schema
   })
 /**
- * 将服务器别名（字符串ID）映射到其配置的对象。
- * 例如: { "my-tools": { command: "...", args: [...] }, "github": { ... } }
+ * Map server aliases (string IDs) to their configurations.
+ * Example: { "my-tools": { command: "...", args: [...] }, "github": { ... } }
  */
 export const McpServersMapSchema = z.record(z.string(), McpServerConfigSchema)
 /**
- * 顶层配置对象Schema。
- * 表示整个MCP配置文件的结构。
+ * Top-level configuration object schema.
+ * Represents the structure of the entire MCP configuration file.
  */
 export const McpConfigSchema = z.object({
   /**
-   * 包含一个或多个MCP服务器定义的映射。
-   * 名称（键）是用户定义的别名。
-   * 此字段为必需。
+   * Map containing one or more MCP server definitions.
+   * Names (keys) are user-defined aliases.
+   * This field is required.
    */
-  // 不在这里 refine 服务器数量，因为在类型定义文件中不能用 i18n 处理错误信息
+  // Don't refine server count here because type definition files can't use i18n for error messages
   mcpServers: McpServersMapSchema.describe('Mapping of server aliases to their configurations')
 })
-// 数据校验用类型，McpServerType 复用于 McpServer
+// Data validation types, McpServerType reused for McpServer
 
 export type McpServerType = z.infer<typeof McpServerTypeSchema>
 export type McpServerConfig = z.infer<typeof McpServerConfigSchema>
 export type McpServersMap = z.infer<typeof McpServersMapSchema>
 export type McpConfig = z.infer<typeof McpConfigSchema>
 /**
- * 验证一个未知对象是否为合法的MCP配置。
- * @param config - 要验证的配置对象
- * @returns 如果有效则为解析后的 `McpConfig` 对象，否则抛出 ZodError。
+ * Validate whether an unknown object is a valid MCP configuration.
+ * @param config - Configuration object to validate
+ * @returns Parsed `McpConfig` object if valid, otherwise throws ZodError.
  */
 
 export function validateMcpConfig(config: unknown): McpConfig {
   return McpConfigSchema.parse(config)
 }
 /**
- * 安全地验证一个未知对象，返回结果和可能的错误。
- * @param config - 要验证的配置对象
- * @returns 包含成功/失败状态和数据的 `SafeParseResult`。
+ * Safely validate an unknown object, returning result and possible error.
+ * @param config - Configuration object to validate
+ * @returns `SafeParseResult` containing success/failure status and data.
  */
 
 export function safeValidateMcpConfig(config: unknown) {
@@ -251,20 +251,20 @@ export function safeValidateMcpConfig(config: unknown) {
 }
 
 /**
- * 安全地验证一个未知对象是否为合法的MCP服务器配置。
- * @param config - 要验证的配置对象
- * @returns 包含成功/失败状态和数据的 `SafeParseResult`。
+ * Safely validate whether an unknown object is a valid MCP server configuration.
+ * @param config - Configuration object to validate
+ * @returns `SafeParseResult` containing success/failure status and data.
  */
 export function safeValidateMcpServerConfig(config: unknown) {
   return McpServerConfigSchema.safeParse(config)
 }
 
 /**
- * 根据给定的URL判断MCP服务器的类型。
- * 如果URL以 "/mcp" 结尾，则类型为 "streamableHttp"，否则为 "sse"。
+ * Determine MCP server type from given URL.
+ * If URL ends with "/mcp", type is "streamableHttp", otherwise "sse".
  *
- * @param url - 服务器的URL地址
- * @returns MCP服务器类型（'streamableHttp' 或 'sse'）
+ * @param url - Server URL address
+ * @returns MCP server type ('streamableHttp' or 'sse')
  */
 export function getMcpServerType(url: string): McpServerType {
   return url.endsWith('/mcp') ? 'streamableHttp' : 'sse'

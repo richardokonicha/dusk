@@ -1,7 +1,5 @@
 # Agent Notes
 
-English | [中文](README.zh.md)
-
 An **Agent Note** records a decision that affects this codebase — the *why* and *what we gave up*, the parts code and docs can't carry.
 
 Notes live at `{lifecycle}/{class}/yyyy-mm-dd-topic.md`:

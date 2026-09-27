@@ -2,8 +2,6 @@
 
 Status: proposed
 
-English | [中文](2026-08-18-docs-governance-and-spec-workflow.zh.md)
-
 ## Problem
 
 The repository's developer documentation has four connected defects, and no mechanism catches any of them.

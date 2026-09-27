@@ -1,58 +1,58 @@
 # @dusk/ai-core
 
-Dusk AI Core 是一个基于 Vercel AI SDK 的统一 AI Provider 接口包，为 AI 应用提供强大的抽象层和插件化架构。
+Dusk AI Core is a unified AI Provider interface package based on Vercel AI SDK, providing a powerful abstraction layer and plugin architecture for AI applications.
 
-## ✨ 核心亮点
+## ✨ Core Highlights
 
-### 🏗️ 优雅的架构设计
+### 🏗️ Elegant Architecture Design
 
-- **简化分层**：`models`（模型层）→ `runtime`（运行时层），清晰的职责分离
-- **函数式优先**：避免过度抽象，提供简洁直观的 API
-- **类型安全**：完整的 TypeScript 支持，直接复用 AI SDK 类型系统
-- **最小包装**：直接使用 AI SDK 的接口，避免重复定义和性能损耗
+- **Simplified Layering**: `models` (model layer) → `runtime` (runtime layer), clear separation of concerns
+- **Function-First**: Avoids over-abstraction, providing a clean and intuitive API
+- **Type Safety**: Full TypeScript support, directly reusing AI SDK's type system
+- **Minimal Wrapping**: Directly uses AI SDK interfaces, avoiding redundant definitions and performance overhead
 
-### 🔌 强大的插件系统
+### 🔌 Powerful Plugin System
 
-- **生命周期钩子**：支持请求全生命周期的扩展点
-- **流转换支持**：基于 AI SDK 的 `experimental_transform` 实现流处理
-- **插件分类**：First、Sequential、Parallel 三种钩子类型，满足不同场景
-- **内置插件**：webSearch、providerTool 等开箱即用的功能
+- **Lifecycle Hooks**: Supports extension points across the full request lifecycle
+- **Stream Transformation**: Implements stream processing based on AI SDK's `experimental_transform`
+- **Plugin Categories**: First, Sequential, and Parallel hook types for different scenarios
+- **Built-in Plugins**: webSearch, providerTool, and other out-of-the-box functionality
 
-### 🌐 统一多 Provider 接口
+### 🌐 Unified Multi-Provider Interface
 
-- **扩展注册**：支持自定义 Provider 注册，无限扩展能力
-- **配置统一**：统一的配置接口，简化多 Provider 管理
+- **Extensible Registration**: Supports custom Provider registration for unlimited extensibility
+- **Unified Configuration**: Single configuration interface simplifies multi-Provider management
 
-### 🚀 多种使用方式
+### 🚀 Multiple Usage Patterns
 
-- **函数式调用**：适合简单场景的直接函数调用
-- **执行器实例**：适合复杂场景的可复用执行器
-- **静态工厂**：便捷的静态创建方法
-- **原生兼容**：完全兼容 AI SDK 原生 Provider Registry
+- **Functional Calls**: Direct function calls for simple scenarios
+- **Executor Instances**: Reusable executors for complex scenarios
+- **Static Factory**: Convenient static creation methods
+- **Native Compatibility**: Fully compatible with AI SDK's native Provider Registry
 
-### 🔮 面向未来
+### 🔮 Future-Ready
 
-- **Agent 就绪**：为 OpenAI Agents SDK 集成预留架构空间
-- **模块化设计**：独立包结构，支持跨项目复用
-- **渐进式迁移**：可以逐步从现有 AI SDK 代码迁移
+- **Agent-Ready**: Architecture reserves space for OpenAI Agents SDK integration
+- **Modular Design**: Independent package structure for cross-project reuse
+- **Progressive Migration**: Can gradually migrate from existing AI SDK code
 
-## 特性
+## Features
 
-- 🚀 统一的 AI Provider 接口
-- 🔄 动态导入支持
-- 🛠️ TypeScript 支持
-- 📦 强大的插件系统
-- 🌍 内置webSearch(Openai,Google,Anthropic,xAI)
-- 🎯 多种使用模式（函数式/实例式/静态工厂）
-- 🔌 可扩展的 Provider 注册系统
-- 🧩 完整的中间件支持
-- 📊 插件统计和调试功能
+- 🚀 Unified AI Provider interface
+- 🔄 Dynamic import support
+- 🛠️ TypeScript support
+- 📦 Powerful plugin system
+- 🌍 Built-in webSearch (OpenAI, Google, Anthropic, xAI)
+- 🎯 Multiple usage patterns (functional/instance/static factory)
+- 🔌 Extensible Provider registration system
+- 🧩 Complete middleware support
+- 📊 Plugin statistics and debugging
 
-## 支持的 Providers
+## Supported Providers
 
-基于 [AI SDK 官方支持的 providers](https://ai-sdk.dev/providers/ai-sdk-providers)：
+Based on [AI SDK officially supported providers](https://ai-sdk.dev/providers/ai-sdk-providers):
 
-**核心 Providers（内置支持）:**
+**Core Providers (built-in support):**
 
 - OpenAI
 - Anthropic
@@ -62,13 +62,13 @@ Dusk AI Core 是一个基于 Vercel AI SDK 的统一 AI Provider 接口包，为
 - Azure OpenAI
 - DeepSeek
 
-**扩展 Providers（通过注册API支持）:**
+**Extended Providers (via registration API):**
 
 - Google Vertex AI
 - ...
-- 自定义 Provider
+- Custom Provider
 
-## 安装
+## Installation
 
 ```bash
 npm install @dusk/ai-core ai @ai-sdk/google @ai-sdk/openai
@@ -76,7 +76,7 @@ npm install @dusk/ai-core ai @ai-sdk/google @ai-sdk/openai
 
 ### React Native
 
-如果你在 React Native 项目中使用此包，需要在 `metro.config.js` 中添加以下配置：
+If using this package in a React Native project, add the following configuration to `metro.config.js`:
 
 ```javascript
 // metro.config.js
@@ -84,78 +84,78 @@ const { getDefaultConfig } = require('expo/metro-config')
 
 const config = getDefaultConfig(__dirname)
 
-// 添加对 @dusk/ai-core 的支持
+// Add support for @dusk/ai-core
 config.resolver.resolverMainFields = ['react-native', 'browser', 'main']
 config.resolver.platforms = ['ios', 'android', 'native', 'web']
 
 module.exports = config
 ```
 
-还需要安装你要使用的 AI SDK provider:
+You'll also need to install the AI SDK providers you want to use:
 
 ```bash
 npm install @ai-sdk/openai @ai-sdk/anthropic @ai-sdk/google
 ```
 
-## 使用示例
+## Usage Examples
 
-### 基础用法
+### Basic Usage
 
 ```typescript
 import { AiCore } from '@dusk/ai-core'
 
-// 创建 OpenAI executor
+// Create OpenAI executor
 const executor = AiCore.create('openai', {
   apiKey: 'your-api-key'
 })
 
-// 流式生成
+// Stream generation
 const result = await executor.streamText('gpt-4', {
   messages: [{ role: 'user', content: 'Hello!' }]
 })
 
-// 非流式生成
+// Non-stream generation
 const response = await executor.generateText('gpt-4', {
   messages: [{ role: 'user', content: 'Hello!' }]
 })
 ```
 
-### 便捷函数
+### Convenience Functions
 
 ```typescript
 import { createOpenAIExecutor } from '@dusk/ai-core'
 
-// 快速创建 OpenAI executor
+// Quickly create OpenAI executor
 const executor = createOpenAIExecutor({
   apiKey: 'your-api-key'
 })
 
-// 使用 executor
+// Use executor
 const result = await executor.streamText('gpt-4', {
   messages: [{ role: 'user', content: 'Hello!' }]
 })
 ```
 
-### 多 Provider 支持
+### Multi-Provider Support
 
 ```typescript
 import { AiCore } from '@dusk/ai-core'
 
-// 支持多种 AI providers
+// Support multiple AI providers
 const openaiExecutor = AiCore.create('openai', { apiKey: 'openai-key' })
 const anthropicExecutor = AiCore.create('anthropic', { apiKey: 'anthropic-key' })
 const googleExecutor = AiCore.create('google', { apiKey: 'google-key' })
 const xaiExecutor = AiCore.create('xai', { apiKey: 'xai-key' })
 ```
 
-### 扩展 Provider 注册
+### Extended Provider Registration
 
-对于非内置的 providers，可以通过注册 API 扩展支持：
+For non-built-in providers, you can extend support via the registration API:
 
 ```typescript
 import { registerProvider, AiCore } from '@dusk/ai-core'
 
-// 方式一：导入并注册第三方 provider
+// Method 1: Import and register third-party provider
 import { createGroq } from '@ai-sdk/groq'
 
 registerProvider({
@@ -165,10 +165,10 @@ registerProvider({
   supportsImageGeneration: false
 })
 
-// 现在可以使用 Groq
+// Now you can use Groq
 const groqExecutor = AiCore.create('groq', { apiKey: 'groq-key' })
 
-// 方式二：动态导入方式注册
+// Method 2: Dynamic import registration
 registerProvider({
   id: 'mistral',
   name: 'Mistral AI',
@@ -179,15 +179,15 @@ registerProvider({
 const mistralExecutor = AiCore.create('mistral', { apiKey: 'mistral-key' })
 ```
 
-## 🔌 插件系统
+## 🔌 Plugin System
 
-AI Core 提供了强大的插件系统，支持请求全生命周期的扩展。
+AI Core provides a powerful plugin system supporting extensions across the full request lifecycle.
 
-### 内置插件
+### Built-in Plugins
 
-#### webSearchPlugin - 网络搜索插件
+#### webSearchPlugin - Web Search Plugin
 
-为不同 AI Provider 提供统一的网络搜索能力：
+Provides unified web search capabilities for different AI Providers:
 
 ```typescript
 import { webSearchPlugin } from '@dusk/ai-core/built-in/plugins'
@@ -195,11 +195,11 @@ import { webSearchPlugin } from '@dusk/ai-core/built-in/plugins'
 const executor = AiCore.create('openai', { apiKey: 'your-key' }, [
   webSearchPlugin({
     openai: {
-      /* OpenAI 搜索配置 */
+      /* OpenAI search config */
     },
     anthropic: { maxUses: 5 },
     google: {
-      /* Google 搜索配置 */
+      /* Google search config */
     },
     xai: {
       mode: 'on',
@@ -211,9 +211,9 @@ const executor = AiCore.create('openai', { apiKey: 'your-key' }, [
 ])
 ```
 
-#### loggingPlugin - 日志插件
+#### loggingPlugin - Logging Plugin
 
-提供详细的请求日志记录：
+Provides detailed request logging:
 
 ```typescript
 import { createLoggingPlugin } from '@dusk/ai-core/built-in/plugins'
@@ -227,9 +227,9 @@ const executor = AiCore.create('openai', { apiKey: 'your-key' }, [
 ])
 ```
 
-### 自定义插件
+### Custom Plugins
 
-创建自定义插件非常简单：
+Creating custom plugins is straightforward:
 
 ```typescript
 import { definePlugin } from '@dusk/ai-core'
@@ -238,14 +238,14 @@ const customPlugin = definePlugin({
   name: 'custom-plugin',
   enforce: 'pre', // 'pre' | 'post' | undefined
 
-  // 在请求开始时记录日志
+  // Log when request starts
   onRequestStart: async (context) => {
     console.log(`Starting request for model: ${context.modelId}`)
   },
 
-  // 转换请求参数
+  // Transform request parameters
   transformParams: async (params, context) => {
-    // 添加自定义系统消息
+    // Add custom system message
     if (params.messages) {
       params.messages.unshift({
         role: 'system',
@@ -255,9 +255,9 @@ const customPlugin = definePlugin({
     return params
   },
 
-  // 处理响应结果
+  // Process response result
   transformResult: async (result, context) => {
-    // 添加元数据
+    // Add metadata
     if (result.text) {
       result.metadata = {
         processedAt: new Date().toISOString(),
@@ -268,17 +268,17 @@ const customPlugin = definePlugin({
   }
 })
 
-// 使用自定义插件
+// Use custom plugin
 const executor = AiCore.create('openai', { apiKey: 'your-key' }, [customPlugin])
 ```
 
-### 使用 AI SDK 原生 Provider 注册表
+### Using AI SDK Native Provider Registry
 
 > https://ai-sdk.dev/docs/reference/ai-sdk-core/provider-registry
 
-除了使用内建的 provider 管理，你还可以使用 AI SDK 原生的 `createProviderRegistry` 来构建自己的 provider 注册表。
+In addition to the built-in provider management, you can use AI SDK's native `createProviderRegistry` to build your own provider registry.
 
-#### 基本用法示例
+#### Basic Usage Example
 
 ```typescript
 import { createClient } from '@dusk/ai-core'
@@ -286,7 +286,7 @@ import { createProviderRegistry } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 import { anthropic } from '@ai-sdk/anthropic'
 
-// 1. 创建 AI SDK 原生注册表
+// 1. Create AI SDK native registry
 export const registry = createProviderRegistry({
   // register provider with prefix and default setup:
   anthropic,
@@ -297,23 +297,23 @@ export const registry = createProviderRegistry({
   })
 })
 
-// 2. 创建client,'openai'可以传空或者传providerId(内建的provider)
+// 2. Create client, 'openai' can be empty or providerId (built-in provider)
 const client = PluginEnabledAiClient.create('openai', {
   apiKey: process.env.OPENAI_API_KEY
 })
 
-// 3. 方式1：使用内建逻辑（传统方式）
+// 3. Method 1: Use built-in logic (traditional way)
 const result1 = await client.streamText('gpt-4', {
   messages: [{ role: 'user', content: 'Hello with built-in logic!' }]
 })
 
-// 4. 方式2：使用自定义注册表（灵活方式）
+// 4. Method 2: Use custom registry (flexible way)
 const result2 = await client.streamText({
   model: registry.languageModel('openai:gpt-4'),
   messages: [{ role: 'user', content: 'Hello with custom registry!' }]
 })
 
-// 5. 支持的重载方法
+// 5. Supported overload methods
 await client.generateObject({
   model: registry.languageModel('openai:gpt-4'),
   schema: z.object({ name: z.string() }),
@@ -327,9 +327,9 @@ await client.streamObject({
 })
 ```
 
-#### 与插件系统配合使用
+#### Combining with Plugin System
 
-更强大的是，你还可以将自定义注册表与 Dusk 的插件系统结合使用：
+Even more powerful is combining custom registries with Dusk's plugin system:
 
 ```typescript
 import { PluginEnabledAiClient } from '@dusk/ai-core'
@@ -337,7 +337,7 @@ import { createProviderRegistry } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 import { anthropic } from '@ai-sdk/anthropic'
 
-// 1. 创建带插件的客户端
+// 1. Create client with plugins
 const client = PluginEnabledAiClient.create(
   'openai',
   {
@@ -346,24 +346,24 @@ const client = PluginEnabledAiClient.create(
   [LoggingPlugin, RetryPlugin]
 )
 
-// 2. 创建自定义注册表
+// 2. Create custom registry
 const registry = createProviderRegistry({
   openai: createOpenAI({ apiKey: process.env.OPENAI_API_KEY }),
   anthropic: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 })
 
-// 3. 方式1：使用内建逻辑 + 完整插件系统
+// 3. Method 1: Built-in logic + full plugin system
 await client.streamText('gpt-4', {
   messages: [{ role: 'user', content: 'Hello with plugins!' }]
 })
 
-// 4. 方式2：使用自定义注册表 + 有限插件支持
+// 4. Method 2: Custom registry + limited plugin support
 await client.streamText({
   model: registry.languageModel('anthropic:claude-3-opus-20240229'),
   messages: [{ role: 'user', content: 'Hello from Claude!' }]
 })
 
-// 5. 支持的方法
+// 5. Supported methods
 await client.generateObject({
   model: registry.languageModel('openai:gpt-4'),
   schema: z.object({ name: z.string() }),
@@ -377,31 +377,31 @@ await client.streamObject({
 })
 ```
 
-#### 混合使用的优势
+#### Advantages of Hybrid Usage
 
-- **灵活性**：可以根据需要选择使用内建逻辑或自定义注册表
-- **兼容性**：完全兼容 AI SDK 的 `createProviderRegistry` API
-- **渐进式**：可以逐步迁移现有代码，无需一次性重构
-- **插件支持**：自定义注册表仍可享受插件系统的部分功能
-- **最佳实践**：结合两种方式的优点，既有动态加载的性能优势，又有统一注册表的便利性
+- **Flexibility**: Choose between built-in logic or custom registry as needed
+- **Compatibility**: Fully compatible with AI SDK's `createProviderRegistry` API
+- **Progressive**: Gradually migrate existing code without full rewrite
+- **Plugin Support**: Custom registry still benefits from partial plugin system features
+- **Best Practices**: Combines advantages of both approaches — dynamic loading performance and unified registry convenience
 
-## 📚 相关资源
+## 📚 Related Resources
 
-- [Vercel AI SDK 文档](https://ai-sdk.dev/)
-- [Dusk 项目](https://gitlab.com/fugoku.inc/dusk)
+- [Vercel AI SDK Documentation](https://ai-sdk.dev/)
+- [Dusk Project](https://gitlab.com/fugoku.inc/dusk)
 - [AI SDK Providers](https://ai-sdk.dev/providers/ai-sdk-providers)
 
-## 未来版本
+## Future Versions
 
-- 🔮 多 Agent 编排
-- 🔮 可视化插件配置
-- 🔮 实时监控和分析
-- 🔮 云端插件同步
+- 🔮 Multi-Agent Orchestration
+- 🔮 Visual Plugin Configuration
+- 🔮 Real-time Monitoring and Analytics
+- 🔮 Cloud Plugin Sync
 
 ## 📄 License
 
-MIT License - 详见 [LICENSE](../../LICENSE) 文件
+MIT License - see [LICENSE](../../LICENSE) file
 
 ---
 
-**Dusk AI Core** - 让 AI 开发更简单、更强大、更灵活 🚀
+**Dusk AI Core** - Making AI Development Simpler, More Powerful, More Flexible 🚀
