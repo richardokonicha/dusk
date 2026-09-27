@@ -11,14 +11,14 @@
   ],
   "author": "Dusk",
   "license": "MIT",
-  "homepage": "https://github.com/the upstream the upstream project project/dusk",
+  "homepage": "https://gitlab.com/fugoku.inc/dusk",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/the upstream the upstream project project/dusk.git",
+    "url": "git+https://gitlab.com/fugoku.inc/dusk.git",
     "directory": "packages/ai-sdk-provider"
   },
   "bugs": {
-    "url": "https://github.com/the upstream the upstream project project/dusk/issues"
+    "url": "https://gitlab.com/fugoku.inc/dusk/issues"
   },
   "type": "module",
   "main": "dist/index.cjs",

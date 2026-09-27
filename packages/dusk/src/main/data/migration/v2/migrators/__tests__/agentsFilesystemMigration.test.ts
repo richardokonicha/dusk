@@ -330,9 +330,9 @@ describe('agentsFilesystemMigration', () => {
   })
 
   it('matches the Claude SDK project directory name for the observed legacy workspace', () => {
-    expect(
-      claudeProjectDirectoryName('/Users/suyao/Library/Application Support/DuskDev/Data/Agents/cvqr0cflx')
-    ).toBe('-Users-suyao-Library-Application-Support-DuskDev-Data-Agents-cvqr0cflx')
+    expect(claudeProjectDirectoryName('/Users/suyao/Library/Application Support/DuskDev/Data/Agents/cvqr0cflx')).toBe(
+      '-Users-suyao-Library-Application-Support-DuskDev-Data-Agents-cvqr0cflx'
+    )
   })
 
   it('uses the old cwd project before falling back to other Claude projects', async () => {

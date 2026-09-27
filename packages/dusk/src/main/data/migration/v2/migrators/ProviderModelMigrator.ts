@@ -18,11 +18,7 @@ import { userProviderTable } from '@data/db/schemas/userProvider'
 import { assignOrderKeysByScope, assignOrderKeysInSequence } from '@data/migration/v2/utils/orderKey'
 import { matchesModelPricingBaseline, synthesizePresetFromOverride } from '@data/services/ProviderRegistryService'
 import { generateOrderKeySequenceBetween } from '@data/services/utils/orderKey'
-import {
-  type EndpointType,
-  type ProtoModelConfig,
-  type ProtoProviderConfig
-} from '@dusk/provider-registry'
+import { type EndpointType, type ProtoModelConfig, type ProtoProviderConfig } from '@dusk/provider-registry'
 import { RegistryLoader } from '@dusk/provider-registry/node'
 import { loggerService } from '@logger'
 import type { Model as LegacyModel, Provider as LegacyProvider } from '@main/data/migration/legacyTypes'
@@ -658,14 +654,8 @@ export class ProviderModelMigrator extends BaseMigrator {
     try {
       const errors: { key: string; message: string }[] = []
 
-      const providerResult = ctx.db
-        .select({ count: sql<number>`count(*)` })
-        .from(userProviderTable)
-        .get()
-      const modelResult = ctx.db
-        .select({ count: sql<number>`count(*)` })
-        .from(userModelTable)
-        .get()
+      const providerResult = ctx.db.select({ count: sql<number>`count(*)` }).from(userProviderTable).get()
+      const modelResult = ctx.db.select({ count: sql<number>`count(*)` }).from(userModelTable).get()
       const pinResult = ctx.db
         .select({ count: sql<number>`count(*)` })
         .from(pinTable)

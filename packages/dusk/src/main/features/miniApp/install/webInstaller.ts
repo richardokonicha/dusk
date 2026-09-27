@@ -44,7 +44,7 @@ import {
 import { miniAppBackupPath, miniAppBuiltinPath, miniAppInstallPath, miniAppRollingPath } from '../paths'
 import { extractMiniAppArchive } from './archive'
 import { bestEffortCleanup } from './cleanup'
-import { assertHttps, fetchIcon, fetchManifest, fetchPackage, mirrorOrder } from './httpSource'
+import { assertHttps, fetchIcon, fetchManifest, fetchPackage } from './httpSource'
 import { applyPackagedIcon, assertSupportedIconBytes } from './icon'
 import {
   assertIconMatchesDigest,
@@ -229,7 +229,7 @@ function assertManifestMatchesReviewed(review: MiniAppManifest, packaged: MiniAp
       network: [...m.network].sort(),
       // BOTH of them. The origin pin stops a domain swap but not a different PATH on the
       // same origin — and the next check would go there.
-      update: [m.update?.url ?? null, m.update?.urlCn ?? null]
+      update: [m.update?.url ?? null]
     })
   if (project(review) !== project(packaged)) {
     throw new Error(`Packaged manifest does not match the reviewed manifest for ${review.id}`)
@@ -248,74 +248,51 @@ function assertManifestMatchesReviewed(review: MiniAppManifest, packaged: MiniAp
  * Safe because `checkForUpdate` refuses any manifest whose `update.url` leaves
  * `sourceOrigin` — a hijacked domain cannot walk the endpoint off the pinned origin.
  */
-function updateEndpointsOf(row: MiniAppInstallationRow): { url: string; urlCn?: string } {
+function updateEndpointsOf(row: MiniAppInstallationRow): { url: string } {
   const update = MiniAppManifestSchema.parse(row.manifestJson).update
   const url = update?.url ?? row.sourceUrl!
   const pinned = pinnedOrigins(row)
   // BEFORE the request: validating the response is too late twice over — the request
   // is already made, and a response that OMITS `update` used to fall back and pass.
-  for (const candidate of [url, update?.urlCn]) {
-    if (candidate && !pinned.includes(new URL(candidate).origin)) {
-      throw new Error(`Update endpoint for ${row.appId} left its origin pin (${pinned.join(', ')})`)
-    }
+  if (!pinned.includes(new URL(url).origin)) {
+    throw new Error(`Update endpoint for ${row.appId} left its origin pin (${pinned.join(', ')})`)
   }
-  return { url, urlCn: update?.urlCn }
+  return { url }
 }
 
 /**
- * The one or two origins an app may talk to for its whole life, decided at install.
+ * The one origin an app may talk to for its whole life, decided at install.
  *
- * `update.url` is canonical and `update.urlCn` the accelerator, so ORDER IS MEANINGFUL:
- * `[0]` lands in `sourceOrigin`, `[1]` in `sourceOriginCn`. A manifest with no `update`
- * block installs fine — its only origin is where the manifest came from — it simply
- * never has an update to check for.
+ * A manifest with no `update` block never reaches here — the distribution schema
+ * requires one — so an install always pins exactly where the manifest came from.
  */
 function declaredOrigins(manifest: MiniAppDistributionManifest): string[] {
-  // One or two, canonical first. The accelerator is optional; the schema keeps
-  // `update.urlCn` and `package.urlCn` both-or-neither, so a lone package mirror never lands here.
-  const { url, urlCn } = manifest.update
-  return urlCn ? [new URL(url).origin, new URL(urlCn).origin] : [new URL(url).origin]
+  return [new URL(manifest.update.url).origin]
 }
 
 /**
  * The pointer is pinned; the payload has to be too, or `package.url` is a free hop.
- *
- * Pinned BY REGION, not to the union: the global package belongs on the global origin
- * and the accelerated one on the accelerator. Allowing any of the four to sit on either
- * origin turns "two pinned origins" into a four-way choice, and an author has no reason
- * to split one region's files across two hosts.
  */
 function assertPackageOrigins(manifest: MiniAppDistributionManifest, origins: readonly string[]): void {
-  const pairs: Array<[string | undefined, string | undefined]> = [
-    [manifest.package.url, origins[0]],
-    [manifest.package.urlCn, origins[1]]
-  ]
-  for (const [url, origin] of pairs) {
-    if (!url) continue
-    if (!origin) throw new Error(`Mini app ${manifest.id} declares a package mirror with no matching update origin`)
-    if (new URL(url).origin !== origin) {
-      throw new Error(`Package url ${url} is not on its region's declared origin ${origin}`)
-    }
+  if (new URL(manifest.package.url).origin !== origins[0]) {
+    throw new Error(`Package url ${manifest.package.url} is not on its declared origin ${origins[0]}`)
   }
-  // The icon has no region: any pinned origin will do, an unpinned one will not.
+  // The icon sits on the same pinned origin or nowhere.
   if (manifest.package.iconUrl && !origins.includes(new URL(manifest.package.iconUrl).origin)) {
     throw new Error(`Icon url ${manifest.package.iconUrl} is not on a declared origin`)
   }
 }
 
 /**
- * POSITIONAL equality, not set equality: index 0 is the global source and index 1 the
- * China one, and `mirrorOrder` picks between them by region. Sorting first would accept a
- * manifest that swaps the two, after which Chinese users get the global source first and
- * everyone else gets the China one — a silent regional inversion, pinned for good.
+ * POSITIONAL equality, not set equality: index 0 is the source the user approved.
  */
 function sameOrigins(a: readonly string[], b: readonly string[]): boolean {
   return a.length === b.length && a.every((v, i) => v === b[i])
 }
 
-/** The pinned origins as stored: `sourceOrigin` is NOT NULL for `source='url'`; the accelerator may be absent. */
+/** The pinned origin as stored: `sourceOrigin` is NOT NULL for `source='url'`. */
 function pinnedOrigins(row: MiniAppInstallationRow): string[] {
-  return row.sourceOriginCn ? [row.sourceOrigin!, row.sourceOriginCn] : [row.sourceOrigin!]
+  return [row.sourceOrigin!]
 }
 
 /**
@@ -476,12 +453,12 @@ async function runUpdateCheck(appId: string, builtinRoot?: string): Promise<Upda
   }
   const endpoints = updateEndpointsOf(row)
   const pinned = pinnedOrigins(row)
-  const remote = await fetchManifest(await mirrorOrder(endpoints.url, endpoints.urlCn))
+  const remote = await fetchManifest([endpoints.url])
 
-  // Refuses a response that MOVES, ADDS or DROPS an endpoint: changing mirrors is a
-  // re-install, or a hijacked endpoint walks the supply chain one "update" at a time.
+  // Refuses a response that MOVES the endpoint: a re-install is what moving the
+  // supply chain requires, or a hijacked endpoint walks it one "update" at a time.
   if (!sameOrigins(declaredOrigins(remote), pinned)) {
-    throw new Error(`Update origins changed for ${appId}: pinned ${pinned.join(', ')}; re-install to move mirrors`)
+    throw new Error(`Update origins changed for ${appId}: pinned ${pinned.join(', ')}; re-install to move the endpoint`)
   }
   if (remote.id !== appId) throw new Error(`Update manifest id mismatch for ${appId}`)
   const runtime = application.get('MiniAppRuntimeService')
@@ -555,7 +532,7 @@ async function applyReviewedUpdate(
   // Downloaded OUTSIDE the lock: it is the slow part and it touches nothing shared.
   const pkg = review.manifest.package!
   const downloaded = await fetchPackage(
-    await mirrorOrder(pkg.url, pkg.urlCn),
+    [pkg.url],
     { sha256: pkg.sha256, size: pkg.size, origins: payload.origins },
     (received, total) => application.get('MiniAppRuntimeService').noteUpdateProgress(appId, received / total)
   )
@@ -650,8 +627,7 @@ async function publishUpdate(
             ? {
                 source: review.repin.source,
                 sourceUrl: review.repin.sourceUrl ?? null,
-                sourceOrigin: review.repin.sourceOrigin ?? null,
-                sourceOriginCn: review.repin.sourceOriginCn ?? null
+                sourceOrigin: review.repin.sourceOrigin ?? null
               }
             : {})
         })
@@ -885,15 +861,14 @@ export async function rollbackUpdate(appId: string): Promise<void> {
  */
 export async function previewMiniAppUrl(manifestUrl: string): Promise<{
   manifestUrl: string
-  /** The one or two pinned origins, canonical first — see `declaredOrigins`. */
+  /** The pinned origin — see `declaredOrigins`. */
   origins: string[]
   /** The DISTRIBUTION manifest: the confirm branch reads `package` off it. */
   manifest: MiniAppDistributionManifest
   /** The card's icon, when the manifest points at one and it verifies; `null` renders the placeholder. */
   iconDataUrl: string | null
 }> {
-  // ONE address, as typed: the user enters whichever mirror they can reach, and the
-  // manifest itself carries the pair every later fetch chooses between.
+  // ONE address, as typed: the manifest itself carries the endpoint every later fetch uses.
   const { url: resolvedUrl, manifest } = await fetchManifestAt(manifestUrl)
   const origins = declaredOrigins(manifest)
   // The host that served the manifest must be one the manifest declares, or a host merely
@@ -969,7 +944,7 @@ export async function installFromUrlConfirmed(
   reinstall?: ReinstallOptions
 ): Promise<LocalMiniApp> {
   const { distribution: remote, origins, manifestUrl } = review
-  const downloaded = await fetchPackage(await mirrorOrder(remote.package.url, remote.package.urlCn), {
+  const downloaded = await fetchPackage([remote.package.url], {
     sha256: remote.package.sha256,
     size: remote.package.size,
     origins
@@ -989,8 +964,7 @@ export async function installFromUrlConfirmed(
           // PROVENANCE, not the update endpoint — that is read fresh from `manifestJson`
           // every check. A second copy here would need a `previousSourceUrl` to undo.
           sourceUrl: manifestUrl,
-          sourceOrigin: origins[0],
-          sourceOriginCn: origins[1]
+          sourceOrigin: origins[0]
         },
         grants,
         reinstall

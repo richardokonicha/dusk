@@ -1,6 +1,6 @@
 # Changesets
 
-This folder contains configuration and changeset files for managing package versioning and publishing in the Dusk Studio monorepo.
+This folder contains configuration and changeset files for managing package versioning and publishing in the Dusk monorepo.
 
 ## What is Changesets?
 
@@ -38,7 +38,7 @@ Versioning and publishing are handled automatically by CI — you do **not** nee
 
 See `config.json` for the changeset configuration:
 
-- **changelog**: Uses `@changesets/changelog-github` to generate GitHub-linked changelogs
+- **changelog**: disabled (`false`) — the GitLab-hosted fork has no GitHub repository for `@changesets/changelog-github` to link against; changelogs are maintained manually
 - **access**: `public` - packages are published publicly
 - **baseBranch**: `main` - PRs target this branch
 - **updateInternalDependencies**: `patch` - internal deps are updated on any change
@@ -48,7 +48,7 @@ See `config.json` for the changeset configuration:
 | Package | Description |
 | --- | --- |
 | `@dusk/ai-core` | Unified AI Provider Interface |
-| `@dusk/ai-sdk-provider` | AI SDK provider bundle with DuskIN routing |
+| `@dusk/ai-sdk-provider` | AI SDK provider bundle |
 | `@dusk/extension-table-plus` | Table extension for Tiptap |
 
 ### Dependency relationships

@@ -10,32 +10,31 @@ import { setupTestDatabase } from '@test-helpers/db'
 import { eq } from 'drizzle-orm'
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@main/utils/appEdition', () => ({ getAppEdition: () => 'global' }))
-
-// Stub the registry loader with DuskLegacySub plus a future `my-relay` preset.
-// `google-generate-content` is deliberately present for DuskLegacySub but ABSENT
+// Stub the registry loader with AcmeRelaySub plus a future `my-relay` preset.
+// `google-generate-content` is deliberately present for AcmeRelaySub but ABSENT
 // from the persisted rows below — modelling an install seeded before the
 // registry gained that endpoint (#17096). `my-relay` models a later registry
-// id collision with an already-persisted fully custom provider.
+// id collision with an already-persisted fully custom provider. AcmeRelaySub
+// rides the `newapi` adapter family — a registered multi-endpoint gateway —
+// so resolver assertions stay meaningful.
 vi.mock('@dusk/provider-registry/node', () => {
   class RegistryLoader {
     loadProviders() {
       return [
         {
-          id: 'duskin',
+          id: 'acme-relay',
           endpointConfigs: {
             'openai-chat-completions': {
-              adapterFamily: 'duskin',
-              baseUrl: 'https://open.duskin.net',
-              modelsApiUrls: { default: 'https://open.duskin.net/v1/models' }
+              adapterFamily: 'newapi',
+              baseUrl: 'https://api.acme-relay.net',
+              modelsApiUrls: { default: 'https://api.acme-relay.net/v1/models' }
             },
-            'openai-responses': { adapterFamily: 'duskin', baseUrl: 'https://open.duskin.net' },
-            'google-generate-content': { adapterFamily: 'duskin', baseUrl: 'https://open.duskin.net' }
+            'openai-responses': { adapterFamily: 'newapi', baseUrl: 'https://api.acme-relay.net' },
+            'google-generate-content': { adapterFamily: 'newapi', baseUrl: 'https://api.acme-relay.net' }
           },
           defaultChatEndpoint: 'openai-chat-completions',
           reportsActualCost: false,
-          reportedCostCurrency: 'USD',
-          availableInEditions: ['global', 'cn']
+          reportedCostCurrency: 'USD'
         },
         {
           id: 'my-relay',
@@ -131,38 +130,38 @@ describe('ProviderService read-time registry merge (#17096)', () => {
     // Stale seed: only openai-chat persisted; google-generate-content added to
     // the registry after this row was seeded.
     await dbh.db.insert(userProviderTable).values({
-      providerId: 'duskin',
-      presetProviderId: 'duskin',
-      name: 'DuskLegacySub',
+      providerId: 'acme-relay',
+      presetProviderId: 'acme-relay',
+      name: 'AcmeRelaySub',
       endpointConfigs: {
         [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: {
-          baseUrl: 'https://open.duskin.net',
-          adapterFamily: 'duskin'
+          baseUrl: 'https://api.acme-relay.net',
+          adapterFamily: 'newapi'
         }
       },
       orderKey: 'a0'
     })
 
-    const provider = providerService.getByProviderId('duskin')
+    const provider = providerService.getByProviderId('acme-relay')
 
     expect(provider.endpointConfigs?.[ENDPOINT_TYPE.GOOGLE_GENERATE_CONTENT]).toEqual({
-      adapterFamily: 'duskin',
-      baseUrl: 'https://open.duskin.net'
+      adapterFamily: 'newapi',
+      baseUrl: 'https://api.acme-relay.net'
     })
     expect(provider.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_RESPONSES]).toEqual({
-      adapterFamily: 'duskin',
-      baseUrl: 'https://open.duskin.net'
+      adapterFamily: 'newapi',
+      baseUrl: 'https://api.acme-relay.net'
     })
     // End to end: the resolver no longer falls through to openai-compatible.
     expect(resolveAiSdkProviderId(provider, ENDPOINT_TYPE.GOOGLE_GENERATE_CONTENT)).not.toBe('openai-compatible')
-    expect(resolveAiSdkProviderId(provider, ENDPOINT_TYPE.OPENAI_RESPONSES)).toBe('duskin')
+    expect(resolveAiSdkProviderId(provider, ENDPOINT_TYPE.OPENAI_RESPONSES)).toBe('newapi')
   })
 
   it('keeps the user-owned baseUrl while refreshing registry-owned fields', async () => {
     await dbh.db.insert(userProviderTable).values({
-      providerId: 'duskin',
-      presetProviderId: 'duskin',
-      name: 'DuskLegacySub',
+      providerId: 'acme-relay',
+      presetProviderId: 'acme-relay',
+      name: 'AcmeRelaySub',
       endpointConfigs: {
         [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: {
           baseUrl: 'https://proxy.corp.example/v1', // user override
@@ -172,12 +171,13 @@ describe('ProviderService read-time registry merge (#17096)', () => {
       orderKey: 'a0'
     })
 
-    const config = providerService.getByProviderId('duskin').endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]
+    const config =
+      providerService.getByProviderId('acme-relay').endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]
 
     expect(config).toEqual({
       baseUrl: 'https://proxy.corp.example/v1', // row wins
-      adapterFamily: 'duskin', // registry wins
-      modelsApiUrls: { default: 'https://open.duskin.net/v1/models' } // registry wins
+      adapterFamily: 'newapi', // registry wins
+      modelsApiUrls: { default: 'https://api.acme-relay.net/v1/models' } // registry wins
     })
   })
 
@@ -215,139 +215,119 @@ describe('ProviderService read-time registry merge (#17096)', () => {
 
   it('resolves registry-owned request metadata when the row stores no delta', async () => {
     await dbh.db.insert(userProviderTable).values({
-      providerId: 'duskin',
-      presetProviderId: 'duskin',
-      name: 'DuskLegacySub',
+      providerId: 'acme-relay',
+      presetProviderId: 'acme-relay',
+      name: 'AcmeRelaySub',
       orderKey: 'a0'
     })
 
-    const provider = providerService.getByProviderId('duskin')
+    const provider = providerService.getByProviderId('acme-relay')
 
     // Registry baseline over app defaults; nothing frozen in the row.
     expect(provider.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]?.dialect).toBeUndefined()
     expect(provider.defaultChatEndpoint).toBe(ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS)
     expect(provider.reportedCostCurrency).toBe('USD')
-    expect(provider.availableInEditions).toEqual(['global', 'cn'])
-  })
-
-  it('keeps providers absent from the current registry edition-neutral', async () => {
-    await dbh.db.insert(userProviderTable).values([
-      {
-        providerId: 'hyperbolic',
-        presetProviderId: 'hyperbolic',
-        name: 'Hyperbolic',
-        orderKey: 'a0'
-      },
-      {
-        providerId: 'custom-provider',
-        presetProviderId: null,
-        name: 'Custom Provider',
-        orderKey: 'a1'
-      }
-    ])
-
-    expect(providerService.getByProviderId('hyperbolic').availableInEditions).toBeUndefined()
-    expect(providerService.getByProviderId('custom-provider').availableInEditions).toBeUndefined()
   })
 
   it('persists an endpoint dialect as a delta: deviations stick, registry echoes vanish', async () => {
     await dbh.db.insert(userProviderTable).values({
-      providerId: 'duskin',
-      presetProviderId: 'duskin',
-      name: 'DuskLegacySub',
+      providerId: 'acme-relay',
+      presetProviderId: 'acme-relay',
+      name: 'AcmeRelaySub',
       orderKey: 'a0'
     })
     const chat = ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS
 
     // A deviation from the registry (which declares no dialect, so developerRole defaults false).
-    providerService.update('duskin', { endpointConfigs: { [chat]: { dialect: { developerRole: true } } } })
-    let [row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'duskin'))
+    providerService.update('acme-relay', { endpointConfigs: { [chat]: { dialect: { developerRole: true } } } })
+    let [row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'acme-relay'))
     expect(row.endpointConfigs?.[chat]?.dialect).toEqual({ developerRole: true })
-    expect(providerService.getByProviderId('duskin').endpointConfigs?.[chat]?.dialect).toEqual({
+    expect(providerService.getByProviderId('acme-relay').endpointConfigs?.[chat]?.dialect).toEqual({
       developerRole: true
     })
 
     // Echoing the registry's own value is not an override — the row keeps no dialect.
-    providerService.update('duskin', { endpointConfigs: { [chat]: { dialect: { developerRole: false } } } })
-    ;[row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'duskin'))
+    providerService.update('acme-relay', { endpointConfigs: { [chat]: { dialect: { developerRole: false } } } })
+    ;[row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'acme-relay'))
     expect(row.endpointConfigs?.[chat]?.dialect).toBeUndefined()
   })
 
   it('drops a defaultChatEndpoint echo that matches the registry baseline', async () => {
     await dbh.db.insert(userProviderTable).values({
-      providerId: 'duskin',
-      presetProviderId: 'duskin',
-      name: 'DuskLegacySub',
+      providerId: 'acme-relay',
+      presetProviderId: 'acme-relay',
+      name: 'AcmeRelaySub',
       orderKey: 'a0'
     })
 
     // The provider editor echoes the current runtime endpoint while renaming.
     // That baseline value must not become a stored override.
-    providerService.update('duskin', {
-      name: 'Renamed DuskLegacySub',
+    providerService.update('acme-relay', {
+      name: 'Renamed AcmeRelaySub',
       defaultChatEndpoint: ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS
     })
-    let [row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'duskin'))
+    let [row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'acme-relay'))
     expect(row.defaultChatEndpoint).toBeNull()
 
     // A real user override persists, then disappears again when reset to the
     // registry baseline.
-    providerService.update('duskin', {
+    providerService.update('acme-relay', {
       defaultChatEndpoint: ENDPOINT_TYPE.GOOGLE_GENERATE_CONTENT
     })
-    ;[row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'duskin'))
+    ;[row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'acme-relay'))
     expect(row.defaultChatEndpoint).toBe(ENDPOINT_TYPE.GOOGLE_GENERATE_CONTENT)
 
-    providerService.update('duskin', {
+    providerService.update('acme-relay', {
       defaultChatEndpoint: ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS
     })
-    ;[row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'duskin'))
+    ;[row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'acme-relay'))
     expect(row.defaultChatEndpoint).toBeNull()
   })
 
   it('drops endpoint baseUrls that match the registry default on write', async () => {
     await dbh.db.insert(userProviderTable).values({
-      providerId: 'duskin',
-      presetProviderId: 'duskin',
-      name: 'DuskLegacySub',
+      providerId: 'acme-relay',
+      presetProviderId: 'acme-relay',
+      name: 'AcmeRelaySub',
       orderKey: 'a0'
     })
 
     // Renderer echo of the merged snapshot: one registry-default baseUrl, one
     // genuine user override.
-    providerService.update('duskin', {
+    providerService.update('acme-relay', {
       endpointConfigs: {
-        [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: { baseUrl: 'https://open.duskin.net' },
+        [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: { baseUrl: 'https://api.acme-relay.net' },
         [ENDPOINT_TYPE.GOOGLE_GENERATE_CONTENT]: { baseUrl: 'https://proxy.corp.example' }
       }
     })
 
-    const [row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'duskin'))
+    const [row] = await dbh.db.select().from(userProviderTable).where(eq(userProviderTable.providerId, 'acme-relay'))
     expect(row.endpointConfigs).toEqual({
       [ENDPOINT_TYPE.GOOGLE_GENERATE_CONTENT]: { baseUrl: 'https://proxy.corp.example' }
     })
     // The runtime still sees both endpoints — the dropped one from the registry.
-    const runtime = providerService.getByProviderId('duskin')
-    expect(runtime.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]?.baseUrl).toBe('https://open.duskin.net')
+    const runtime = providerService.getByProviderId('acme-relay')
+    expect(runtime.endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]?.baseUrl).toBe('https://api.acme-relay.net')
     expect(runtime.endpointConfigs?.[ENDPOINT_TYPE.GOOGLE_GENERATE_CONTENT]?.baseUrl).toBe('https://proxy.corp.example')
   })
 
   it('strips legacy registry-only fields before merging', async () => {
     await dbh.db.insert(userProviderTable).values({
-      providerId: 'duskin',
-      presetProviderId: 'duskin',
-      name: 'DuskLegacySub',
+      providerId: 'acme-relay',
+      presetProviderId: 'acme-relay',
+      name: 'AcmeRelaySub',
       endpointConfigs: {
         [ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]: {
-          baseUrl: 'https://open.duskin.net',
-          adapterFamily: 'duskin',
+          baseUrl: 'https://api.acme-relay.net',
+          adapterFamily: 'acme-relay',
           reasoningFormatType: 'openai-responses'
         }
       } as never,
       orderKey: 'a0'
     })
 
-    const config = providerService.getByProviderId('duskin').endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]
+    const config =
+      providerService.getByProviderId('acme-relay').endpointConfigs?.[ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS]
     expect(config).not.toHaveProperty('reasoningFormatType')
   })
 })

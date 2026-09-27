@@ -139,7 +139,6 @@ describe('buildDshGatewayInjection', () => {
     expect(route.models[0].id).toBe('vertexai:gemini-2.5-pro')
   })
 
-
   it('rejects models the gateway cannot route and defaults an undeclared context window', () => {
     const nonChat = makeModel({ endpointTypes: [ENDPOINT_TYPE.OPENAI_EMBEDDINGS] })
     expect(() => buildDshGatewayInjection(vertexProvider, nonChat, GATEWAY)).toThrow(DshUnsupportedProviderError)
@@ -227,9 +226,6 @@ describe('resolveDshProviderInjectionFromSnapshot', () => {
     expect(injection.headers).toEqual(GATEWAY_USAGE_HEADERS)
     expect(injection.usageCapture).toEqual({ owner: 'provider-calls' })
   })
-
-
-
 
   it('accepts a gateway-routable model when the gateway is enabled, without key side effects', async () => {
     mocks.getByProviderId.mockResolvedValue(vertexProvider)

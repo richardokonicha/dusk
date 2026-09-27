@@ -35,7 +35,7 @@ const FORBIDDEN_DEV_USER_DATA_SUFFIX = /[\\/:*?"<>|]|\p{Cc}/u
 
 /**
  * Dev-instance directory suffix (`Dusk` → `DuskDev`),
- * overridable via CS_DEV_USER_DATA_SUFFIX.
+ * overridable via DUSK_DEV_USER_DATA_SUFFIX.
  *
  * Blank values fall back to the default; a value that is not a single path
  * component aborts startup instead, because falling back would silently merge
@@ -44,11 +44,11 @@ const FORBIDDEN_DEV_USER_DATA_SUFFIX = /[\\/:*?"<>|]|\p{Cc}/u
  * LoggerService consumes LOGS_DIR from this file.
  */
 function resolveDevUserDataSuffix(): string {
-  const configured = process.env.CS_DEV_USER_DATA_SUFFIX?.trim()
+  const configured = process.env.DUSK_DEV_USER_DATA_SUFFIX?.trim()
   if (!configured) return DEFAULT_DEV_USER_DATA_SUFFIX
   if (FORBIDDEN_DEV_USER_DATA_SUFFIX.test(configured) || configured.endsWith('.')) {
     throw new Error(
-      `CS_DEV_USER_DATA_SUFFIX ${JSON.stringify(configured)} must be a single path component ` +
+      `DUSK_DEV_USER_DATA_SUFFIX ${JSON.stringify(configured)} must be a single path component ` +
         '(no path separator, drive colon, Windows-reserved character or trailing dot).'
     )
   }

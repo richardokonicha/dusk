@@ -58,9 +58,7 @@ describe('AGENT_RUNTIME_CAPABILITIES', () => {
       const provider = makeProvider({})
       expect(piIsCompatible(provider, makeModel({}))).toBe(true)
     })
-
-    
-      })
+  })
 
   it('does not grant Cloud compatibility from the display group alone', () => {
     const provider = makeProvider({ id: 'openai', authMethods: ['external-cli'] })

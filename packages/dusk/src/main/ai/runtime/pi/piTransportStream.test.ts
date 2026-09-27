@@ -15,9 +15,7 @@ const BASE_CONFIG: ProviderConfig = {
 function makeAdapter(overrides: Partial<ProviderTransportAdapter> = {}): ProviderTransportAdapter {
   return {
     resolveCredentials: vi.fn().mockResolvedValue({ accessToken: 'real-token', accountId: 'acct' }),
-    buildHeaders: vi
-      .fn()
-      .mockReturnValue({ authorization: 'Bearer real-token', 'x-grok-client-identifier': 'dusk' }),
+    buildHeaders: vi.fn().mockReturnValue({ authorization: 'Bearer real-token', 'x-grok-client-identifier': 'dusk' }),
     rewritePayload: vi.fn((json) => ({ ...json, rewritten: true })),
     ...overrides
   }

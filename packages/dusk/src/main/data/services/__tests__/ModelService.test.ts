@@ -191,7 +191,6 @@ describe('ModelService.update', () => {
     )
   }
 
-
   it('only writes provided fields — partial update does not clear others', async () => {
     await seedExistingModel()
 

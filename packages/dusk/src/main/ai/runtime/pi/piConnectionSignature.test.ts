@@ -195,8 +195,7 @@ describe('capturePiConnectionSnapshot', () => {
       providerId: 'deepseek',
       group: 'DeepSeek'
     })
-    const captureCloud = () =>
-      capturePiConnectionSnapshot('session-1', agent.id, `${'deepseek'}::deepseek-free`)
+    const captureCloud = () => capturePiConnectionSnapshot('session-1', agent.id, `${'deepseek'}::deepseek-free`)
     const initialSignature = (await captureCloud()).signature
 
     mocks.gatewayFingerprint = 'gateway-2'

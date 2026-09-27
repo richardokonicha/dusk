@@ -20,4 +20,4 @@ Create a full backup if the current v2 data may be needed, review the warning, t
 
 ## Notes for release manager
 
-The entry is shown when the exact `persist:dusk-studio` Local Storage key or `DuskStudio` IndexedDB database exists. Original v1 browser and filesystem sources are preserved for the next migration.
+The entry is shown when the exact `persist:dusk` Local Storage key or `Dusk` IndexedDB database exists. Original v1 browser and filesystem sources are preserved for the next migration.

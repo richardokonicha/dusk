@@ -416,10 +416,7 @@ export function buildCitationPartsRegistry(
 }
 
 /** Parts of every message before `messageId`; an id the list does not know sees all of them. */
-export function getPriorCitationParts(
-  registry: CitationPartsRegistry,
-  messageId: string
-): readonly DuskMessagePart[] {
+export function getPriorCitationParts(registry: CitationPartsRegistry, messageId: string): readonly DuskMessagePart[] {
   const count = registry.prefixCountByMessageId.get(messageId) ?? registry.parts.length
   return count === 0 ? EMPTY_PARTS : registry.parts.slice(0, count)
 }

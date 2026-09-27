@@ -191,9 +191,7 @@ describe('buildDshCompositionYaml', () => {
     const pluginPath = 'C:\\Users\\xxx\\Code\\dusk\\node_modules\\@deepseek-ai\\dsh-tool-pwsh\\lib\\index.js'
     const pluginUrl = toDshPluginUrl(pluginPath, true)
 
-    expect(pluginUrl).toBe(
-      'file:///C:/Users/xxx/Code/dusk/node_modules/@deepseek-ai/dsh-tool-pwsh/lib/index.js'
-    )
+    expect(pluginUrl).toBe('file:///C:/Users/xxx/Code/dusk/node_modules/@deepseek-ai/dsh-tool-pwsh/lib/index.js')
     expect(fileURLToPath(pluginUrl, { windows: true })).toBe(pluginPath)
   })
 

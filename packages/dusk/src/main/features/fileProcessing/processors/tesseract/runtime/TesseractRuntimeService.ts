@@ -4,7 +4,6 @@ import { application } from '@application'
 import { loggerService } from '@logger'
 import { BaseService, Injectable, Phase, ServicePhase } from '@main/core/lifecycle'
 import { loadOcrImage } from '@main/features/fileProcessing/utils/ocr'
-import { regionService } from '@main/services/RegionService'
 import { MB } from '@shared/utils/constants'
 import PQueue from 'p-queue'
 import type { LanguageCode } from 'tesseract.js'
@@ -16,7 +15,6 @@ import type { PreparedTesseractContext } from '../types'
 const logger = loggerService.withContext('TesseractRuntimeService')
 
 const MB_SIZE_THRESHOLD = 50
-const TESSERACT_LANGS_DOWNLOAD_URL_CN = 'https://gitcode.com/beyondkmp/tessdata-best/releases/download/1.0.0/'
 const TESSERACT_WORKER_IDLE_TIMEOUT_MS = 60 * 1000
 
 @Injectable('TesseractRuntimeService')
@@ -234,8 +232,7 @@ export class TesseractRuntimeService extends BaseService {
   }
 
   private async getLangPath(): Promise<string> {
-    const country = await regionService.getCountry()
-    return country.toLowerCase() === 'cn' ? TESSERACT_LANGS_DOWNLOAD_URL_CN : ''
+    return ''
   }
 
   private async getCacheDir(): Promise<string> {

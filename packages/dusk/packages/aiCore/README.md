@@ -388,7 +388,7 @@ await client.streamObject({
 ## 📚 相关资源
 
 - [Vercel AI SDK 文档](https://ai-sdk.dev/)
-- [Dusk 项目](https://github.com/dusk-archive/upstream/dusk-studio)
+- [Dusk 项目](https://gitlab.com/fugoku.inc/dusk)
 - [AI SDK Providers](https://ai-sdk.dev/providers/ai-sdk-providers)
 
 ## 未来版本
@@ -400,7 +400,7 @@ await client.streamObject({
 
 ## 📄 License
 
-MIT License - 详见 [LICENSE](https://github.com/dusk-archive/upstream/dusk-studio/blob/main/LICENSE) 文件
+MIT License - 详见 [LICENSE](../../LICENSE) 文件
 
 ---
 

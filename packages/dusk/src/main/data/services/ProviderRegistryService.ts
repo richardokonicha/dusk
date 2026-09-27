@@ -73,8 +73,6 @@ const logger = loggerService.withContext('DataApi:ProviderRegistryService')
 export interface ProviderDisplayMetadata {
   description?: string
   websites?: ProviderWebsites
-  /** Application editions that should offer the resolved preset. */
-  availableInEditions?: Provider['availableInEditions']
   /** Registry capability: where the model list comes from (default `'api'`). */
   modelListSource?: 'api' | 'registry'
   /** Registry capability: accepted credential kinds (default `['api-key']`). */
@@ -720,9 +718,7 @@ class ProviderRegistryService {
   }
 
   private findRegistryProvider(providerId: string): ProtoProviderConfig | undefined {
-    return this.getLoader()
-      .loadProviders()
-      .find((provider) => provider.id === providerId)
+    return this.getLoader().findProvider(providerId) ?? undefined
   }
 
   /**
@@ -783,7 +779,6 @@ class ProviderRegistryService {
       return {
         description: provider?.description,
         websites: provider?.metadata?.website,
-        availableInEditions: provider?.availableInEditions,
         modelListSource: provider?.modelListSource,
         authMethods: provider?.authMethods,
         authOptional: provider?.authOptional,

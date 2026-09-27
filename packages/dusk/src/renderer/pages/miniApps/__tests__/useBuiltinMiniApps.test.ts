@@ -23,9 +23,7 @@ vi.mock('@shared/data/presets/miniApps', async (importOriginal) => ({
 
 describe('useBuiltinMiniApps', () => {
   it('offers only the builtins that are not installed yet', () => {
-    const { result } = renderHook(() =>
-      useBuiltinMiniApps([{ presetMiniAppId: 'com.dusk.miniapp.draw' }], 'zh-CN')
-    )
+    const { result } = renderHook(() => useBuiltinMiniApps([{ presetMiniAppId: 'com.dusk.miniapp.draw' }], 'zh-CN'))
 
     expect(result.current.map((e) => e.appId)).toEqual(['com.dusk.miniapp.notes'])
     expect(result.current[0].name).toBe('笔记')

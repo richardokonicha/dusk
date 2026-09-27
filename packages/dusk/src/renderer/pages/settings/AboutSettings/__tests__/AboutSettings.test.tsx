@@ -65,7 +65,7 @@ vi.mock('@renderer/components/icons/LogoAvatar', () => ({
 
 import { AboutSettings } from '..'
 
-const REPOSITORY_URL = 'https://github.com/the upstream the upstream project project/dusk'
+const REPOSITORY_URL = 'https://gitlab.com/fugoku.inc/dusk'
 
 async function renderAboutSettings() {
   render(<AboutSettings />)

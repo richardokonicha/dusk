@@ -40,7 +40,6 @@ export class MiniAppSeeder implements ISeeder {
         logoKey: preset.logo ?? null,
         bordered: preset.bordered ?? true,
         background: preset.background ?? null,
-        supportedRegions: preset.supportedRegions ?? null,
         nameKey: preset.nameKey ?? null,
         status: 'enabled',
         orderKey: insertOrderKeys.get(preset.id) ?? this.presetDefaultOrderKeys.get(preset.id) ?? ''
@@ -61,7 +60,6 @@ export class MiniAppSeeder implements ISeeder {
             logoKey: insertRow.logoKey,
             bordered: insertRow.bordered,
             background: insertRow.background,
-            supportedRegions: insertRow.supportedRegions,
             nameKey: insertRow.nameKey
           },
           setWhere: isNotNull(miniAppTable.presetMiniAppId)

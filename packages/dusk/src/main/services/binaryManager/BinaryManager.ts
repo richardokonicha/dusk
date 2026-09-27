@@ -10,7 +10,6 @@ import { application } from '@application'
 import { loggerService } from '@logger'
 import { BaseService, Injectable, Phase, ServicePhase } from '@main/core/lifecycle'
 import { isWin } from '@main/core/platform'
-import { regionService } from '@main/services/RegionService'
 import {
   dedupePathSegments,
   getBinaryIsolatedHomeEnv,
@@ -90,17 +89,6 @@ const RUNTIME_DEPS: Record<string, `${RuntimeInterpreter}@${string}`> = { npm: '
 // killing it mid-download surfaces as a bogus "install failed".
 const MISE_COMMAND_TIMEOUT_MS = 120_000
 const MISE_INSTALL_TIMEOUT_MS = 15 * 60_000
-
-// Tried in order for China users who have not chosen an index themselves. A
-// mirror that has not synced a freshly published release fails the install
-// outright, and mirror lag is neither rare nor short: Tsinghua's PyPI sync has
-// stalled for over a day at a time, and the university mirrors that pull from
-// it stall with it. Tencent syncs independently, and pypi.org is the backstop.
-const CHINA_PIP_INDEXES = [
-  'https://pypi.tuna.tsinghua.edu.cn/simple',
-  'https://mirrors.cloud.tencent.com/pypi/simple'
-] as const
-const OFFICIAL_PIP_INDEX = 'https://pypi.org/simple'
 
 const REGISTRY_CACHE_TTL_MS = 10 * 60 * 1000
 // `mise latest` for github: backends hits the rate-limited GitHub releases API,
@@ -231,8 +219,6 @@ type MiseInstallEntry = { version?: string; active?: boolean; install_path?: str
 // with another build's — see the `isolatedEnv` field comment.
 type IsolatedEnvSnapshot = {
   env: Record<string, string>
-  // Only Dusk's own China default may be retried against other indexes.
-  usesDefaultChinaPipIndex: boolean
 }
 
 // Code-owned catalog of the fixed tools Dusk ships: every Dependencies preset
@@ -284,14 +270,13 @@ export class BinaryManager extends BaseService {
   private miseBin: string | null = null
   // Built lazily on first mise invocation, never in onInit(): the isolated env is
   // only ever consumed by runMise() (install/remove/search/query), none of
-  // which run during init. buildIsolatedEnv() blocks on a region lookup
-  // (regionService.isInChina, for China mirror selection) whose cache is cold on
-  // every launch, so building it eagerly put a network round-trip on the
-  // Background-phase critical path that gates allReady(), for a value most
-  // launches never use. `isolatedEnvPromise` memoizes the in-flight build so
-  // concurrent first callers share a single build and a single region lookup.
-  // Cached as one snapshot because a preference change discards the build in
-  // flight without cancelling it — a superseded build must not outlive its env.
+  // which run during init. buildIsolatedEnv()'s cache is cold on every launch,
+  // so building it eagerly put a network round-trip on the Background-phase
+  // critical path that gates allReady(), for a value most launches never use.
+  // `isolatedEnvPromise` memoizes the in-flight build so concurrent first callers
+  // share a single build. Cached as one snapshot because a preference change
+  // discards the build in flight without cancelling it — a superseded build must
+  // not outlive its env.
   private isolatedEnv: IsolatedEnvSnapshot | null = null
   private isolatedEnvPromise: Promise<IsolatedEnvSnapshot> | null = null
   private registryCache: Array<{ name: string; tool: string }> | null = null
@@ -911,19 +896,6 @@ export class BinaryManager extends BaseService {
       env['MISE_AQUA_GITHUB_ATTESTATIONS'] = 'false'
     }
 
-    const inChina = await regionService.isInChina().catch(() => false)
-    let usesDefaultChinaPipIndex = false
-    if (inChina) {
-      if (!env['NPM_CONFIG_REGISTRY']) {
-        env['NPM_CONFIG_REGISTRY'] = 'https://registry.npmmirror.com'
-      }
-      if (!env['PIP_INDEX_URL']) {
-        env['PIP_INDEX_URL'] = CHINA_PIP_INDEXES[0]
-        env['MISE_PIPX_REGISTRY_URL'] = toPipxRegistryUrl(CHINA_PIP_INDEXES[0])
-        usesDefaultChinaPipIndex = true
-      }
-    }
-
     // Reuse the shared MISE_*/PATH merge (single source of truth in binaryEnv.ts),
     // prepending mise's own dir so a re-exec'd child mise resolves. HOME/XDG are
     // relocated *after* the merge — this isolation is scoped to the install
@@ -948,17 +920,15 @@ export class BinaryManager extends BaseService {
       fs.mkdirSync(merged[key], { recursive: true })
     }
 
-    return { env: merged, usesDefaultChinaPipIndex }
+    return { env: merged }
   }
 
   /**
    * Lazily build (and memoize) the isolated mise env on first use. Deferred out
-   * of onInit() because buildIsolatedEnv() blocks on a region lookup
-   * (regionService.isInChina) that has no place on the startup critical path —
-   * see the isolatedEnv field comment. The in-flight promise is cached so
-   * concurrent first callers share a single build and a single region lookup; a
-   * failed build is not cached, so a later call can retry once a transient cause
-   * (e.g. mkdir failure) clears.
+   * of onInit() because buildIsolatedEnv() has no place on the startup critical
+   * path — see the isolatedEnv field comment. The in-flight promise is cached so
+   * concurrent first callers share a single build; a failed build is not cached,
+   * so a later call can retry once a transient cause (e.g. mkdir failure) clears.
    */
   private getIsolatedEnv(): Promise<IsolatedEnvSnapshot> {
     if (this.isolatedEnv) {
@@ -1041,8 +1011,9 @@ export class BinaryManager extends BaseService {
         }
         const stderr = (error as { stderr?: unknown }).stderr
         if (typeof stderr === 'string' && stderr.trim()) {
-          const detail = stderr.trim()
-          if (!error.message.includes(detail)) error.message = `${error.message}\n${detail}`
+          // Sanitize before appending: mirror URLs can embed credentials.
+          const detail = sanitizedCommandError(Object.assign(new Error(''), { stderr })).trim()
+          if (detail && !error.message.includes(detail)) error.message = `${error.message}\n${detail}`
         }
       }
       throw error
@@ -1252,26 +1223,9 @@ export class BinaryManager extends BaseService {
       UV_HTTP_TIMEOUT: '30',
       UV_HTTP_RETRIES: '2'
     }
-    // Every attempt runs against the snapshot the decision came from: an index
-    // the user chose is used as-is, since retrying elsewhere would silently pull
-    // packages from somewhere they did not ask for.
     const snapshot = await this.getIsolatedEnv()
     const opts = { timeoutMs: MISE_INSTALL_TIMEOUT_MS, includePrerelease, snapshot }
-    if (!snapshot.usesDefaultChinaPipIndex) {
-      await this.runMise(args, { ...opts, env: pythonEnv })
-      return
-    }
-
-    const failures: string[] = []
-    for (const index of [...CHINA_PIP_INDEXES, OFFICIAL_PIP_INDEX]) {
-      try {
-        await this.runMise(args, { ...opts, env: { ...pythonEnv, ...pipIndexEnv(index) } })
-        return
-      } catch (error) {
-        failures.push(`${new URL(index).host}: ${this.errorMessage(error)}`)
-      }
-    }
-    throw new Error(`No PyPI index could install the tool\n${failures.join('\n')}`)
+    await this.runMise(args, { ...opts, env: pythonEnv })
   }
 
   /**

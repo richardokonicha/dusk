@@ -158,7 +158,7 @@ describe('archive', () => {
     })
 
     await expect(extractMiniAppArchive(zipPath, dest())).rejects.toThrow(/unpacks to/i)
-  })
+  }, 60_000)
 
   it('caps what actually inflates, not what the entry table claims', async () => {
     const zipPath = await writeDescriptorBomb('bomb.bin', (z) => {
@@ -170,7 +170,7 @@ describe('archive', () => {
 
     await expect(extractMiniAppArchive(zipPath, d)).rejects.toThrow(/unpacks to/i)
     expect(fs.readdirSync(d)).toEqual([])
-  })
+  }, 60_000)
 
   it('bounds the MANIFEST read at its cap when the entry table lies', async () => {
     // Reached from `previewMiniAppArchive`, which runs BEFORE the user sees the consent

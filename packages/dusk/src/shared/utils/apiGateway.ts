@@ -20,8 +20,7 @@ export function gatewayClientOrigin(host: string, port: number): string {
  * (single colon, `apiModelId` — NOT the `::`-separated internal `UniqueModelId`). The gateway
  * splits on the first `:` (see `apiGateway/proxyStream.ts`) and advertises the same shape from
  * `/v1/models` (see `apiGateway/utils/models.ts`), so both the CLI-config writer and the in-app
- * Claude Code runtime must format ids identically. DuskLegacy managed default models are not
- * routable through the gateway and throw, mirroring the gateway's own guard.
+ * Claude Code runtime must format ids identically.
  */
 export function formatGatewayModelId(providerId: string, apiModelId: string): string {
   // The single-colon format cannot round-trip a provider id that itself contains ':' —

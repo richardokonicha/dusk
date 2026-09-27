@@ -34,7 +34,6 @@ describe('formatGatewayModelId', () => {
     expect(() => formatGatewayModelId('corp:west', 'model')).toThrow(/cannot be addressed/)
   })
 
-  
   it('formats a colon address for a provider id containing the Antigravity separator', () => {
     // That separator only makes an address ambiguous in Antigravity's path form, so the
     // constraint belongs to that producer — the colon address here round-trips fine.

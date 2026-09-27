@@ -1,14 +1,5 @@
 import { usePreference } from '@data/hooks/usePreference'
-import {
-  Badge,
-  Button,
-  CircularProgress,
-  Divider,
-  Scrollbar,
-  SegmentedControl,
-  Switch,
-  Tooltip
-} from '@dusk/ui'
+import { Badge, Button, CircularProgress, Divider, Scrollbar, SegmentedControl, Switch, Tooltip } from '@dusk/ui'
 import AppLogo from '@renderer/assets/images/logo.png'
 import { FeedbackDialog } from '@renderer/components/feedback/FeedbackDialog'
 import LogoAvatar from '@renderer/components/icons/LogoAvatar'
@@ -180,10 +171,7 @@ const AboutSettings: FC = () => {
 
   const onOpenDocs = () => {
     const isChinese = i18n.language.startsWith('zh')
-    void ipcApi.request(
-      'system.shell.open_website',
-      isChinese ? 'https://docs.dusk.app/' : 'https://docs.dusk.app/en'
-    )
+    void ipcApi.request('system.shell.open_website', isChinese ? 'https://docs.dusk.app/' : 'https://docs.dusk.app/en')
   }
 
   const testChannels = getAvailableTestChannels()

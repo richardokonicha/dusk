@@ -79,14 +79,14 @@ multiple development instances at the same time, give each instance a unique
 suffix. You can set it in `.env`:
 
 ```bash
-CS_DEV_USER_DATA_SUFFIX=DevQuito
+DUSK_DEV_USER_DATA_SUFFIX=DevQuito
 ```
 
 Or pass it inline when starting a dev instance:
 
 ```bash
-CS_DEV_USER_DATA_SUFFIX=DevQuito pnpm dev
-CS_DEV_USER_DATA_SUFFIX=DevParis pnpm dev
+DUSK_DEV_USER_DATA_SUFFIX=DevQuito pnpm dev
+DUSK_DEV_USER_DATA_SUFFIX=DevParis pnpm dev
 ```
 
 The suffix must be a single path component (no path separator, drive colon,

@@ -4,7 +4,7 @@
  * stopped materialising both CPU architectures for the host OS — the packaging bug that
  * shipped a macOS x64 build without `@img/sharp-darwin-x64`.
  */
-import { readFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, rmSync } from 'node:fs'
 
 import { describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
@@ -13,7 +13,6 @@ import { parse } from 'yaml'
 import { assertPrebuiltPackages, keepPackages } from '../before-pack'
 
 const hostPlatform = process.platform === 'darwin' ? 'darwin' : process.platform === 'win32' ? 'win32' : 'linux'
-const foreignPlatform = hostPlatform === 'darwin' ? 'win32' : 'darwin'
 const legacyMacOcrVersion = '1.0.2'
 const macOcrPackages = ['@napi-rs/system-ocr-darwin-arm64', '@napi-rs/system-ocr-darwin-x64']
 
@@ -23,11 +22,25 @@ describe('assertPrebuiltPackages', () => {
   })
 
   it('reports the missing packages by name', () => {
-    // Only the host OS's binaries are installed (supportedArchitectures.os is `current`),
-    // so another platform stands in for an install that skipped an architecture.
-    expect(() => assertPrebuiltPackages(foreignPlatform, 'x64')).toThrow(
-      /Missing prebuilt packages for .+-x64: .*@img\/sharp-/
-    )
+    // A fixture install with every package present except one sharp package —
+    // the packaging bug that shipped a macOS x64 build without @img/sharp-darwin-x64.
+    const packagesRoot = `${process.cwd()}/node_modules/.before-pack-fixture-${process.pid}`
+    const missingPackage = `@img/sharp-${hostPlatform === 'win32' ? 'win32' : hostPlatform}-x64`
+    for (const packageName of keepPackages(hostPlatform, 'x64')) {
+      if (packageName === missingPackage || packageName.includes('musl')) continue
+      mkdirSync(`${packagesRoot}/${packageName}`, { recursive: true })
+    }
+
+    try {
+      expect(() => assertPrebuiltPackages(hostPlatform, 'x64', packagesRoot)).toThrow(
+        `Missing prebuilt packages for ${hostPlatform}-x64: `
+      )
+      expect(() => assertPrebuiltPackages(hostPlatform, 'x64', packagesRoot)).toThrow(
+        new RegExp(missingPackage.replaceAll('/', '\\/'))
+      )
+    } finally {
+      rmSync(packagesRoot, { recursive: true, force: true })
+    }
   })
 
   it('pins macOS system OCR to the legacy Accurate implementation', () => {

@@ -46,7 +46,7 @@ Three pieces, all keyed by `providerId`:
   a future consumer would inject through (see "Extending").
 - **Transports** — how the authorization code comes back:
   - `LoopbackCallbackTransport` — spins a localhost HTTP server (Codex, Grok).
-  - `DeepLinkCallbackTransport` — waits for a `duskstudio://` deep link, then
+  - `DeepLinkCallbackTransport` — waits for a `dusk://` deep link, then
     pushes the result point-to-point to the initiator window via
     `IpcApiService.send('oauth.deep_link_result', …)` (DuskLegacySub). The OAuth token
     never crosses to the renderer — only the side-effect API keys do.

@@ -111,9 +111,8 @@ describe('mini_app_installation', () => {
     expect(dbh.db.select().from(miniAppInstallationTable).all()).toHaveLength(1)
   })
 
-  it('lets a url install pin a single origin when the manifest declared no accelerator', () => {
-    // The CHECK once demanded `source_origin_cn` for every url row; an optional mirror
-    // means the column, not the source kind, decides whether it is set.
+  it('lets a url install pin a single origin', () => {
+    // A url row names exactly where the app came from; no second origin column exists.
     insertApp()
     expect(() =>
       dbh.db

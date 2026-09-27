@@ -1,13 +1,4 @@
-import {
-  Input,
-  MenuDivider,
-  MenuItem,
-  MenuList,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Tooltip
-} from '@dusk/ui'
+import { Input, MenuDivider, MenuItem, MenuList, Popover, PopoverContent, PopoverTrigger, Tooltip } from '@dusk/ui'
 import type { NotesSortType } from '@renderer/types/note'
 import { ArrowLeft, ArrowUpNarrowWide, Check, FilePlus2, FolderPlus, Search, Star, X } from 'lucide-react'
 import type { FC } from 'react'

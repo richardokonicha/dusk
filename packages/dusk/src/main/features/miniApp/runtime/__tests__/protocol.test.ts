@@ -115,9 +115,7 @@ describe('mini app protocol handler', () => {
     // Same-origin navigation is allowed, so `location = 'x.svg'` makes a scripted SVG
     // the top-level document — an unsandboxed one, if only `.html` carried the header.
     fs.writeFileSync(path.join(root, 'x.svg'), '<svg xmlns="http://www.w3.org/2000/svg"><script>1</script></svg>')
-    expect((await get(`dusk-miniapp://${APP_ID}/x.svg`)).headers.get('content-security-policy')).toBe(
-      buildMiniAppCsp()
-    )
+    expect((await get(`dusk-miniapp://${APP_ID}/x.svg`)).headers.get('content-security-policy')).toBe(buildMiniAppCsp())
     expect((await get(`dusk-miniapp://${APP_ID}/missing`)).headers.get('content-security-policy')).toBe(
       buildMiniAppCsp()
     )

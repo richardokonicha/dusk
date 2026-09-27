@@ -360,7 +360,8 @@ export async function resolveProviderAiSdkConfig(
       build: withProviderAuth('iam-gcp', buildVertexConfig)
     },
     {
-      match: (_, id) => id === 'newapi', build: withSelectedApiKey(buildNewApiConfig)
+      match: (_, id) => id === 'newapi',
+      build: withSelectedApiKey(buildNewApiConfig)
     },
     { match: (_, id) => id === 'aihubmix', build: withSelectedApiKey(buildAiHubMixConfig) },
     { match: (_, id) => id === 'dmxapi', build: withSelectedApiKey(buildDmxapiConfig) }

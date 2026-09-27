@@ -21,7 +21,6 @@ const stubApp = (overrides: Partial<SiteMiniApp> & Pick<SiteMiniApp, 'appId' | '
   logo: overrides.logo ?? `${overrides.appId}-logo`,
   bordered: overrides.bordered,
   background: overrides.background,
-  supportedRegions: overrides.supportedRegions,
   configuration: overrides.configuration
 })
 

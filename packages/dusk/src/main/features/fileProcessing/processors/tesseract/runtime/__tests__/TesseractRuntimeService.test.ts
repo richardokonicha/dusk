@@ -10,18 +10,13 @@ import type * as z from 'zod'
 
 import type { PreparedTesseractContext } from '../../types'
 
-const { createWorkerMock, getIpCountryMock, loadOcrImageMock } = vi.hoisted(() => ({
+const { createWorkerMock, loadOcrImageMock } = vi.hoisted(() => ({
   createWorkerMock: vi.fn(),
-  getIpCountryMock: vi.fn(),
   loadOcrImageMock: vi.fn()
 }))
 
 vi.mock('tesseract.js', () => ({
   createWorker: createWorkerMock
-}))
-
-vi.mock('@main/services/RegionService', () => ({
-  regionService: { getCountry: getIpCountryMock }
 }))
 
 vi.mock('@main/features/fileProcessing/utils/ocr', () => ({
@@ -120,7 +115,6 @@ describe('TesseractRuntimeService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     BaseService.resetInstances()
-    getIpCountryMock.mockResolvedValue('us')
     loadOcrImageMock.mockResolvedValue(Buffer.from('image'))
     vi.mocked(application.getPath).mockReturnValue('/tmp/tesseract-cache')
     vi.spyOn(fs.promises, 'stat').mockResolvedValue({ size: 1024 } as never)

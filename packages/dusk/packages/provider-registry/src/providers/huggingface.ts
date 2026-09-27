@@ -3,7 +3,6 @@ import { defineProvider } from './types'
 export default defineProvider({
   id: 'huggingface',
   name: 'Hugging Face',
-  availableInEditions: ['global'],
   defaultChatEndpoint: 'openai-responses',
   endpointConfigs: {
     'anthropic-messages': {

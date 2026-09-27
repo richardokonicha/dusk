@@ -3,7 +3,6 @@ import { openaiCompatible } from './types'
 export default openaiCompatible({
   id: 'ph8',
   name: 'PH8',
-  availableInEditions: ['global', 'cn'],
   baseUrl: 'https://ph8.co',
   website: {
     apiKey: 'https://ph8.co/apiKey',

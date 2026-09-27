@@ -295,15 +295,15 @@
   --cs-white: oklch(1 0 0);
 
   /* Dusk brand — twilight violet-indigo (50=lightest, 950=deepest) */
-  --cs-brand-50: oklch(0.970 0.018 292.7);
+  --cs-brand-50: oklch(0.97 0.018 292.7);
   --cs-brand-100: oklch(0.889 0.065 292.8);
   --cs-brand-200: oklch(0.809 0.118 292.9);
-  --cs-brand-300: oklch(0.729 0.168 293.0);
-  --cs-brand-400: oklch(0.648 0.210 293.1);
+  --cs-brand-300: oklch(0.729 0.168 293);
+  --cs-brand-400: oklch(0.648 0.21 293.1);
   --cs-brand-500: oklch(0.568 0.225 293.2);
   --cs-brand-600: oklch(0.487 0.235 293.3);
   --cs-brand-700: oklch(0.407 0.215 293.4);
   --cs-brand-800: oklch(0.326 0.185 293.5);
-  --cs-brand-900: oklch(0.246 0.140 293.6);
+  --cs-brand-900: oklch(0.246 0.14 293.6);
   --cs-brand-950: oklch(0.165 0.075 293.7);
 }

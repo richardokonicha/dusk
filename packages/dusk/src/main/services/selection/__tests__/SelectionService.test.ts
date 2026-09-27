@@ -5,7 +5,7 @@ import { WindowType } from '@main/core/window/types'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { getApplicationIdMock } = vi.hoisted(() => ({
-  getApplicationIdMock: vi.fn(() => 'com.kangfenmao.Dusk')
+  getApplicationIdMock: vi.fn(() => 'com.dusk.app')
 }))
 
 vi.mock('@main/utils/appEdition', () => ({
@@ -241,24 +241,21 @@ describe('SelectionService macOS toolbar', () => {
     vi.restoreAllMocks()
   })
 
-  it.each([
-    ['global', 'com.kangfenmao.Dusk'],
-    ['China', 'com.duskai.dusk.cn']
-  ])('preserves selection inside the %s edition', (_edition, applicationId) => {
-    getApplicationIdMock.mockReturnValue(applicationId)
+  it('preserves selection inside our own app', () => {
+    getApplicationIdMock.mockReturnValue('com.dusk.app')
     const { access, toolbarWindow } = createToolbarHarness()
 
-    access.showToolbarAtPosition({ x: 10, y: 20 }, 'bottomLeft', applicationId)
+    access.showToolbarAtPosition({ x: 10, y: 20 }, 'bottomLeft', 'com.dusk.app')
 
     expect(toolbarWindow.setVisibleOnAllWorkspaces).not.toHaveBeenCalled()
     expect(toolbarWindow.showInactive).toHaveBeenCalledOnce()
   })
 
-  it('treats the other edition as an external app', () => {
-    getApplicationIdMock.mockReturnValue('com.kangfenmao.Dusk')
+  it('treats other apps as external', () => {
+    getApplicationIdMock.mockReturnValue('com.dusk.app')
     const { access, toolbarWindow } = createToolbarHarness()
 
-    access.showToolbarAtPosition({ x: 10, y: 20 }, 'bottomLeft', 'com.duskai.dusk.cn')
+    access.showToolbarAtPosition({ x: 10, y: 20 }, 'bottomLeft', 'com.example.OtherApp')
 
     expect(toolbarWindow.setFocusable).toHaveBeenCalledWith(false)
     expect(toolbarWindow.setVisibleOnAllWorkspaces).toHaveBeenCalledWith(true, {

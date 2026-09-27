@@ -1,7 +1,7 @@
 # 上下文构建/压缩运行时测试发现的问题
 
 > 更新日期:2026-08-03(修复状态标注)
-> 测试方式:克隆档案 `DuskStudioCtxTest`(阈值 5000→100000、`context_window` 缩至 16000)+ dusk-electron-dev 实例,真实模型(aihubmix::claude-sonnet-4-6 / gemini::gemini-2.5-flash)驱动长程工具任务。
+> 测试方式:克隆档案 `DuskCtxTest`(阈值 5000→100000、`context_window` 缩至 16000)+ dusk-electron-dev 实例,真实模型(aihubmix::claude-sonnet-4-6 / gemini::gemini-2.5-flash)驱动长程工具任务。
 > 范围:feat/context-build-truncation 分支 @ `7f0a0fbd34`(其中 #1、#5、#6 为 main 既有问题,与本分支无关)。
 > 已验证正常的部分见 `tool-result-db-trim.md` 文末「实施结论」;此文只记问题。
 

@@ -140,7 +140,7 @@ describe('PromptEditorField', () => {
     parent.remove()
   })
 
-  it('keeps Markdown markers visually secondary', () => {
+  it('keeps Markdown markers visually secondary', async () => {
     function Harness() {
       const [value, setValue] = useState('')
       return <PromptEditorField label={<span>Prompt</span>} value={value} onChange={setValue} />
@@ -159,24 +159,31 @@ describe('PromptEditorField', () => {
       parent
     })
 
-    const tokenStyle = (text: string, occurrence = 0) => {
-      const allTokens = Array.from(view.dom.querySelectorAll<HTMLElement>('.cm-content span'))
-      const tokens = allTokens.filter((token) => token.textContent === text)
-      if (!tokens[occurrence]) {
-        throw new Error(
-          `Missing token ${text}; rendered tokens: ${allTokens.map((token) => token.textContent).join('|')}`
-        )
-      }
-      return getComputedStyle(tokens[occurrence])
+    // CodeMirror applies syntax highlighting incrementally, so the spans may not
+    // all exist on the first frame — wait for the expected token to appear.
+    const tokenStyle = async (text: string, occurrence = 0) => {
+      let token: HTMLElement | undefined
+      await waitFor(() => {
+        const allTokens = Array.from(view.dom.querySelectorAll<HTMLElement>('.cm-content span'))
+        const tokens = allTokens.filter((token) => token.textContent === text)
+        token = tokens[occurrence]
+        if (!token) {
+          throw new Error(
+            `Missing token ${text}; rendered tokens: ${allTokens.map((token) => token.textContent).join('|')}`
+          )
+        }
+      })
+      return getComputedStyle(token!)
     }
 
-    expect(tokenStyle('#').color).toBe('var(--muted-foreground)')
-    expect(tokenStyle(' Heading').color).toBe('var(--foreground)')
-    expect(tokenStyle(' Heading').fontWeight).toBe('var(--font-weight-medium)')
-    expect(tokenStyle('**').color).toBe('var(--muted-foreground)')
-    expect(tokenStyle('strong').fontWeight).toBe('var(--font-weight-bold)')
-    expect(tokenStyle('link').color).toBe('var(--link)')
-    expect(tokenStyle('[').color).toBe('var(--muted-foreground)')
+    expect((await tokenStyle('#')).color).toBe('var(--muted-foreground)')
+    const headingStyle = await tokenStyle(' Heading')
+    expect(headingStyle.color).toBe('var(--foreground)')
+    expect(headingStyle.fontWeight).toBe('var(--font-weight-medium)')
+    expect((await tokenStyle('**')).color).toBe('var(--muted-foreground)')
+    expect((await tokenStyle('strong')).fontWeight).toBe('var(--font-weight-bold)')
+    expect((await tokenStyle('link')).color).toBe('var(--link)')
+    expect((await tokenStyle('[')).color).toBe('var(--muted-foreground)')
     expect(getComputedStyle(view.contentDOM).padding).toBe('calc(var(--spacing) * 3)')
 
     view.destroy()

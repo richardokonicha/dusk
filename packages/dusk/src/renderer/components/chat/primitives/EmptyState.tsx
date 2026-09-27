@@ -1,8 +1,4 @@
-import {
-  EmptyState as UIEmptyState,
-  type EmptyStatePreset,
-  type EmptyStateProps as UIEmptyStateProps
-} from '@dusk/ui'
+import { EmptyState as UIEmptyState, type EmptyStatePreset, type EmptyStateProps as UIEmptyStateProps } from '@dusk/ui'
 import { cn } from '@dusk/ui/lib/utils'
 import type { ComponentType, ReactNode } from 'react'
 

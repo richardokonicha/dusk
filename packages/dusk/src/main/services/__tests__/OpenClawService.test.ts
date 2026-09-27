@@ -129,10 +129,6 @@ vi.mock('@main/utils/shellEnv', () => ({
   getRawShellEnv: vi.fn(() => Promise.resolve({ PATH: '/usr/local/bin:/usr/bin', MISE_DATA_DIR: '/user/mise' }))
 }))
 
-vi.mock('@main/services/RegionService', () => ({
-  regionService: { isInChina: vi.fn(() => Promise.resolve(false)) }
-}))
-
 // Pin Windows behavior without depending on the host platform.
 vi.mock('@main/core/platform', () => ({
   get isWin() {

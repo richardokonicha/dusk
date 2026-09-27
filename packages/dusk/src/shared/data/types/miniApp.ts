@@ -13,15 +13,9 @@ import * as z from 'zod'
 
 export type MiniAppId = string & { readonly __brand: unique symbol }
 
-// Region types
-export type MiniAppRegion = 'CN' | 'Global'
-export type MiniAppRegionFilter = 'auto' | MiniAppRegion
-
 // Status enum
 export const MiniAppStatusSchema = z.enum(['enabled', 'disabled', 'pinned'])
 export type MiniAppStatus = z.infer<typeof MiniAppStatusSchema>
-
-export const MiniAppRegionSchema = z.enum(['CN', 'Global'])
 
 export const MiniAppKindSchema = z.enum(['site', 'app'])
 export type MiniAppKind = z.infer<typeof MiniAppKindSchema>
@@ -60,7 +54,6 @@ const MiniAppBaseSchema = z.object({
 export const SiteMiniAppSchema = MiniAppBaseSchema.extend({
   kind: z.literal('site'),
   presetMiniAppId: z.string().nullable(),
-  supportedRegions: z.array(MiniAppRegionSchema).optional(),
   configuration: z.unknown().optional()
 })
 

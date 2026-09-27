@@ -1,13 +1,5 @@
 import { usePreference } from '@data/hooks/usePreference'
-import {
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@dusk/ui'
+import { Button, CircularProgress, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@dusk/ui'
 import { getBackupProgressLabelKey } from '@renderer/i18n/label'
 import { backup } from '@renderer/services/BackupService'
 import { createPopup, type PopupInjectedProps } from '@renderer/services/popup'

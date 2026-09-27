@@ -131,7 +131,7 @@ function summarize(
   if (placement.relation === 'upgrade') {
     return (async () => {
       // The namespace rule the install path enforces, applied to the source being pinned.
-      assertOfficialNamespace(manifest.id, repin.source, repin.sourceOrigin, repin.sourceOriginCn)
+      assertOfficialNamespace(manifest.id, repin.source, repin.sourceOrigin)
       const upgradePayload = await input.upgradePayload()
       // The newest preview still wins, even though no install token is minted here.
       miniAppInstallConsentService.assertLive(ownerId, claim)
@@ -295,7 +295,7 @@ export async function previewUrlForInstall(
         iconDataUrl,
         payload: { kind: 'url', manifestUrl: answered, origins, distribution: manifest },
         // PROVENANCE, as `installFromUrlConfirmed` records it: the address that answered, the origins declared.
-        repin: { source: 'url', sourceUrl: answered, sourceOrigin: origins[0], sourceOriginCn: origins[1] },
+        repin: { source: 'url', sourceUrl: answered, sourceOrigin: origins[0] },
         upgradePayload: async () => ({ kind: 'url', origins })
       },
       placementOf(manifest)

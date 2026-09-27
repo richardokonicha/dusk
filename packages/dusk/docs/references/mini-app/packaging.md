@@ -63,18 +63,17 @@ Every install entry — a file, a web address, a builtin tile, or the detail pan
 | Higher | **Upgrade** — the update flow below, with its token and review card | Kept | Diffed: new required leaves and hosts need consent, new optional leaves are offered, revoked leaves stay revoked | Taken |
 | Same or lower | **Reinstall** — the consent card says so and asks whether to delete the app's existing data (saves, files, cookies); a downgrade starts with the wipe **on** and warns when it is turned off | User's choice | Fresh consent: the full list, optional leaves ticked | None |
 
-A reinstall keeps the launcher position, the pinned/enabled status and the model slots. The **source is re-pinned** to whatever the user just used: a file over a web install turns the app into a local one (no more online checks), a web address over a local install pins its origins (online checks start working), and a different address over a web install is how mirrors change. The card names the source change. An id that belongs to a website entry is refused.
+A reinstall keeps the launcher position, the pinned/enabled status and the model slots. The **source is re-pinned** to whatever the user just used: a file over a web install turns the app into a local one (no more online checks), a web address over a local install pins its origin (online checks start working), and a different address over a web install moves the app to the new origin. The card names the source change. An id that belongs to a website entry is refused.
 
 ## Distribution manifest
 
-To ship updates, serve a **distribution manifest** at the `update.url` (and `update.urlCn`, if you provide a China accelerator) declared in the package. It is the package manifest, byte-for-byte on every overlapping field, plus a `package` block. The file may be called anything: a user installing from a web address may type the manifest's own URL or its directory — the host tries the address as typed, then `<address>/manifest.json`.
+To ship updates, serve a **distribution manifest** at the `update.url` declared in the package. It is the package manifest, byte-for-byte on every overlapping field, plus a `package` block. The file may be called anything: a user installing from a web address may type the manifest's own URL or its directory — the host tries the address as typed, then `<address>/manifest.json`.
 
 ```json
 {
   "...": "every field of the packaged manifest.json, identical",
   "package": {
     "url": "https://example.com/mygame/1.1.0.miniapp",
-    "urlCn": "https://cdn.example.cn/mygame/1.1.0.miniapp",
     "iconUrl": "https://example.com/mygame/icon.png",
     "sha256": "<lowercase hex sha-256 of the .miniapp>",
     "size": 1048576
@@ -85,8 +84,7 @@ To ship updates, serve a **distribution manifest** at the `update.url` (and `upd
 | Rule | Why |
 |---|---|
 | `package` lives only here, never inside the archive | Its `sha256` is the hash of the archive that would contain it |
-| `urlCn` is optional, but `update.urlCn` and `package.urlCn` go together, and a mirror must serve identical bytes | Users in China get a reachable source when you offer one; one hash covers both |
-| `package.url` must be on the origin of `update.url`; `package.urlCn` on the origin of `update.urlCn` | Every declared origin is pinned at install |
+| `package.url` must be on the origin of `update.url` | The origin is pinned at install |
 | Every URL must answer directly — **redirects are refused** | `github.com` release links redirect and therefore do not work; a per-organization GitHub Pages origin does |
 | `sha256` and `size` are mandatory; `size` ≤ 50 MB | The user sees what will be installed before bytes land |
 | `iconUrl` is optional: the icon bytes, on a declared origin, matching `icon.sha256`, ≤ 5 MB | The consent card shows the icon **before** the package downloads; an icon that fails to fetch or verify only hides itself |
@@ -103,7 +101,7 @@ An available update lights a dot on the app's tile; hovering the icon says which
 | Rule | Detail |
 |---|---|
 | Version | Only a strictly greater semver is an update. Same version with different content is "already up to date" — bump the version. **Builtin apps are the exception**: their tree ships inside the signed Dusk release rather than arriving from a server, so the tree hash is the signal and changed bytes are applied whatever the version says. Bump it anyway — the host logs an error when you do not |
-| Origins | An update cannot add, remove or change the **origin of** `update.url` / `update.urlCn`; a different path on the same origin is followed. Changing hosts, or adding a mirror later, means installing over the app from the new address (see above) |
+| Origins | An update cannot change the **origin of** `update.url`; a different path on the same origin is followed. Changing hosts means installing over the app from the new address (see above) |
 | Manifest consistency | The distribution manifest and the manifest inside the downloaded archive must agree on every shared field, including both `update` URLs |
 | Permission growth | Newly required leaves — including an optional leaf promoted to required — and newly declared hosts are shown and need consent. Newly optional leaves are shown ticked, may be unticked, and never block |
 | `releaseNotes` | Plain text, rendered below the permission diff |
@@ -125,4 +123,4 @@ Both quiesce the app first.
 
 ## Official apps
 
-`com.duskstudio.*` is reserved. Packages using it are only accepted from Dusk's own origins or as builtins bundled with the host, and official apps live under `com.duskstudio.miniapp.*`. Builtins update with the host, through the same update flow.
+`com.dusk.*` is reserved. Packages using it are only accepted from Dusk's own origins or as builtins bundled with the host, and official apps live under `com.dusk.miniapp.*`. Builtins update with the host, through the same update flow.

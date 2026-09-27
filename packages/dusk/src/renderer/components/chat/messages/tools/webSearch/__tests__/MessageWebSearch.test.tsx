@@ -61,9 +61,7 @@ describe('MessageWebSearchToolTitle', () => {
             tool: { id: 'web-search', name: 'web_search', type: 'builtin' },
             status: 'done',
             arguments: { query: 'Dusk' },
-            response: [
-              { id: 1, title: 'Dusk', url: 'https://www.dusk-ai.com/blog', content: 'Dusk' }
-            ]
+            response: [{ id: 1, title: 'Dusk', url: 'https://www.dusk.app/blog', content: 'Dusk' }]
           } as NormalToolResponse
         }
       />
@@ -77,9 +75,9 @@ describe('MessageWebSearchToolTitle', () => {
     fireEvent.click(header)
 
     const link = await screen.findByRole('link')
-    expect(link).toHaveAttribute('href', 'https://www.dusk-ai.com/blog')
-    expect(screen.getByTestId('favicon')).toHaveAttribute('data-hostname', 'www.dusk-ai.com')
-    expect(screen.getByText('dusk-ai.com')).toBeInTheDocument()
+    expect(link).toHaveAttribute('href', 'https://www.dusk.app/blog')
+    expect(screen.getByTestId('favicon')).toHaveAttribute('data-hostname', 'www.dusk.app')
+    expect(screen.getByText('dusk.app')).toBeInTheDocument()
   })
 })
 

@@ -13,8 +13,7 @@ function isLegacyMcpAutoInstall(row: McpServerRow): boolean {
     row.installSource === null &&
     row.name === BuiltinMcpServerNames.mcpAutoInstall &&
     row.type === 'inMemory' &&
-    (row.reference === 'https://docs.dusk-ai.com/advanced-basic/mcp/auto-install' ||
-      row.reference === 'https://docs.dusk.app/advanced-basic/mcp/auto-install') &&
+    row.reference === 'https://docs.dusk.app/advanced-basic/mcp/auto-install' &&
     row.baseUrl === null &&
     row.command === 'npx' &&
     row.registryUrl === null &&

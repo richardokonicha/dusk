@@ -10,9 +10,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Override the global lightweight '@dusk/ui' stand-in with the real theme
 // utils — this test locks the provider + theme-resolution behavior end-to-end.
 vi.mock('@dusk/ui', async () => {
-  const utils = await vi.importActual<typeof codeEditorUtils>(
-    '@dusk/ui/components/composites/code-editor/utils'
-  )
+  const utils = await vi.importActual<typeof codeEditorUtils>('@dusk/ui/components/composites/code-editor/utils')
   return {
     getCmThemeNames: utils.getCmThemeNames,
     getCmThemeByName: utils.getCmThemeByName

@@ -7,7 +7,6 @@ import { loggerService } from '@logger'
 import type { ArtifactPlatformFiles, SharedArtifact } from '../catalog/types'
 import { currentPlatformKey } from '../catalog/types'
 import { streamToFileVerified, withMirrorFallback } from './downloadEngine'
-import type { DownloadSourcePreference } from './modelSource'
 
 const logger = loggerService.withContext('sharedArtifactAcquisition')
 
@@ -15,22 +14,15 @@ const logger = loggerService.withContext('sharedArtifactAcquisition')
  * Acquisition of shared native runtimes published as npm packages. The whole tarball is
  * verified against one digest and the current platform's files are extracted from that
  * same verified stream, so nothing inside needs a checksum of its own.
- *
- * npmmirror.com is a byte-identical registry mirror, so mirror order is a reachability
- * choice only — the digest makes it irrelevant which one served the bytes.
  */
 const NPM_REGISTRIES = {
-  npmjs: 'https://registry.npmjs.org',
-  npmmirror: 'https://registry.npmmirror.com'
+  npmjs: 'https://registry.npmjs.org'
 } as const
 
 export type ArtifactRegistryId = keyof typeof NPM_REGISTRIES
 
-export function artifactRegistryOrder(
-  preference: DownloadSourcePreference
-): [ArtifactRegistryId, ...ArtifactRegistryId[]] {
-  return preference === 'china-first' ? ['npmmirror', 'npmjs'] : ['npmjs', 'npmmirror']
-}
+/** Single-registry order — the downstream mirror-fallback structure stays intact with one entry. */
+export const ARTIFACT_REGISTRY_ORDER: [ArtifactRegistryId, ...ArtifactRegistryId[]] = ['npmjs']
 
 /** The platform's files, or undefined where the artifact ships none (see
  * {@link SharedArtifact.platforms}). */

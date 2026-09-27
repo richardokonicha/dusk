@@ -904,9 +904,7 @@ class BackupManager {
       onProgress({ stage: 'extracted', progress: 20, total: 100 })
 
       if (!(await fs.pathExists(path.join(extractionDir, 'metadata.json')))) {
-        throw new Error(
-          `Unsupported v1 backup. Dusk can only restore backup version ${DIRECT_BACKUP_VERSION}.`
-        )
+        throw new Error(`Unsupported v1 backup. Dusk can only restore backup version ${DIRECT_BACKUP_VERSION}.`)
       }
 
       await this.restoreDirect(extractionDir)
@@ -1122,7 +1120,7 @@ class BackupManager {
   private async readDirectBackupMetadata(extractionDir: string): Promise<DirectBackupMetadata> {
     const raw = (await fs.readJson(path.join(extractionDir, 'metadata.json'))) as Record<string, unknown>
 
-    if (!raw || typeof raw !== 'object' || (raw.appName !== 'Dusk' && raw.appName !== 'Dusk')) {
+    if (!raw || typeof raw !== 'object' || raw.appName !== 'Dusk') {
       throw new Error('This backup file is not from Dusk and cannot be restored')
     }
     if (raw.version !== DIRECT_BACKUP_VERSION) {

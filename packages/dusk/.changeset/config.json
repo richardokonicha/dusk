@@ -5,7 +5,7 @@
   },
   "access": "public",
   "baseBranch": "main",
-  "changelog": ["@changesets/changelog-github", { "repo": "DuskHQ/dusk-studio" }],
+  "changelog": false,
   "commit": false,
   "fixed": [],
   "ignore": ["@dusk/ui", "@dusk/provider-registry", "@dusk/dsh-bridge"],

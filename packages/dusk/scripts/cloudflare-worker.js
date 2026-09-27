@@ -56,8 +56,7 @@ const worker = {
     } catch (error) {
       return new Response(
         JSON.stringify({
-          error: error.message,
-          stack: error.stack
+          error: error.message
         }),
         {
           status: 500,
@@ -348,16 +347,20 @@ async function getCachedRelease(env) {
 // 新增：只检查新版本并更新
 async function checkNewRelease(env) {
   try {
-    // 获取 GitHub 最新版本
-    const githubResponse = await fetch('https://api.github.com/repos/the upstream the upstream project project/dusk/releases/latest', {
+    // 获取 GitLab 最新版本
+    const githubResponse = await fetch('https://gitlab.com/api/v4/projects/fugoku.inc%2Fdusk/releases', {
       headers: { 'User-Agent': 'CloudflareWorker' }
     })
 
     if (!githubResponse.ok) {
-      throw new Error('GitHub API 请求失败')
+      throw new Error('GitLab API 请求失败')
     }
 
-    const releaseData = await githubResponse.json()
+    const releases = await githubResponse.json()
+    const releaseData = Array.isArray(releases) ? releases[0] : undefined
+    if (!releaseData) {
+      throw new Error('未找到任何 release')
+    }
     const version = releaseData.tag_name
 
     // 获取版本数据库
@@ -377,27 +380,29 @@ async function checkNewRelease(env) {
       await addLog(env, 'INFO', `版本 ${version} 文件完整性检查开始`)
     }
 
-    // 准备新版本记录
+    // 准备新版本记录（GitLab release: assets.links[].name / .url / .direct_asset_url）
+    const assetLinks = releaseData.assets?.links ?? []
     const versionRecord = {
       version,
-      publishedAt: releaseData.published_at,
+      publishedAt: releaseData.released_at,
       uploadedAt: null,
-      files: releaseData.assets.map((asset) => ({
+      files: assetLinks.map((asset) => ({
         name: asset.name,
-        size: asset.size,
+        size: asset.size ?? null,
         uploaded: false
       })),
-      changelog: releaseData.body
+      changelog: releaseData.description
     }
 
     // 检查并上传文件
-    for (const asset of releaseData.assets) {
+    for (const asset of assetLinks) {
       try {
         const existingFile = await env.R2_BUCKET.get(asset.name)
-        // 检查文件是否存在且大小是否一致
-        if (!existingFile || existingFile.size !== asset.size) {
+        const expectedSize = asset.size ?? null
+        const sizeMatches = expectedSize === null || existingFile?.size === expectedSize
+        if (!existingFile || !sizeMatches) {
           hasUpdates = true
-          const response = await fetch(asset.browser_download_url)
+          const response = await fetch(asset.direct_asset_url ?? asset.url)
           if (!response.ok) {
             throw new Error(`下载失败: HTTP ${response.status}`)
           }

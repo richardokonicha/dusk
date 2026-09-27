@@ -1,13 +1,4 @@
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Divider,
-  Scrollbar
-} from '@dusk/ui'
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Divider, Scrollbar } from '@dusk/ui'
 import { loggerService } from '@logger'
 import { useAppUpdateState } from '@renderer/hooks/useAppUpdateState'
 import { ipcApi } from '@renderer/ipc'

@@ -22,18 +22,12 @@ vi.mock('node:util', async (importOriginal) => {
   return { ...(actual as object), promisify: () => mockExecFileAsync }
 })
 
-vi.mock('@main/services/RegionService', () => ({
-  regionService: { isInChina: vi.fn().mockResolvedValue(false) }
-}))
-
-const { regionService } = await import('@main/services/RegionService')
 const { provideManagedPython } = await import('../pythonRuntime')
 
 const UV_BIN = '/mock/dusk.bin/uv'
 const INSTALL_DIR = '/mock/feature.binary.data.uv_python'
 const APP_TEMP = '/mock/app.temp'
 const MANAGED_PYTHON = `${INSTALL_DIR}/cpython-3.12.13/bin/python`
-const CHINA_PYTHON_MIRROR = 'https://registry.npmmirror.com/-/binary/python-build-standalone'
 
 const uvCalls = (subcommand: string) =>
   mockExecFileAsync.mock.calls.filter(
@@ -46,7 +40,6 @@ describe('provideManagedPython', () => {
     mockExecFileAsync.mockReset()
     mockFs.existsSync.mockReset().mockImplementation((candidate: string) => candidate === UV_BIN)
     mockFsp.mkdir.mockReset().mockResolvedValue(undefined)
-    vi.mocked(regionService.isInChina).mockReset().mockResolvedValue(false)
   })
 
   it('reuses an interpreter uv already has, without downloading one', async () => {
@@ -100,92 +93,6 @@ describe('provideManagedPython', () => {
 
     await expect(provideManagedPython('3.12', {})).resolves.toBe(MANAGED_PYTHON)
     expect(uvCalls('install')).toHaveLength(1)
-  })
-
-  it('installs from the China mirror when in China', async () => {
-    vi.mocked(regionService.isInChina).mockResolvedValue(true)
-    let installed = false
-    mockExecFileAsync.mockImplementation(async (bin: string, args: string[]) => {
-      if (bin === UV_BIN && args[1] === 'install') {
-        installed = true
-        return { stdout: '', stderr: '' }
-      }
-      if (bin === UV_BIN && args[1] === 'find') {
-        if (!installed) throw new Error('no managed python')
-        return { stdout: `${MANAGED_PYTHON}\n`, stderr: '' }
-      }
-      if (bin === MANAGED_PYTHON) return { stdout: 'Python 3.12.13\n', stderr: '' }
-      return { stdout: '', stderr: '' }
-    })
-
-    await expect(provideManagedPython('3.12', {})).resolves.toBe(MANAGED_PYTHON)
-    expect(uvCalls('install')[0]?.[2].env.UV_PYTHON_INSTALL_MIRROR).toBe(CHINA_PYTHON_MIRROR)
-  })
-
-  it('never reaches for the mirror outside China', async () => {
-    let installed = false
-    mockExecFileAsync.mockImplementation(async (bin: string, args: string[]) => {
-      if (bin === UV_BIN && args[1] === 'install') {
-        installed = true
-        return { stdout: '', stderr: '' }
-      }
-      if (bin === UV_BIN && args[1] === 'find') {
-        if (!installed) throw new Error('no managed python')
-        return { stdout: `${MANAGED_PYTHON}\n`, stderr: '' }
-      }
-      if (bin === MANAGED_PYTHON) return { stdout: 'Python 3.12.13\n', stderr: '' }
-      return { stdout: '', stderr: '' }
-    })
-
-    await expect(provideManagedPython('3.12', {})).resolves.toBe(MANAGED_PYTHON)
-    const installs = uvCalls('install')
-    expect(installs).toHaveLength(1)
-    expect(installs[0]?.[2].env.UV_PYTHON_INSTALL_MIRROR).toBeUndefined()
-  })
-
-  it('falls back to the official source only after the China mirror fails', async () => {
-    vi.mocked(regionService.isInChina).mockResolvedValue(true)
-    let installed = false
-    mockExecFileAsync.mockImplementation(
-      async (bin: string, args: string[], options: { env?: Record<string, string> }) => {
-        if (bin === UV_BIN && args[1] === 'install') {
-          if (options.env?.UV_PYTHON_INSTALL_MIRROR) throw new Error('npmmirror unavailable')
-          installed = true
-          return { stdout: '', stderr: '' }
-        }
-        if (bin === UV_BIN && args[1] === 'find') {
-          if (!installed) throw new Error('no managed python')
-          return { stdout: `${MANAGED_PYTHON}\n`, stderr: '' }
-        }
-        if (bin === MANAGED_PYTHON) return { stdout: 'Python 3.12.13\n', stderr: '' }
-        return { stdout: '', stderr: '' }
-      }
-    )
-
-    await expect(provideManagedPython('3.12', {})).resolves.toBe(MANAGED_PYTHON)
-
-    const installs = uvCalls('install')
-    expect(installs).toHaveLength(2)
-    expect(installs[0]?.[2].env.UV_PYTHON_INSTALL_MIRROR).toBe(CHINA_PYTHON_MIRROR)
-    expect(installs[1]?.[2].env.UV_PYTHON_INSTALL_MIRROR).toBeUndefined()
-  })
-
-  it('reports every source that failed, with credentials redacted', async () => {
-    vi.mocked(regionService.isInChina).mockResolvedValue(true)
-    mockExecFileAsync.mockImplementation(
-      async (bin: string, args: string[], options: { env?: Record<string, string> }) => {
-        if (bin === UV_BIN && args[1] === 'install') {
-          throw options.env?.UV_PYTHON_INSTALL_MIRROR
-            ? new Error('https://user:password@mirror.test/python failed')
-            : new Error('github unreachable')
-        }
-        throw new Error('no managed python')
-      }
-    )
-
-    await expect(provideManagedPython('3.12', {})).rejects.toThrow(
-      /npmmirror: https:\/\/\*\*\*@mirror\.test\/python failed[\s\S]*official: github unreachable/
-    )
   })
 
   it('passes the caller env through to uv', async () => {

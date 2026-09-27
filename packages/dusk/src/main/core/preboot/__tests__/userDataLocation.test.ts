@@ -297,7 +297,7 @@ describe('resolveUserDataLocation', () => {
     })
 
     it('app.isPackaged=false: appends configured dev suffix', async () => {
-      vi.stubEnv('CS_DEV_USER_DATA_SUFFIX', 'DevQuito')
+      vi.stubEnv('DUSK_DEV_USER_DATA_SUFFIX', 'DevQuito')
       stubConstants({ isLinux: false, isWin: false, isPortable: false })
       stubElectron({ isPackaged: false, userData: '/mock/userData' })
       stubBootConfig()
@@ -309,7 +309,7 @@ describe('resolveUserDataLocation', () => {
     })
 
     it('app.isPackaged=false: blank configured dev suffix falls back to Dev', async () => {
-      vi.stubEnv('CS_DEV_USER_DATA_SUFFIX', '   ')
+      vi.stubEnv('DUSK_DEV_USER_DATA_SUFFIX', '   ')
       stubConstants({ isLinux: false, isWin: false, isPortable: false })
       stubElectron({ isPackaged: false, userData: '/mock/userData' })
       stubBootConfig()

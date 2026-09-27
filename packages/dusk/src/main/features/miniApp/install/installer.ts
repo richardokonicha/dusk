@@ -133,8 +133,7 @@ export async function hashTree(dir: string): Promise<string> {
 export function assertOfficialNamespace(
   appId: string,
   source: MiniAppInstallSourceInfo['source'],
-  sourceOrigin: string | undefined,
-  sourceOriginCn: string | undefined
+  sourceOrigin: string | undefined
 ): void {
   if (source === 'builtin') {
     if (!appId.startsWith(MINI_APP_BUILTIN_ID_PREFIX)) {
@@ -144,17 +143,10 @@ export function assertOfficialNamespace(
   }
   if (!appId.startsWith(MINI_APP_OFFICIAL_ID_PREFIX)) return
   /*
-   * EVERY pinned origin, not just the global one. Either address can serve the bytes, so
-   * "official global + attacker CN mirror" resolves to the attacker's manifest while
-   * `sourceOrigin` still reads as official — and the reserved namespace is a primary key,
-   * so one squatting install occupies the real package's id for ever.
+   * The pinned origin is the only source allowed to claim the reserved namespace.
    */
   const official =
-    source === 'url' &&
-    sourceOrigin !== undefined &&
-    [sourceOrigin, sourceOriginCn].every(
-      (origin) => origin === undefined || MINI_APP_OFFICIAL_ORIGINS.includes(origin as never)
-    )
+    source === 'url' && sourceOrigin !== undefined && MINI_APP_OFFICIAL_ORIGINS.includes(sourceOrigin as never)
   if (!official) {
     throw new Error(`"${MINI_APP_OFFICIAL_ID_PREFIX}*" is a reserved namespace and this package cannot claim it`)
   }
@@ -164,7 +156,6 @@ export interface MiniAppInstallSourceInfo {
   source: 'file' | 'url' | 'builtin'
   sourceUrl?: string
   sourceOrigin?: string
-  sourceOriginCn?: string
 }
 
 /** What the consent card sent back. `grantedOptional` omitted = every optional leaf stays on. */
@@ -284,7 +275,7 @@ export async function installExtracted(
 ): Promise<LocalMiniApp> {
   // Before the lock, because it needs nothing shared and a bad package should be
   // refused without making concurrent installs wait for it.
-  assertOfficialNamespace(manifest.id, info.source, info.sourceOrigin, info.sourceOriginCn)
+  assertOfficialNamespace(manifest.id, info.source, info.sourceOrigin)
   await assertIconMatchesDigest(staging, manifest)
   // Check-then-act across BOTH filesystem and database, so the DB transaction alone
   // cannot make it safe — two installs would both pass the check before either writes.
@@ -412,7 +403,6 @@ async function publishReinstall(
           source: info.source,
           sourceUrl: info.sourceUrl ?? null,
           sourceOrigin: info.sourceOrigin ?? null,
-          sourceOriginCn: info.sourceOriginCn ?? null,
           manifestJson: manifest,
           consentedDeclaredJson: declaredGrantKeys(manifest),
           previousManifestJson: null,
@@ -564,7 +554,6 @@ async function publishInstall(
           source: info.source,
           sourceUrl: info.sourceUrl ?? null,
           sourceOrigin: info.sourceOrigin ?? null,
-          sourceOriginCn: info.sourceOriginCn ?? null,
           manifestJson: manifest,
           // What the consent card actually listed — `storage.*` expands differently
           // over time, so `manifestJson` alone cannot separate a widening from a revoke.

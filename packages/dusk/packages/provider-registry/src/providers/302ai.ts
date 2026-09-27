@@ -3,7 +3,6 @@ import { openaiCompatible } from './types'
 export default openaiCompatible({
   id: '302ai',
   name: '302.AI',
-  availableInEditions: ['global'],
   baseUrl: 'https://api.302.ai',
   anthropic: 'https://api.302.ai',
   website: {

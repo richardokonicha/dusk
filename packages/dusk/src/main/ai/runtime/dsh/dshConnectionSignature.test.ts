@@ -168,8 +168,7 @@ describe('captureDshConnectionSnapshot', () => {
       providerId: 'deepseek',
       group: 'DeepSeek'
     })
-    const captureCloud = () =>
-      captureDshConnectionSnapshot('session-1', agent.id, `${'deepseek'}::deepseek-free`)
+    const captureCloud = () => captureDshConnectionSnapshot('session-1', agent.id, `${'deepseek'}::deepseek-free`)
     const cloudSignature = (await captureCloud()).signature
     mocks.gatewayFingerprint = 'gateway-2'
     expect((await captureCloud()).signature).not.toBe(cloudSignature)

@@ -27,12 +27,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/the upstream the upstream project project/dusk.git"
+    "url": "git+https://gitlab.com/fugoku.inc/dusk.git"
   },
   "bugs": {
-    "url": "https://github.com/the upstream the upstream project project/dusk/issues"
+    "url": "https://gitlab.com/fugoku.inc/dusk/issues"
   },
-  "homepage": "https://github.com/the upstream the upstream project project/dusk#readme",
+  "homepage": "https://gitlab.com/fugoku.inc/dusk#readme",
   "exports": {
     ".": {
       "import": {

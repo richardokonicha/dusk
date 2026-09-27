@@ -540,7 +540,7 @@ describe('KnowledgeIndexStore', () => {
     // The index MUST be populated before the reshuffle, or it cannot expose the bug.
     store.rebuildMaterial('m1', buildInput('alpha apple body', [[0, 16]], 'a.md'))
     store.rebuildMaterial('m2', buildInput('bravo banana body', [[0, 17]], 'b.md'))
-    store.rebuildMaterial('m3', buildInput('charlie dusk body', [[0, 19]], 'c.md'))
+    store.rebuildMaterial('m3', buildInput('charlie dusk body', [[0, 17]], 'c.md'))
     store.rebuildMaterial('m4', buildInput('delta date body', [[0, 15]], 'd.md'))
     // Delete a middle material to leave a rowid hole — the precondition the reshuffle needs.
     await store.deleteMaterials(['m2'])
@@ -586,7 +586,7 @@ describe('KnowledgeIndexStore', () => {
     // delete trigger that failed to tombstone it would surface the old content under the new row.
     store.rebuildMaterial('m1', buildInput('alpha apple body', [[0, 16]], 'a.md'))
     store.rebuildMaterial('m2', buildInput('bravo banana body', [[0, 17]], 'b.md'))
-    store.rebuildMaterial('m3', buildInput('charlie dusk body', [[0, 19]], 'c.md'))
+    store.rebuildMaterial('m3', buildInput('charlie dusk body', [[0, 17]], 'c.md'))
 
     // m3 holds the current MAX fts_rowid. Delete it to free that rowid.
     const maxBefore = Number(driver.execute(`SELECT MAX(fts_rowid) AS m FROM search_text`).rows[0].m)

@@ -279,8 +279,7 @@ describe('mini app management', () => {
         .set({
           source: 'url',
           sourceUrl: 'https://example.com/mygame/manifest.json',
-          sourceOrigin: 'https://example.com',
-          sourceOriginCn: 'https://cn.example.com'
+          sourceOrigin: 'https://example.com'
         })
         .run()
 

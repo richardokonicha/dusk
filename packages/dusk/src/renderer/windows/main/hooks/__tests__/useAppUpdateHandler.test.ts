@@ -64,7 +64,7 @@ import { getManualUpdateErrorMessageKey, useAppUpdateHandler } from '../useAppUp
 const releaseInfo: UpdateInfo = {
   version: '2.1.0',
   files: [],
-  path: 'Dusk-Studio.dmg',
+  path: 'Dusk-2.1.0-mac.dmg',
   sha512: 'checksum',
   releaseDate: '2026-07-30T00:00:00.000Z'
 }
@@ -171,7 +171,7 @@ describe('useAppUpdateHandler', () => {
 
     emit(
       'app.updater.error',
-      new Error('HttpError: 503\nnot_published\nCannot download https://releases.dusk-ai.com/latest.yml')
+      new Error('HttpError: 503\nnot_published\nCannot download https://releases.dusk.app/latest.yml')
     )
 
     expect(mocks.popupInfo).toHaveBeenCalledExactlyOnceWith({
@@ -195,9 +195,7 @@ describe('getManualUpdateErrorMessageKey', () => {
 
   it('falls back to the generic update error for unrelated failures', () => {
     expect(getManualUpdateErrorMessageKey(new Error('manual failure'))).toBe('settings.about.updateError')
-    expect(getManualUpdateErrorMessageKey(new Error('ENOTFOUND releases.dusk-ai.com'))).toBe(
-      'settings.about.updateError'
-    )
+    expect(getManualUpdateErrorMessageKey(new Error('ENOTFOUND releases.dusk.app'))).toBe('settings.about.updateError')
     expect(getManualUpdateErrorMessageKey(undefined)).toBe('settings.about.updateError')
   })
 })

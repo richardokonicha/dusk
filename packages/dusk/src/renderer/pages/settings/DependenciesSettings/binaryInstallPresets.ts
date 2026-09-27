@@ -23,19 +23,10 @@ export const GITHUB_MIRROR_PRESETS: readonly InstallSettingPreset[] = [
 
 export const NPM_REGISTRY_PRESETS: readonly InstallSettingPreset[] = [
   DEFAULT_PRESET,
-  { url: 'https://registry.npmmirror.com', labelKey: 'settings.dependencies.installSettings.presetLabels.npmmirror' },
   { url: 'https://registry.npmjs.org', labelKey: 'settings.dependencies.installSettings.presetLabels.npmOfficial' }
 ]
 
 export const PIP_INDEX_PRESETS: readonly InstallSettingPreset[] = [
   DEFAULT_PRESET,
-  {
-    url: 'https://pypi.tuna.tsinghua.edu.cn/simple',
-    labelKey: 'settings.dependencies.installSettings.presetLabels.tsinghua'
-  },
-  {
-    url: 'https://mirrors.aliyun.com/pypi/simple/',
-    labelKey: 'settings.dependencies.installSettings.presetLabels.aliyun'
-  },
   { url: 'https://pypi.org/simple', labelKey: 'settings.dependencies.installSettings.presetLabels.pypiOfficial' }
 ]

@@ -3,7 +3,6 @@ import { openaiCompatible } from './types'
 export default openaiCompatible({
   id: 'aionly',
   name: 'AIOnly',
-  availableInEditions: ['global'],
   baseUrl: 'https://api.aiionly.com',
   website: {
     apiKey: 'https://maas.aiionly.com/keyApi',

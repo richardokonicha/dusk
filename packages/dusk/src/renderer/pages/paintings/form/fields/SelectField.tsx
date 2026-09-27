@@ -1,12 +1,4 @@
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue
-} from '@dusk/ui'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@dusk/ui'
 
 import type { PaintingFieldComponentProps } from '../fieldRegistry'
 import { controlValue } from '../fieldValue'

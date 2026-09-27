@@ -37,7 +37,7 @@ CS_DIAGNOSTICS=1 "./Dusk-<version>-<arch>.AppImage"
 
 ### Output
 
-Both dev and packaged runs write to the platform **app logs directory** exposed as `application.getPath('app.logs')` (dev diverts its logs like it does userData, using the same suffix — `Dev` by default, replaced by `CS_DEV_USER_DATA_SUFFIX` when set — so on macOS packaged runs use `~/Library/Logs/DuskStudio/` and dev runs use `~/Library/Logs/DuskStudioDev/`): signals stream into `app.<date>.log`, and the CPU profile lands beside it as `boot-whenReady.cpuprofile`.
+Both dev and packaged runs write to the platform **app logs directory** exposed as `application.getPath('app.logs')` (dev diverts its logs like it does userData, using the same suffix — `Dev` by default, replaced by `DUSK_DEV_USER_DATA_SUFFIX` when set — so on macOS packaged runs use `~/Library/Logs/Dusk/` and dev runs use `~/Library/Logs/DuskDev/`): signals stream into `app.<date>.log`, and the CPU profile lands beside it as `boot-whenReady.cpuprofile`.
 
 ## Signals
 

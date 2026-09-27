@@ -725,15 +725,6 @@ describe('DiagnosticBundleService', () => {
     await expect(first).resolves.toEqual({ status: 'canceled' })
   })
 
-
-
-
-
-
-
-
-
-
   it('rejects a retry id that is not owned by this process', async () => {
     const service = new DiagnosticBundleService()
 
@@ -742,7 +733,6 @@ describe('DiagnosticBundleService', () => {
     })
     expect(uploadMocks.upload).not.toHaveBeenCalled()
   })
-
 
   it('uses a stable diagnostics error when upload bundle construction fails', async () => {
     await rm(appTempDir, { recursive: true })
@@ -754,8 +744,6 @@ describe('DiagnosticBundleService', () => {
     })
     expect(uploadMocks.upload).not.toHaveBeenCalled()
   })
-
-
 
   it('refuses to save a bundle inside a diagnostic source directory', async () => {
     electronMocks.showSaveDialog.mockResolvedValueOnce({

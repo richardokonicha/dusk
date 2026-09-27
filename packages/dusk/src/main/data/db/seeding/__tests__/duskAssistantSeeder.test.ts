@@ -176,9 +176,7 @@ describe('DuskAssistantSeeder', () => {
     new SeedRunner(dbh.db).runAll([new DuskAssistantSeeder()])
 
     expect(builtinAgents(dbh.db)).toHaveLength(1)
-    expect(dbh.db.select().from(appStateTable).where(eq(appStateTable.key, 'seed:duskAssistant')).all()).toHaveLength(
-      1
-    )
+    expect(dbh.db.select().from(appStateTable).where(eq(appStateTable.key, 'seed:duskAssistant')).all()).toHaveLength(1)
   })
 
   it('seeds after an unrelated seeder closes bootstrap with no prior library history', () => {
@@ -226,5 +224,4 @@ describe('DuskAssistantSeeder', () => {
     const [agent] = builtinAgents(dbh.db)
     expect(agent.model).toBeNull()
   })
-
 })

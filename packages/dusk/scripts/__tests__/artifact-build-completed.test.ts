@@ -26,13 +26,13 @@ afterEach(() => {
 
 describe('normalizeArtifactFilePath', () => {
   it.each([
-    ['windows', 'Dusk-2.0.9-x64-setup.exe', 'Dusk-Studio-2.0.9-win-x64-setup.exe'],
-    ['windows', 'Dusk-2.0.9-arm64-portable.exe', 'Dusk-Studio-2.0.9-win-arm64-portable.exe'],
-    ['mac', 'Dusk-2.0.9-x64.dmg', 'Dusk-Studio-2.0.9-mac-x64.dmg'],
-    ['mac', 'Dusk-2.0.9-arm64.zip.blockmap', 'Dusk-Studio-2.0.9-mac-arm64.zip.blockmap'],
-    ['linux', 'Dusk-2.0.9-x86_64.AppImage', 'Dusk-Studio-2.0.9-linux-x64.AppImage'],
-    ['linux', 'Dusk-2.0.9-amd64.deb', 'Dusk-Studio-2.0.9-linux-x64.deb'],
-    ['linux', 'Dusk-2.0.9-aarch64.rpm', 'Dusk-Studio-2.0.9-linux-arm64.rpm']
+    ['windows', 'Dusk-2.0.9-x64-setup.exe', 'Dusk-2.0.9-win-x64-setup.exe'],
+    ['windows', 'Dusk-2.0.9-arm64-portable.exe', 'Dusk-2.0.9-win-arm64-portable.exe'],
+    ['mac', 'Dusk-2.0.9-x64.dmg', 'Dusk-2.0.9-mac-x64.dmg'],
+    ['mac', 'Dusk-2.0.9-arm64.zip.blockmap', 'Dusk-2.0.9-mac-arm64.zip.blockmap'],
+    ['linux', 'Dusk-2.0.9-x86_64.AppImage', 'Dusk-2.0.9-linux-x64.AppImage'],
+    ['linux', 'Dusk-2.0.9-amd64.deb', 'Dusk-2.0.9-linux-x64.deb'],
+    ['linux', 'Dusk-2.0.9-aarch64.rpm', 'Dusk-2.0.9-linux-arm64.rpm']
   ])('normalizes the %s release asset %s', (platform, source, expected) => {
     expect(normalizeArtifactFilePath(path.join('dist', source), PRODUCT_NAME, VERSION, platform)).toBe(
       path.join('dist', expected)
@@ -40,20 +40,8 @@ describe('normalizeArtifactFilePath', () => {
   })
 
   it('is idempotent for an already normalized asset', () => {
-    const file = path.join('dist', 'Dusk-Studio-2.0.9-linux-x64.AppImage')
+    const file = path.join('dist', 'Dusk-2.0.9-linux-x64.AppImage')
     expect(normalizeArtifactFilePath(file, PRODUCT_NAME, VERSION, 'linux')).toBe(file)
-  })
-
-  it('uses the public CN prefix for a China edition artifact', () => {
-    expect(
-      normalizeArtifactFilePath(
-        path.join('dist', 'Dusk-2.0.9-x64.dmg'),
-        PRODUCT_NAME,
-        VERSION,
-        'mac',
-        'Dusk CN'
-      )
-    ).toBe(path.join('dist', 'Dusk-Studio-CN-2.0.9-mac-x64.dmg'))
   })
 
   it.each(['latest.yml', 'latest-linux.yml', 'release-history.json', 'other-product-2.0.9-x64.zip'])(
@@ -69,11 +57,11 @@ describe('artifactBuildCompleted', () => {
   it('renames the file and exposes its final path to later publisher hooks', () => {
     const directory = temporaryDirectory()
     const source = path.join(directory, 'Dusk-2.0.9-x86_64.AppImage')
-    const expected = path.join(directory, 'Dusk-Studio-2.0.9-linux-x64.AppImage')
+    const expected = path.join(directory, 'Dusk-2.0.9-linux-x64.AppImage')
     fs.writeFileSync(source, 'artifact')
     const buildResult = {
       file: source,
-      safeArtifactName: 'Dusk-Studio-2.0.9-x86_64.AppImage',
+      safeArtifactName: 'Dusk-2.0.9-x86_64.AppImage',
       packager: {
         appInfo: { productName: PRODUCT_NAME, version: VERSION },
         config: {},
@@ -84,7 +72,7 @@ describe('artifactBuildCompleted', () => {
     artifactBuildCompleted(buildResult)
 
     expect(buildResult.file).toBe(expected)
-    expect(buildResult.safeArtifactName).toBe('Dusk-Studio-2.0.9-linux-x64.AppImage')
+    expect(buildResult.safeArtifactName).toBe('Dusk-2.0.9-linux-x64.AppImage')
     expect(fs.existsSync(source)).toBe(false)
     expect(fs.readFileSync(expected, 'utf8')).toBe('artifact')
   })
@@ -93,7 +81,7 @@ describe('artifactBuildCompleted', () => {
     const source = path.join(temporaryDirectory(), 'Dusk-2.0.9-x86_64.AppImage')
     const buildResult = {
       file: source,
-      safeArtifactName: 'Dusk-Studio-2.0.9-x86_64.AppImage',
+      safeArtifactName: 'Dusk-2.0.9-x86_64.AppImage',
       packager: {
         appInfo: { productName: PRODUCT_NAME, version: VERSION },
         config: {},

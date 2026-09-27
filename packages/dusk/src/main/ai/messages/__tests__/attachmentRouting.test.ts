@@ -46,11 +46,7 @@ const fileWithEntry = (id: string, filename: string, mediaType: string): DuskMes
 /** One token per character, so a test's `cap` reads directly as a character cap. */
 const charTokenizer = { id: 'chars', count: (text: string) => text.length }
 
-const run = (
-  parts: DuskMessagePart[],
-  ns: NativeFileSupport,
-  opts: { isToolCapable?: boolean; cap?: number } = {}
-) => {
+const run = (parts: DuskMessagePart[], ns: NativeFileSupport, opts: { isToolCapable?: boolean; cap?: number } = {}) => {
   const messages = [userMessage(parts)] as UIMessage[]
   return prepareChatMessages(messages, {
     attachments: collectFileAttachments(messages),

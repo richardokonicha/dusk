@@ -8,7 +8,7 @@
 import type { Citation } from '@renderer/types/message'
 import type { ExportableMessage } from '@renderer/types/messageExport'
 import { convertReferencesToCitations } from '@renderer/utils/partsToBlocks'
-import type { ContentReference,DuskMessagePart } from '@shared/data/types/message'
+import type { ContentReference, DuskMessagePart } from '@shared/data/types/message'
 import type { CodePartData, ErrorPartData, TranslationPartData } from '@shared/data/types/uiParts'
 import { readDuskMeta } from '@shared/data/types/uiParts'
 

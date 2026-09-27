@@ -5,10 +5,7 @@ import { getValidPaintingOptions, resolvePaintingProvider } from '../providerSel
 describe('providerSelection', () => {
   describe('getValidPaintingOptions', () => {
     it('filters ovms when it is not available', () => {
-      expect(getValidPaintingOptions(['zhipu', 'ovms', 'duskin'], false, 'not-running')).toEqual([
-        'zhipu',
-        'duskin'
-      ])
+      expect(getValidPaintingOptions(['zhipu', 'ovms', 'duskin'], false, 'not-running')).toEqual(['zhipu', 'duskin'])
     })
 
     it('keeps ovms when it is running', () => {

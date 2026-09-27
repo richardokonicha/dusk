@@ -227,9 +227,7 @@ describe('ProtocolService', () => {
       service.onMainRendererReady('main-1')
 
       expect(handlersMock.parseMcpInstallProtocolUrl).toHaveBeenCalledTimes(1)
-      expect(handlersMock.parseMcpInstallProtocolUrl.mock.calls[0][0].href).toBe(
-        'dusk://mcp/install?servers=abc'
-      )
+      expect(handlersMock.parseMcpInstallProtocolUrl.mock.calls[0][0].href).toBe('dusk://mcp/install?servers=abc')
     })
 
     it('handles a hot-start URL immediately', async () => {

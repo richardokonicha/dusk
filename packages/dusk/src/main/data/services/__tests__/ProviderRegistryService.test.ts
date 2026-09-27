@@ -125,11 +125,7 @@ vi.mock('../ModelService', () => ({
   modelService: { batchUpsert: vi.fn() }
 }))
 
-import {
-  readModelRegistry,
-  readProviderModelRegistry,
-  readProviderRegistry
-} from '@dusk/provider-registry/node'
+import { readModelRegistry, readProviderModelRegistry, readProviderRegistry } from '@dusk/provider-registry/node'
 
 // Must import after mocks are set up
 const {

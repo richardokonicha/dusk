@@ -108,10 +108,10 @@ describe('HelpMenu', () => {
   })
 
   it.each([
-    ['zh-CN', 'https://docs.duskai.com.cn/'],
-    ['zh-TW', 'https://docs.duskai.com.cn/'],
-    ['en-US', 'https://docs.duskai.com.cn/docs/en-us']
-  ])('opens the language-specific guide in app content for %s', async (language, expectedUrl) => {
+    ['zh-CN', 'https://docs.dusk.app'],
+    ['zh-TW', 'https://docs.dusk.app'],
+    ['en-US', 'https://docs.dusk.app']
+  ])('opens the guide in app content regardless of language for %s', async (language, expectedUrl) => {
     mocks.language = language
     render(<HelpMenu layout="full" onFeedbackClick={mocks.openFeedback} />)
     const user = await openMenu()
@@ -145,10 +145,7 @@ describe('HelpMenu', () => {
     await user.click(screen.getByRole('button', { name: 'help.star' }))
 
     await waitFor(() =>
-      expect(mocks.ipcRequest).toHaveBeenCalledWith(
-        'system.shell.open_website',
-        'https://github.com/the upstream the upstream project project/dusk'
-      )
+      expect(mocks.ipcRequest).toHaveBeenCalledWith('system.shell.open_website', 'https://gitlab.com/fugoku.inc/dusk')
     )
     expect(mocks.openSmartMiniApp).not.toHaveBeenCalled()
   })

@@ -92,7 +92,6 @@ function assertModelNotUsedAsDefaultModel(uniqueModelId: string, operation: stri
   }
 }
 
-
 function assertProvidersAvailable(providerIds: Iterable<string>): void {
   for (const providerId of new Set(providerIds)) {
     providerService.assertAvailable(providerId)
@@ -598,9 +597,7 @@ class ModelService {
     }
 
     return {
-      toRemove: toRemove.filter(
-        (id) => !userDefaultIds.has(id) && !removableCustomModelIds.has(id)
-      ),
+      toRemove: toRemove.filter((id) => !userDefaultIds.has(id) && !removableCustomModelIds.has(id)),
       presetBackedRemovalIds
     }
   }
@@ -965,7 +962,6 @@ class ModelService {
     assertProvidersAvailable(items.map((item) => item.providerId))
 
     const db = application.get('DbService').getDb()
-
 
     const rows = db.transaction((tx) => {
       const results: UserModelRow[] = []

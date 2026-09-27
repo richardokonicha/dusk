@@ -16,8 +16,6 @@ import { createUpdateTimestamps, orderKeyColumns, scopedOrderKeyIndex, uuidPrima
 
 export type MiniAppStatus = 'enabled' | 'disabled' | 'pinned'
 
-export type MiniAppRegion = 'CN' | 'Global'
-
 export type MiniAppKind = 'site' | 'app'
 
 /**
@@ -60,7 +58,6 @@ export const miniAppTable = sqliteTable(
 
     bordered: integer({ mode: 'boolean' }).notNull().default(true),
     background: text(),
-    supportedRegions: text('supported_regions', { mode: 'json' }).$type<MiniAppRegion[]>(),
     configuration: text({ mode: 'json' }),
     nameKey: text(),
 
@@ -100,16 +97,12 @@ export const miniAppInstallationTable = sqliteTable(
 
     source: text().$type<MiniAppInstallSource>().notNull(),
     sourceUrl: text('source_url'),
-    /** Origin pinned at install time; updates from any other origin are refused. */
-    sourceOrigin: text('source_origin'),
     /**
-     * The China accelerator's origin, pinned alongside `sourceOrigin` at install when the
-     * manifest declares one. NULL when it does not, and always for `'file'` / `'builtin'`.
-     * An update may neither add nor drop it: that would be the app walking its own supply
-     * chain somewhere the user never approved.
+     * Origin pinned at install time; updates from any other origin are refused —
+     * that would be the app walking its own supply chain somewhere the user
+     * never approved.
      */
-    sourceOriginCn: text('source_origin_cn'),
-
+    sourceOrigin: text('source_origin'),
     manifestJson: text('manifest_json', { mode: 'json' }).$type<MiniAppManifest>().notNull(),
     /**
      * The version replaced by the most recent update. Rollback restores the whole
@@ -162,11 +155,9 @@ export const miniAppInstallationTable = sqliteTable(
           OR (${t.previousContentHash} IS NOT NULL AND ${t.previousManifestJson} IS NOT NULL
               AND ${t.previousGrantsJson} IS NOT NULL AND ${t.previousConsentedDeclaredJson} IS NOT NULL)`
     ),
-    // `sourceOriginCn` is free for 'url': the accelerator is whatever the manifest declared.
     check(
       'mai_source_consistency',
-      sql`(${t.source} IN ('file', 'builtin') AND ${t.sourceUrl} IS NULL AND ${t.sourceOrigin} IS NULL
-           AND ${t.sourceOriginCn} IS NULL)
+      sql`(${t.source} IN ('file', 'builtin') AND ${t.sourceUrl} IS NULL AND ${t.sourceOrigin} IS NULL)
           OR (${t.source} = 'url' AND ${t.sourceUrl} IS NOT NULL AND ${t.sourceOrigin} IS NOT NULL)`
     )
   ]

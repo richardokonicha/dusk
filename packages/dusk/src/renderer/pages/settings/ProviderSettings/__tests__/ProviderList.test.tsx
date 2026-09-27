@@ -245,27 +245,6 @@ describe('ProviderList', () => {
     expect(onSelectProvider).toHaveBeenCalledWith('anthropic')
   })
 
-  it('hides DuskLegacy from the provider list', () => {
-    useProvidersMock.mockReturnValue({
-      providers: [
-        ...providers,
-        {
-          id: 'duskai',
-          name: 'DuskLegacy',
-          defaultChatEndpoint: ENDPOINT_TYPE.OPENAI_CHAT_COMPLETIONS,
-          isEnabled: true
-        }
-      ],
-      createProvider: vi.fn()
-    })
-
-    render(<ProviderList selectedProviderId="openai" onSelectProvider={vi.fn()} />)
-
-    expect(screen.getByText('OpenAI')).toBeInTheDocument()
-    expect(screen.queryByText('DuskLegacy')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('provider-list-item-duskai')).not.toBeInTheDocument()
-  })
-
   it('offers only safe canonical preset sources to the custom provider editor', async () => {
     const user = userEvent.setup()
     const canonicalOpenAI = {

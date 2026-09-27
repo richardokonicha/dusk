@@ -37,7 +37,7 @@ type OnboardingStep = 'welcome' | 'provider' | 'select-model'
 type OnboardingCompletionStatus = Exclude<OnboardingProviderSetupStatus, 'pending'>
 
 const PESSIMISTIC_PREFERENCE_OPTIONS = { optimistic: false } as const
-  const isOnboardingModel = (model: Model) => !isNonChatModel(model)
+const isOnboardingModel = (model: Model) => !isNonChatModel(model)
 const ONBOARDING_PREFERENCE_KEYS = {
   providerSetupStatus: 'app.onboarding.provider_setup.status',
   dataCollectionEnabled: 'app.privacy.data_collection.enabled',
@@ -69,9 +69,7 @@ export default function OnboardingPage() {
   const [isUpdatingPrivacy, setIsUpdatingPrivacy] = useState(false)
   const [privacyAccepted, setPrivacyAccepted] = useState(true)
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false)
-  const eligibleProviderIds = new Set(
-    enabledProviders.map((provider) => provider.id)
-  )
+  const eligibleProviderIds = new Set(enabledProviders.map((provider) => provider.id))
   const canCompleteModelSetup = [defaultModel, quickModel, translateModel].every(
     (model) => model && eligibleProviderIds.has(model.providerId) && isOnboardingModel(model)
   )

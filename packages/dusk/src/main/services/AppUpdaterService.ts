@@ -4,12 +4,10 @@ import { computeBackoff } from '@main/core/job/runtime/backoff'
 import { BaseService, DependsOn, Injectable, Phase, ServicePhase } from '@main/core/lifecycle'
 import { isWin } from '@main/core/platform'
 import { WindowType } from '@main/core/window/types'
-import { regionService } from '@main/services/RegionService'
-import { getAppEdition } from '@main/utils/appEdition'
+import { UPDATE_CHANNEL_CONFIGURED } from '@main/services/updateChannel'
 import { generateUserAgent, getClientId } from '@main/utils/systemInfo'
 import type { RetryPolicy } from '@shared/data/api/schemas/jobs'
 import { UpgradeChannel } from '@shared/data/preference/preferenceTypes'
-import type { AppEdition } from '@shared/types/appEdition'
 import { APP_NAME } from '@shared/utils/constants'
 import {
   hasMultiLanguageReleaseNotes,
@@ -25,22 +23,14 @@ import { AppUpdater, autoUpdater } from 'electron-updater'
 
 const logger = loggerService.withContext('AppUpdaterService')
 
-type ReleaseRegion = 'cn' | 'global'
-
-function getEditionUpdateChannel(channel: UpgradeChannel, edition: AppEdition): string {
-  return edition === 'cn' ? `${channel}-cn` : channel
-}
-
-function getUpdateHeaders({ region, edition }: { region: ReleaseRegion; edition: AppEdition }) {
+function getUpdateHeaders() {
   return {
     'User-Agent': generateUserAgent(),
     'Cache-Control': 'no-cache',
     'Client-Id': getClientId(),
     'App-Name': APP_NAME,
     'App-Version': `v${app.getVersion()}`,
-    OS: process.platform,
-    'X-Edition': edition,
-    'X-Region': region
+    OS: process.platform
   }
 }
 
@@ -62,10 +52,6 @@ class ReleaseNotesUpdater extends AppUpdater {
 // service), not the renderer, so it survives window close and runs exactly
 // once regardless of how many windows are open.
 const AUTO_UPDATE_SCHEDULE_ID = 'app-updater:auto-check'
-// TODO(dusk): flip to true once the Dusk update server exists; the fork ships
-// with electron-builder's `publish` block disabled, so any check would throw on
-// a missing provider and surface as a recurring error toast in the renderer.
-const UPDATE_CHANNEL_CONFIGURED = false
 // Base interval between automatic checks.
 const CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000
 // ± ratio of random jitter applied per cycle, so clients that launched around
@@ -181,23 +167,17 @@ export class AppUpdaterService extends BaseService {
   private async getUpdateRequest() {
     const currentVersion = app.getVersion()
     const testPlan = application.get('PreferenceService').get('app.dist.test_plan.enabled')
-    const requestedChannel = testPlan
+    const updateChannel = testPlan
       ? application.get('PreferenceService').get('app.dist.test_plan.channel') || UpgradeChannel.RC
       : UpgradeChannel.LATEST
 
-    const ipCountry = await regionService.getCountry()
-    const region: ReleaseRegion = ipCountry.toLowerCase() === 'cn' ? 'cn' : 'global'
-    const edition = getAppEdition()
-    const updateChannel = getEditionUpdateChannel(requestedChannel, edition)
+    const updateHeaders = getUpdateHeaders()
 
-    const updateHeaders = getUpdateHeaders({ region, edition })
-
-    return { currentVersion, edition, ipCountry, region, testPlan, updateChannel, updateHeaders }
+    return { currentVersion, testPlan, updateChannel, updateHeaders }
   }
 
   private async configureUpdaterForCheck() {
-    const { currentVersion, edition, ipCountry, region, testPlan, updateChannel, updateHeaders } =
-      await this.getUpdateRequest()
+    const { currentVersion, testPlan, updateChannel, updateHeaders } = await this.getUpdateRequest()
 
     autoUpdater.requestHeaders = {
       ...autoUpdater.requestHeaders,
@@ -205,7 +185,7 @@ export class AppUpdaterService extends BaseService {
     }
 
     logger.info(
-      `Using managed update feed for version ${currentVersion}, edition: ${edition}, testPlan: ${testPlan}, channel: ${updateChannel}, region: ${region} (IP country: ${ipCountry})`
+      `Using managed update feed for version ${currentVersion}, testPlan: ${testPlan}, channel: ${updateChannel}`
     )
     autoUpdater.channel = updateChannel
 

@@ -30,7 +30,8 @@ vi.mock('../../acquisition/tarballArtifact', () => ({
   artifactStagingDir: () => path.join(installDir, 'runtime', '.tmp'),
   installArtifact,
   isArtifactInstalled: artifactInstalled,
-  removeArtifact
+  removeArtifact,
+  ARTIFACT_REGISTRY_ORDER: ['npmjs'] as const
 }))
 
 const { localModelStorageService } = await import('../LocalModelStorageService')
@@ -46,7 +47,7 @@ const BUNDLE: ModelBundle = {
   ]
 }
 
-const REGISTRY_ORDER = ['npmjs', 'npmmirror'] as const
+const REGISTRY_ORDER = ['npmjs'] as const
 
 function ensureArtifact(signal: AbortSignal): Promise<void> {
   return localModelStorageService.ensureArtifact('onnxruntime-node', signal, undefined, REGISTRY_ORDER)

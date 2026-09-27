@@ -101,9 +101,7 @@ const SelectionAssistantSettings: FC = () => {
             <button
               type="button"
               className="cursor-pointer border-0 bg-transparent p-0 font-normal text-link text-xs hover:underline"
-              onClick={() =>
-                ipcApi.request('system.shell.open_website', 'https://docs.dusk.app')
-              }>
+              onClick={() => ipcApi.request('system.shell.open_website', 'https://docs.dusk.app')}>
               {'FAQ & ' + t('settings.about.feedback.button')}
             </button>
           </div>

@@ -34,7 +34,6 @@ vi.mock('@dusk/ui', () => ({
   Tooltip: ({ children }: React.PropsWithChildren) => <>{children}</>
 }))
 
-vi.mock('@renderer/components/Selector', () => ({ default: () => <select aria-label="region" /> }))
 vi.mock('@renderer/services/toast', () => ({ toast: { info: vi.fn() } }))
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key })
@@ -43,27 +42,17 @@ vi.mock('react-i18next', () => ({
 describe('MiniAppDisplaySettings', () => {
   beforeEach(() => {
     MockUsePreferenceUtils.resetMocks()
-    vi.stubGlobal('__APP_EDITION__', 'global')
   })
 
   afterEach(() => {
     cleanup()
-    vi.unstubAllGlobals()
   })
 
-  it('does not offer a region selector in the CN edition', () => {
-    vi.stubGlobal('__APP_EDITION__', 'cn')
+  it('offers the open-external-links setting without a region selector', () => {
     render(<MiniAppDisplaySettings />)
 
     expect(screen.queryByText('settings.miniApps.region.title')).not.toBeInTheDocument()
     expect(screen.queryByRole('combobox', { name: 'region' })).not.toBeInTheDocument()
     expect(screen.getByText('settings.miniApps.open_link_external.title')).toBeInTheDocument()
-  })
-
-  it('keeps the region selector available in the global edition', () => {
-    render(<MiniAppDisplaySettings />)
-
-    expect(screen.getByText('settings.miniApps.region.title')).toBeInTheDocument()
-    expect(screen.getByRole('combobox', { name: 'region' })).toBeInTheDocument()
   })
 })

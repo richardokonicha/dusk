@@ -1,12 +1,4 @@
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@dusk/ui'
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@dusk/ui'
 import { cn } from '@dusk/ui/lib/utils'
 import { LocalModelDownloadProgress } from '@renderer/components/LocalModelDownloadProgress'
 import { useLocalModel } from '@renderer/hooks/useLocalModel'

@@ -3,7 +3,6 @@ import { openaiCompatible } from './types'
 export default openaiCompatible({
   id: 'baidu-cloud',
   name: 'Baidu Cloud',
-  availableInEditions: ['global', 'cn'],
   baseUrl: 'https://qianfan.baidubce.com/v2/',
   website: {
     apiKey: 'https://console.bce.baidu.com/iam/#/iam/apikey/list',

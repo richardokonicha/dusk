@@ -7,15 +7,7 @@
  * Escape / backdrop dismiss == continue, so an accidental dismissal never quits.
  */
 
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@dusk/ui'
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@dusk/ui'
 import { type FC, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 

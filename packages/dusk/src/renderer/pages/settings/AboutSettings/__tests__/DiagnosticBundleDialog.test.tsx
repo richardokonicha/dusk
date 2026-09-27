@@ -188,7 +188,7 @@ describe('DiagnosticBundleDialog', () => {
       const mailCall = mocks.request.mock.calls.find(([route]) => route === 'system.shell.open_website')
       expect(mailCall).toBeDefined()
       const mailto = String(mailCall?.[1])
-      expect(mailto).toMatch(/^mailto:support@dusk-ai\.com\?/)
+      expect(mailto).toMatch(/^mailto:support@dusk.app\?/)
       expect(mailto).not.toContain('+')
       expect(mailto).toContain('%20')
       expect(decodeURIComponent(mailto)).toContain('Diagnostics bundle-123')
@@ -310,7 +310,7 @@ describe('DiagnosticBundleDialog', () => {
     expect(mocks.toastError).toHaveBeenCalledWith('settings.about.diagnostics.errors.email_client_failed')
 
     await user.click(copyButton)
-    await waitFor(() => expect(clipboardWrite).toHaveBeenCalledWith('support@dusk-ai.com'))
+    await waitFor(() => expect(clipboardWrite).toHaveBeenCalledWith('support@dusk.app'))
     expect(mocks.toastSuccess).toHaveBeenCalledWith('settings.about.diagnostics.success.email_copied')
   })
 })

@@ -1608,7 +1608,7 @@ export class MessageService {
     }
   ): Message {
     let activityTopicId: string | null = null
-    application.get('DbService').withWriteTx((tx) => {
+    const finalized = application.get('DbService').withWriteTx((tx) => {
       const row = tx.select().from(messageTable).where(eq(messageTable.id, id)).get()
       if (!row) throw DataApiErrorFactory.notFound('Message', id)
       if (row.role !== 'assistant') {
@@ -1623,24 +1623,26 @@ export class MessageService {
       })
         ? Date.now()
         : null
-      tx.update(messageTable)
+      const [updated] = tx
+        .update(messageTable)
         .set({
           data: input.data,
           status: input.status,
           stats: stats ?? null
         })
         .where(eq(messageTable.id, id))
-        .run()
+        .returning()
+        .all()
+      if (!updated) throw DataApiErrorFactory.notFound('Message', id)
       replaceChatMessageFileRefsTx(tx, id, input.data)
       if (activityTimestamp !== null) {
         getDataService('TopicService').advanceLastActivityAtTx(tx, row.topicId, activityTimestamp)
         activityTopicId = row.topicId
       }
+      return rowToMessage(updated)
     })
     if (activityTopicId) getDataService('TopicService').notifyReadModelChange([activityTopicId], 'projection')
     aiUsageRecordService.refreshMessageProjection({ kind: 'chat', id })
-    const finalized = this.getById(id)
-    if (!finalized) throw DataApiErrorFactory.notFound('Message', id)
     return finalized
   }
 

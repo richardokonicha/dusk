@@ -1,9 +1,4 @@
-import {
-  type ImagePreviewAction,
-  ImagePreviewDialog,
-  type ImagePreviewItem,
-  type ImagePreviewLabels
-} from '@dusk/ui'
+import { type ImagePreviewAction, ImagePreviewDialog, type ImagePreviewItem, type ImagePreviewLabels } from '@dusk/ui'
 import { loggerService } from '@logger'
 import { createPopup, type PopupInjectedProps } from '@renderer/services/popup'
 import { toast } from '@renderer/services/toast'

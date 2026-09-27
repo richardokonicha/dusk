@@ -1,14 +1,4 @@
-import {
-  Button,
-  Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Tooltip
-} from '@dusk/ui'
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tooltip } from '@dusk/ui'
 import { loggerService } from '@logger'
 import { useTimer } from '@renderer/hooks/useTimer'
 import { ipcApi } from '@renderer/ipc'
@@ -58,43 +48,43 @@ const PRESET_MODELS: PresetModel[] = [
   {
     modelId: 'OpenVINO/Qwen3-4B-int4-ov',
     modelName: 'Qwen3-4B-int4-ov',
-    modelSource: 'https://www.modelscope.cn/models',
+    modelSource: HUGGINGFACE_SOURCE_VALUE,
     task: 'text_generation'
   },
   {
     modelId: 'OpenVINO/Qwen3-8B-int4-ov',
     modelName: 'Qwen3-8B-int4-ov',
-    modelSource: 'https://www.modelscope.cn/models',
+    modelSource: HUGGINGFACE_SOURCE_VALUE,
     task: 'text_generation'
   },
   {
     modelId: 'OpenVINO/bge-base-en-v1.5-fp16-ov',
     modelName: 'bge-base-en-v1.5-fp16-ov',
-    modelSource: 'https://www.modelscope.cn/models',
+    modelSource: HUGGINGFACE_SOURCE_VALUE,
     task: 'embeddings'
   },
   {
     modelId: 'OpenVINO/bge-reranker-base-fp16-ov',
     modelName: 'bge-reranker-base-fp16-ov',
-    modelSource: 'https://www.modelscope.cn/models',
+    modelSource: HUGGINGFACE_SOURCE_VALUE,
     task: 'rerank'
   },
   {
     modelId: 'OpenVINO/DeepSeek-R1-Distill-Qwen-7B-int4-ov',
     modelName: 'DeepSeek-R1-Distill-Qwen-7B-int4-ov',
-    modelSource: 'https://www.modelscope.cn/models',
+    modelSource: HUGGINGFACE_SOURCE_VALUE,
     task: 'text_generation'
   },
   {
     modelId: 'OpenVINO/stable-diffusion-v1-5-int8-ov',
     modelName: 'stable-diffusion-v1-5-int8-ov',
-    modelSource: 'https://www.modelscope.cn/models',
+    modelSource: HUGGINGFACE_SOURCE_VALUE,
     task: 'image_generation'
   },
   {
     modelId: 'OpenVINO/FLUX.1-schnell-int4-ov',
     modelName: 'FLUX.1-schnell-int4-ov',
-    modelSource: 'https://www.modelscope.cn/models',
+    modelSource: HUGGINGFACE_SOURCE_VALUE,
     task: 'image_generation'
   }
 ]
@@ -106,7 +96,7 @@ const PopupContainer: React.FC<Props> = ({ title, resolve, open }) => {
   const [formValues, setFormValues] = useState<FieldType>({
     modelId: '',
     modelName: '',
-    modelSource: 'https://www.modelscope.cn/models',
+    modelSource: HUGGINGFACE_SOURCE_VALUE,
     task: 'text_generation'
   })
   const [error, setError] = useState<string | null>(null)
@@ -320,7 +310,6 @@ const PopupContainer: React.FC<Props> = ({ title, resolve, open }) => {
             <SelectContent className={drawerClasses.selectContent}>
               <SelectItem value={HUGGINGFACE_SOURCE_VALUE}>HuggingFace</SelectItem>
               <SelectItem value="https://hf-mirror.com">HF-Mirror</SelectItem>
-              <SelectItem value="https://www.modelscope.cn/models">ModelScope</SelectItem>
             </SelectContent>
           </Select>
         </div>

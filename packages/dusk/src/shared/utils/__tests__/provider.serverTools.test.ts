@@ -84,17 +84,17 @@ describe('server-tool model eligibility', () => {
 
   // Gateways serve namespaced ids (`google/gemini-3-1-pro-preview`). VENDOR_PATTERNS are anchored, so
   // an unstripped namespace matches nothing and `vendors` narrowing withheld the tool from every
-  // model whose vendor slug differs from its namespace — duskin's Gemini and Claude lines both.
+  // model whose vendor slug differs from its namespace — a gateway's Gemini and Claude lines both.
   it('narrows by vendor through a gateway namespace prefix', () => {
-    const duskin = {
-      id: 'duskin',
+    const gateway = {
+      id: 'aihubmix',
       serverTools: [{ id: SERVER_TOOL.WEB_SEARCH, modelScope: 'model-dependent', vendors: ['gemini', 'openai'] }]
     } as unknown as Provider
 
-    expect(isBuiltinWebSearchAvailable(model('google/gemini-3-1-pro-preview'), duskin)).toBe(true)
-    expect(isBuiltinWebSearchAvailable(model('openai/gpt-5.5'), duskin)).toBe(true)
+    expect(isBuiltinWebSearchAvailable(model('google/gemini-3-1-pro-preview'), gateway)).toBe(true)
+    expect(isBuiltinWebSearchAvailable(model('openai/gpt-5.5'), gateway)).toBe(true)
     // Still excluded: its vendor is simply not on the declaration.
-    expect(isBuiltinWebSearchAvailable(model('deepseek/deepseek-v3.2'), duskin)).toBe(false)
+    expect(isBuiltinWebSearchAvailable(model('deepseek/deepseek-v3.2'), gateway)).toBe(false)
   })
 
   // Ark's wire ids are dated snapshots (`doubao-seed-2-1-pro-260628`), while the catalog keys the
@@ -108,8 +108,8 @@ describe('server-tool model eligibility', () => {
 
   // A gateway whose declaration narrows to `gemini` resolves the same google tool factory through the
   // model's `<host>.google` provider segment, so pre-3 Gemini hits the same native-vs-function-tool
-  // conflict there. Keying the guard to the host id let duskin/aihubmix ship the unsupported combo.
-  it.each(['duskin', 'aihubmix'])('applies the Gemini tool conflict on %s, not just gemini hosts', (providerId) => {
+  // conflict there. Keying the guard to the host id let aihubmix ship the unsupported combo.
+  it.each(['aihubmix'])('applies the Gemini tool conflict on %s, not just gemini hosts', (providerId) => {
     const gateway = {
       id: providerId,
       serverTools: [{ id: SERVER_TOOL.WEB_SEARCH, modelScope: 'model-dependent', vendors: ['gemini', 'openai'] }]
@@ -245,7 +245,7 @@ describe('web-tool routing', () => {
   // server side and inject nothing while the client tools stay withheld).
   it('keeps unservable vendors off a gateway declaration', () => {
     const gatewayLike = {
-      id: 'duskin',
+      id: 'aihubmix',
       serverTools: [
         { id: SERVER_TOOL.WEB_SEARCH, modelScope: 'model-dependent', vendors: ['anthropic', 'gemini', 'openai'] }
       ]

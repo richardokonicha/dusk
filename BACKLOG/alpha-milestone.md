@@ -14,7 +14,7 @@ Date: 2026-09-06
 
 ## Blocking the first commit
 
-1. **Massive rename diff** (`packages/cherry` → `packages/dusk`, thousands of identifier/file changes). Strategy:
+1. **Massive rename diff** (the upstream package tree → `packages/dusk`, thousands of identifier/file changes). Strategy:
    - Stage and let Git rename-detection run: `git add -A` then inspect `git diff --cached --stat | head` and spot-rename checks.
    - Split into two commits if review ergonomics matter: (a) mechanical renames only, (b) functional edits (RegionService, AppUpdater gate, provider removal, OAuth TODOs, backlog/docs).
 2. **CI warning gate**: `pnpm test:lint` denies the 47 existing warnings. Either (a) clean them, or (b) accept GitLab CI `test` job `allow_failure: true` for alpha (currently configured) and tighten post-alpha.
@@ -28,11 +28,11 @@ Date: 2026-09-06
 - Native automation inspection: blocked on macOS Accessibility + Screen Recording permissions for the driver; not an app failure. Manual spot-check checklist:
   - [ ] App icon + name present in dock/about
   - [ ] Dark theme = dusk palette (violet brand, amber accent)
-  - [ ] First-run flow: no Cherry branding anywhere, privacy panel reads correctly
-  - [ ] Provider setup: full list, CherryAI absent, add OpenAI-compatible works
+  - [ ] First-run flow: no upstream branding anywhere, privacy panel reads correctly
+  - [ ] Provider setup: full list, upstream paid provider preset absent, add OpenAI-compatible works
   - [ ] New chat works with a configured model
   - [ ] No update error toasts during a 10-minute idle
-  - [ ] No outbound requests to cherry domains (network tab / little-snitch)
+  - [ ] No outbound requests to upstream-vendor domains (network tab / little-snitch)
 
 ## Post-alpha vertical slice (the Work OS gap)
 
@@ -53,4 +53,4 @@ No new database tables are required for the alpha slice; the gap is UI compositi
 - Fugoku Gateway preset (config-only provider; add after workspace slice UX is stable).
 - Assistant-preset curation (300+ inherited presets to curate).
 - i18n native-speaker pass on zh translations (placeholders removed mechanically).
-- `@cherrystudio/openai` alias removed in favor of upstream `openai` — verify provider behaviors against a matrix of models before shipping (patches/ compatibility).
+- legacy provider alias removed in favor of upstream `openai` — verify provider behaviors against a matrix of models before shipping (patches/ compatibility).

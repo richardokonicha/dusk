@@ -34,4 +34,4 @@
 
 ## 关联 PR/提交
 
-- PR: <https://github.com/dusk-archive/upstream/dusk-studio/pull/14443>
+- PR: upstream #14443

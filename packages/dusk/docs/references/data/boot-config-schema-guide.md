@@ -145,7 +145,7 @@ The `v2-refactor-temp/tools/data-classify/` directory contains the code generati
 | ElectronStore | `ElectronStoreReader.get(key)` | Direct key lookup |
 | Dexie settings | Key-value table | Direct key lookup |
 | localStorage | `localStorage.getItem(key)` | Direct key lookup |
-| Legacy home config file | `LegacyHomeConfigReader` | `~/.duskstudio/config/config.json` (`appDataPath` field only) |
+| Legacy home config file | `LegacyHomeConfigReader` | `~/.dusk/config/config.json` (`appDataPath` field only) |
 
 > **Config-file source mappings are manually maintained.** The `data-classify` toolchain's `classification.json` doesn't model config-file sources yet. In two places, a small hand-maintained list complements the classification-driven pipeline:
 >
@@ -189,14 +189,14 @@ cd v2-refactor-temp/tools/data-classify && npm run generate
 | Legacy Source | Legacy Key | Target Key |
 |---------------|-----------|------------|
 | Redux (`settings`) | `disableHardwareAcceleration` | `app.disable_hardware_acceleration` |
-| Config file (`~/.duskstudio/config/config.json`) | `appDataPath` | `app.user_data_path` |
+| Config file (`~/.dusk/config/config.json`) | `appDataPath` | `app.user_data_path` |
 
 #### AppImage / Windows Portable Executable Path
 
-The v1 `~/.duskstudio/config/config.json` stores `appDataPath` as an array of `{ executablePath, dataPath }` entries keyed by executable path. AppImage Linux builds and Windows portable builds use a normalized executable key that differs from `app.getPath('exe')`:
+The v1 `~/.dusk/config/config.json` stores `appDataPath` as an array of `{ executablePath, dataPath }` entries keyed by executable path. AppImage Linux builds and Windows portable builds use a normalized executable key that differs from `app.getPath('exe')`:
 
-- AppImage: `path.dirname(process.env.APPIMAGE) + '/dusk-studio.appimage'`
-- Windows portable: `process.env.PORTABLE_EXECUTABLE_DIR + '/dusk-studio-portable.exe'`
+- AppImage: `path.dirname(process.env.APPIMAGE) + '/dusk.appimage'`
+- Windows portable: `process.env.PORTABLE_EXECUTABLE_DIR + '/dusk-portable.exe'`
 
 `resolveMigrationPaths()` and the runtime user-data-location resolver both use
 `getNormalizedExecutablePath()` from

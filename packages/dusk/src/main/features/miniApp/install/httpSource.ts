@@ -9,7 +9,6 @@ import path from 'node:path'
 
 import { application } from '@application'
 import { loggerService } from '@logger'
-import { regionService } from '@main/services/RegionService'
 import {
   MINI_APP_MAX_ICON_BYTES,
   MINI_APP_MAX_MANIFEST_BYTES,
@@ -59,30 +58,7 @@ export function assertHttps(url: string): URL {
   return parsed
 }
 
-/**
- * Mirrors in region order, the other as fallback — the shape every downloading feature
- * in this repo already uses (`BinaryManager`, `OnnxRuntimeBinaryService`,
- * `modelSource.ts`, `JinaProvider`). A single global URL is unreachable for a whole
- * region of users, and the machinery to avoid that already exists.
- *
- * Either order is safe because `sha256` verifies the BYTES, not the host that served
- * them — the same reasoning `ONNXRUNTIME_TARBALL_SHA256` is documented with.
- */
-export async function mirrorOrder(url: string, urlCn: string | undefined): Promise<string[]> {
-  if (!urlCn) return [url]
-  // `.catch(() => false)`: region detection is a network call of its own, and failing
-  // it must degrade to the global default rather than fail the download.
-  return (await regionService.isInChina().catch(() => false)) ? [urlCn, url] : [url, urlCn]
-}
-
-/**
- * First mirror that succeeds wins; the LAST error is the one that surfaces.
- *
- * Rethrowing the first would bury the fallback's failure behind the region default's,
- * and the fallback is the one a user can usually act on. An integrity failure on one
- * mirror does not fail the whole download — `sha256` still gates what lands — but it
- * is logged, because a mirror serving different bytes is worth knowing about.
- */
+/** The list is ordered fallbacks; the last attempt's error is the one that surfaces. */
 async function tryMirrors<T>(urls: readonly string[], attempt: (url: string) => Promise<T>): Promise<T> {
   let lastError: unknown
   for (const url of urls) {
@@ -90,7 +66,7 @@ async function tryMirrors<T>(urls: readonly string[], attempt: (url: string) => 
       return await attempt(url)
     } catch (error) {
       lastError = error
-      logger.warn('Mini app download mirror failed', { url: loggable(url), error })
+      logger.warn('Mini app download attempt failed', { url: loggable(url), error })
     }
   }
   throw lastError

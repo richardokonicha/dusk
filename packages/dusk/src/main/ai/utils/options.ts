@@ -244,7 +244,7 @@ export function isCustomProviderNamespace(
 /**
  * For `openai-compatible`, rename `reasoning_effort` → `reasoningEffort` —
  * AI SDK silently drops the snake_case form.
- * See https://github.com/the upstream the upstream project project/dusk/issues/11987.
+ * See https://gitlab.com/fugoku.inc/dusk/issues/11987.
  */
 export function mergeCustomProviderParameters(
   providerOptions: Record<string, Record<string, JSONValue>>,

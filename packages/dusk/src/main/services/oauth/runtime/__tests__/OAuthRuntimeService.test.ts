@@ -336,15 +336,10 @@ describe('OAuthRuntimeService', () => {
       .mockResolvedValueOnce({ status: 401 } as Response)
     const onUnauthorized = vi.fn()
 
-    const res = await service.authenticatedFetch(
-      'duskin',
-      () => ({ input: 'http://example/api', init: {} }),
-      doFetch,
-      {
-        context: { apiHost: 'https://open.duskin.ai' },
-        onUnauthorized
-      }
-    )
+    const res = await service.authenticatedFetch('duskin', () => ({ input: 'http://example/api', init: {} }), doFetch, {
+      context: { apiHost: 'https://open.duskin.ai' },
+      onUnauthorized
+    })
 
     expect(res.status).toBe(401)
     expect(doFetch).toHaveBeenCalledTimes(2)

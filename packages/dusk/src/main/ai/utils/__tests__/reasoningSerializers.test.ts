@@ -1,10 +1,6 @@
 import path from 'node:path'
 
-import {
-  inferReasoningControls,
-  REASONING_FORMAT_PROFILES,
-  type ReasoningWireProfile
-} from '@dusk/provider-registry'
+import { inferReasoningControls, REASONING_FORMAT_PROFILES, type ReasoningWireProfile } from '@dusk/provider-registry'
 import { readProviderRegistry } from '@dusk/provider-registry/node'
 import { mockMainLoggerService } from '@test-mocks/MainLoggerService'
 import { beforeEach, describe, expect, it } from 'vitest'

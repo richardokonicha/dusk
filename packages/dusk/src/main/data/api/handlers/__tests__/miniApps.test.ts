@@ -151,14 +151,6 @@ describe('miniAppHandlers', () => {
 
       expect(createMock).not.toHaveBeenCalled()
     })
-
-    it('should reject unsupported create metadata before calling the service', async () => {
-      await expect(
-        miniAppHandlers['/mini-apps'].POST({ body: { ...validBody, supportedRegions: ['CN'] } } as never)
-      ).rejects.toHaveProperty('name', 'ZodError')
-
-      expect(createMock).not.toHaveBeenCalled()
-    })
   })
 
   describe('PATCH /mini-apps/:id/order', () => {

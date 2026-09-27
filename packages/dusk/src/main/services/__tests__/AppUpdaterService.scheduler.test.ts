@@ -13,7 +13,6 @@
 import { application } from '@application'
 import { BaseService } from '@main/core/lifecycle/BaseService'
 import { SchedulerService } from '@main/core/scheduler/SchedulerService'
-import { regionService } from '@main/services/RegionService'
 import { app } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -28,11 +27,9 @@ vi.mock('@logger', () => ({
 
 vi.mock('@main/core/platform', () => ({ isWin: false }))
 
-vi.mock('@main/utils/appEdition', () => ({ getAppEdition: () => 'global' }))
-
-vi.mock('@main/services/RegionService', () => ({
-  regionService: { getCountry: vi.fn(async () => 'US') }
-}))
+// The fork ships without a publish channel, which disables all update checks;
+// scheduler behavior is only observable with a configured channel.
+vi.mock('@main/services/updateChannel', () => ({ UPDATE_CHANNEL_CONFIGURED: true }))
 
 vi.mock('@main/utils/systemInfo', () => ({
   generateUserAgent: vi.fn(() => 'test-user-agent'),
@@ -129,7 +126,6 @@ describe('AppUpdaterService — auto update-check scheduling', () => {
       }
     })
 
-    vi.mocked(regionService.getCountry).mockResolvedValue('US')
     vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue(null)
     autoUpdater.requestHeaders = {}
     autoUpdater.channel = ''

@@ -22,7 +22,7 @@ sources:
 | `permissions` | no (default `[]`) | string[] | Required grants, ≤ 32 entries. Install is refused unless the user accepts all of them |
 | `optionalPermissions` | no (default `[]`) | string[] | Offered on the same card **ticked by default** — the user unticks what they do not want — and revocable later. Must not overlap `permissions` after wildcard expansion |
 | `network` | no (default `[]`) | string[] | Hosts `dusk.network.fetch` may reach. ≤ 20, unique, bare hostnames |
-| `update` | no | `{ url, urlCn? }` | Where the host checks for updates. `urlCn` is an optional China accelerator serving the same bytes; ignored for packages installed from a local file |
+| `update` | no | `{ url }` | Where the host checks for updates; exactly one endpoint, whose origin is pinned at install. Ignored for packages installed from a local file |
 
 Package-relative paths are POSIX (`/` separators), never absolute, never contain `..`, and never start with the reserved `__dusk` directory.
 
@@ -48,7 +48,7 @@ Resolution for the user's locale: exact locale (`zh-TW`) → language subtag (`z
 | Lowercase letters, digits, `.` and `-` only; no underscore, no leading or trailing `-` | The id is a URL host. Chromium lowercases hosts, so two ids differing in case would share one origin — and one storage |
 | ≤ 120 characters | Also used as an install directory name and a journal file name |
 | First label must not be a Windows device name (`con`, `prn`, `aux`, `nul`, `com0`–`com9`, `lpt0`–`lpt9`) | `con.example.app` cannot be created as a directory on Windows, even with an extension. `com.example.con` is fine — only the first label matters |
-| `com.duskstudio.*` is reserved | Official apps only; a package from any other source using it is refused |
+| `com.dusk.*` is reserved | Official apps only; a package from any other source using it is refused |
 
 ## Permissions
 
@@ -108,8 +108,7 @@ Required permissions cannot be revoked after install; the only way to remove one
   "network": ["api.example.com"],
   "releaseNotes": { "en": "Fixes a save bug.", "zh": "修复了一个存档问题。" },
   "update": {
-    "url": "https://example.com/mygame/manifest.json",
-    "urlCn": "https://cdn.example.cn/mygame/manifest.json"
+    "url": "https://example.com/mygame/manifest.json"
   }
 }
 ```

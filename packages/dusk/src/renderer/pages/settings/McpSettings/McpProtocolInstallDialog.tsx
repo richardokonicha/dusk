@@ -1,13 +1,4 @@
-import {
-  Badge,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Scrollbar
-} from '@dusk/ui'
+import { Badge, Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Scrollbar } from '@dusk/ui'
 import { getMcpTypeLabelKey } from '@renderer/i18n/label'
 import type { ProtocolMcpServerInstall } from '@shared/data/types/mcpProtocolInstall'
 import { useState } from 'react'

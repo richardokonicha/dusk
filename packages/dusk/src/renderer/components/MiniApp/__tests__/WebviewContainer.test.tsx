@@ -380,9 +380,7 @@ describe('WebviewContainer partition readiness', () => {
     const wv = await webviewIn(
       renderWebview({ appid: 'com.example.a', url: 'dusk-miniapp://com.example.a/index.html', kind: 'app' })
     )
-    await waitFor(() =>
-      expect((wv as unknown as { src: string }).src).toBe('dusk-miniapp://com.example.a/index.html')
-    )
+    await waitFor(() => expect((wv as unknown as { src: string }).src).toBe('dusk-miniapp://com.example.a/index.html'))
   })
 
   it('mounts a site mini app without asking the main process at all', () => {

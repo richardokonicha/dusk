@@ -22,8 +22,6 @@ describe('getModelDrawerMode', () => {
     [{ id: 'custom-provider', presetProviderId: undefined }, 'purpose'],
     [{ id: 'new-api', presetProviderId: 'new-api' }, 'endpoint-types'],
     [{ id: 'custom-new-api', presetProviderId: 'new-api' }, 'endpoint-types'],
-    [{ id: 'duskin', presetProviderId: 'duskin' }, 'endpoint-types'],
-    [{ id: 'custom-duskin', presetProviderId: 'duskin' }, 'endpoint-types'],
     [{ id: 'aionly', presetProviderId: 'aionly' }, 'endpoint-types'],
     [{ id: 'openai', presetProviderId: undefined }, 'legacy'],
     [{ id: 'openai', presetProviderId: 'openai' }, 'legacy'],

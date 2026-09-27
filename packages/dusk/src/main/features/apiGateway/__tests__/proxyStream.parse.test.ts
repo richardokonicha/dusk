@@ -46,7 +46,6 @@ vi.mock('@application', () => ({
   }
 }))
 // cn keeps Dusk Cloud agent-only, which the external-request rejection below relies on.
-vi.mock('@main/utils/appEdition', () => ({ getAppEdition: () => 'cn' }))
 vi.mock('@data/services/ProviderService', () => ({
   providerService: { getByProviderId: mockGetProvider }
 }))

@@ -83,7 +83,7 @@ describe('lifecycle', () => {
   })
 
   it('cancels an in-flight download on stop instead of leaving it to die with the process', async () => {
-    const download = localModelService.download(EMBEDDING, () => new Promise(() => {}))
+    const download = localModelService.download(EMBEDDING)
 
     await localModelService._doStop()
 

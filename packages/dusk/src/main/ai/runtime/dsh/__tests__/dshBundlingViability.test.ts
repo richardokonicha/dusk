@@ -83,6 +83,6 @@ describe('dsh SDK bundling viability', () => {
       .toBuffer()
 
     await expect(detectImage(png)).resolves.toEqual({ mediaType: 'image/png', width: 1, height: 1 })
-    expect(sharp.versions.sharp).toBe('0.35.3')
+    expect(sharp.versions.sharp).toBe('0.35.4')
   })
 })

@@ -457,10 +457,7 @@ export function readDuskMeta<P extends DuskMessagePart>(part: P): DuskMetaForPar
  * doesn't belong to the part's meta shape fails to compile — e.g.
  * `withDuskMeta(textPart, { thinkingMs: 1 })` is a type error.
  */
-export function withDuskMeta<P extends DuskMessagePart>(
-  part: P,
-  patch: Partial<DuskMetaForPartType<P['type']>>
-): P {
+export function withDuskMeta<P extends DuskMessagePart>(part: P, patch: Partial<DuskMetaForPartType<P['type']>>): P {
   const existingMeta = (part as { providerMetadata?: Record<string, unknown> }).providerMetadata
   const existingDusk = (existingMeta?.dusk ?? {}) as Record<string, unknown>
   return {

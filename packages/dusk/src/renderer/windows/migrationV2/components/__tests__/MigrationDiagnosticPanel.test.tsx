@@ -299,7 +299,7 @@ describe('MigrationDiagnosticPanel', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Copy feedback email' }))
 
-    await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalledWith('support@dusk-ai.com'))
+    await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalledWith('support@dusk.app'))
     expect(mocks.toast.success).toHaveBeenCalledWith('Feedback email copied')
   })
 

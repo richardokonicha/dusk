@@ -40,7 +40,7 @@ function shape(node: PhrasingContent): Shape {
 describe('remarkLiteralAutolinkFix', () => {
   it('re-pairs emphasis that GitHub/cmark-gfm would leave inside the href (deliberate deviation)', () => {
     expect(
-      inlineChildren('PR 已创建：**https://github.com/the upstream the upstream project project/dusk/pull/19113**（`x` → `y`）。').map(shape)
+      inlineChildren('PR 已创建：**https://gitlab.com/fugoku.inc/dusk/pull/19113**（`x` → `y`）。').map(shape)
     ).toEqual([
       { type: 'text', value: 'PR 已创建：' },
       {
@@ -48,8 +48,8 @@ describe('remarkLiteralAutolinkFix', () => {
         children: [
           {
             type: 'link',
-            url: 'https://github.com/the upstream the upstream project project/dusk/pull/19113',
-            children: [{ type: 'text', value: 'https://github.com/the upstream the upstream project project/dusk/pull/19113' }]
+            url: 'https://gitlab.com/fugoku.inc/dusk/pull/19113',
+            children: [{ type: 'text', value: 'https://gitlab.com/fugoku.inc/dusk/pull/19113' }]
           }
         ]
       },

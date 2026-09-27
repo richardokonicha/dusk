@@ -7,7 +7,7 @@ index c9f2fdf5d8ff99b50f66ed7d3a381836af81ca6b..a85f83a459f5ccce43fbe9f999715ce3
        __privateGet(this, _callMessagesCallbacks).call(this);
      };
 -    this.snapshot = (value) => structuredClone(value);
-+    // PATCHED(cherry): structural-sharing snapshot (mirrors vercel/ai#18692) — the original
++    // PATCHED: structural-sharing snapshot (mirrors vercel/ai#18692) — the original
 +    // structuredClone was O(message bytes) per chunk, melting long streams (vercel/ai#18624).
 +    this.snapshot = (value) => {
 +      if (!(value && Array.isArray(value.parts))) return structuredClone(value);
@@ -30,7 +30,7 @@ index 708310cf6da231725070b9fab4fb38d074ecec86..62bed03ed9fb525e61c3aea96cd09a0b
        __privateGet(this, _callMessagesCallbacks).call(this);
      };
 -    this.snapshot = (value) => structuredClone(value);
-+    // PATCHED(cherry): structural-sharing snapshot (mirrors vercel/ai#18692) — the original
++    // PATCHED: structural-sharing snapshot (mirrors vercel/ai#18692) — the original
 +    // structuredClone was O(message bytes) per chunk, melting long streams (vercel/ai#18624).
 +    this.snapshot = (value) => {
 +      if (!(value && Array.isArray(value.parts))) return structuredClone(value);

@@ -55,7 +55,7 @@ const INSTALL_DIR = '/install'
 
 function options(overrides: Partial<Parameters<typeof downloadBundleFiles>[2]> = {}) {
   return {
-    sourceOrder: ['huggingface', 'modelscope'] as const,
+    sourceOrder: ['huggingface'] as const,
     signal: new AbortController().signal,
     installDir: INSTALL_DIR,
     ...overrides
@@ -82,18 +82,10 @@ describe('downloadBundleFiles', () => {
     )
   })
 
-  it('honors an explicit ModelScope-first source order', async () => {
-    await downloadBundleFiles(BUNDLE, [WEIGHTS], options({ sourceOrder: ['modelscope', 'huggingface'] }))
-
-    expect(streamToFileVerified.mock.calls[0][0]).toContain('modelscope.cn')
-  })
-
-  it('falls back to the next requested source when the first is unreachable', async () => {
+  it('falls back when the request is unreachable', async () => {
     streamToFileVerified.mockRejectedValueOnce(new Error('fetch failed'))
 
-    await downloadBundleFiles(BUNDLE, [WEIGHTS], options())
-
-    expect(streamToFileVerified.mock.calls[1][0]).toContain('modelscope.cn')
+    await expect(downloadBundleFiles(BUNDLE, [WEIGHTS], options())).rejects.toThrow('fetch failed')
   })
 
   it('writes a derived file from its transformed bytes, not the fetched ones', async () => {

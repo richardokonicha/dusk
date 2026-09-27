@@ -36,7 +36,7 @@ export function initCrashTelemetry(): void {
  */
 function startCrashReporter(): void {
   crashReporter.start({
-    companyName: 'the upstream the upstream project project',
+    companyName: 'fugoku.inc/dusk',
     productName: 'Dusk',
     submitURL: '',
     uploadToServer: false

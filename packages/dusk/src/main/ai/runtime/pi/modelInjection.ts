@@ -406,7 +406,7 @@ function buildPiModelConfig(
     // developer-role support from the endpoint URL.
     ...(api === 'openai-completions' || api === 'openai-responses'
       ? { compat: { supportsDeveloperRole: resolveEndpointDialect(provider, endpointType).developerRole } }
-      : {}),
+      : {})
     // thinkingLevelMap intentionally omitted: Dusk does not wire pi
     // thinking-level control in v1 (see capability matrix).
   }

@@ -52,7 +52,7 @@ describe('BuiltinMcpServerSeeder', () => {
     await insert({
       name: BuiltinMcpServerNames.mcpAutoInstall,
       type: 'inMemory',
-      reference: 'https://docs.dusk-ai.com/advanced-basic/mcp/auto-install',
+      reference: 'https://docs.dusk.app/advanced-basic/mcp/auto-install',
       command: 'npx',
       args: ['-y', '@mcpmarket/mcp-auto-install', 'connect', '--json'],
       provider: 'DuskLegacy'

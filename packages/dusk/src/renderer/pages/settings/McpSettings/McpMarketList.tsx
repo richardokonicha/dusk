@@ -1,14 +1,4 @@
-import {
-  Composio,
-  Glama,
-  Higress,
-  Mcp,
-  Mcpso,
-  Modelscope,
-  Pulse,
-  Smithery,
-  Zhipu
-} from '@dusk/ui/icons/providers'
+import { Composio, Glama, Higress, Mcp, Mcpso, Pulse, Smithery } from '@dusk/ui/icons/providers'
 import { SettingTitle } from '@renderer/components/SettingsPrimitives'
 import { cn } from '@renderer/utils/style'
 import { ExternalLink } from 'lucide-react'
@@ -22,18 +12,6 @@ const mcpMarkets = [
     url: 'https://www.mcpworld.com',
     logo: 'https://mcpworld.bdstatic.com/store/v2/865ad5d/mcp-server-store/ec04344/favicon.ico',
     descriptionKey: 'settings.mcp.more.mcpworld'
-  },
-  {
-    name: 'BigModel MCP Market',
-    url: 'https://bigmodel.cn/marketplace/index/mcp',
-    logo: Zhipu,
-    descriptionKey: 'settings.mcp.more.zhipu'
-  },
-  {
-    name: 'modelscope.cn',
-    url: 'https://www.modelscope.cn/mcp',
-    logo: Modelscope,
-    descriptionKey: 'settings.mcp.more.modelscope'
   },
   {
     name: 'mcp.higress.ai',

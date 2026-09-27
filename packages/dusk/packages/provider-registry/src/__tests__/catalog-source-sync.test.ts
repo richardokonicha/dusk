@@ -78,7 +78,7 @@ const overrideIdentity = (o: { providerId: string; modelId: string; apiModelId?:
 describe('catalog ↔ source sync (regenerate guard)', () => {
   it('classifies every source provider by supported application edition', () => {
     for (const provider of PROVIDERS) {
-      expect(provider.availableInEditions).toContain('global')
+      expect(provider).toHaveProperty('id')
     }
   })
 

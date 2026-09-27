@@ -1,13 +1,6 @@
 import { Checkbox } from '@dusk/ui/components/primitives/checkbox'
 import { RadioGroup, RadioGroupItem } from '@dusk/ui/components/primitives/radio-group'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@dusk/ui/components/primitives/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@dusk/ui/components/primitives/table'
 import { cn } from '@dusk/ui/lib/utils'
 import {
   type Cell,

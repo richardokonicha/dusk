@@ -1,8 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 
-const { getReleaseProductName } = require('./release/edition')
-
 const PLATFORM_PREFIXES = {
   linux: 'linux',
   mac: 'mac',
@@ -17,10 +15,9 @@ const ARCH_ALIASES = {
   x86_64: 'x64'
 }
 
-function normalizeArtifactFilePath(file, productName, version, platform, releaseProductName = productName) {
+function normalizeArtifactFilePath(file, productName, version, platform) {
   const normalizedFileName = path.basename(file).replace(/ /g, '-')
   const normalizedProductName = productName.replace(/ /g, '-')
-  const normalizedReleaseProductName = releaseProductName.replace(/ /g, '-')
   const productVersionPrefix = `${normalizedProductName}-${version}-`
   const platformPrefix = PLATFORM_PREFIXES[platform]
 
@@ -39,18 +36,16 @@ function normalizeArtifactFilePath(file, productName, version, platform, release
     artifactSuffix = `${ARCH_ALIASES[archMatch[1]]}${artifactSuffix.slice(archMatch[1].length)}`
   }
 
-  return path.join(path.dirname(file), `${normalizedReleaseProductName}-${version}-${platformPrefix}-${artifactSuffix}`)
+  return path.join(path.dirname(file), `${normalizedProductName}-${version}-${platformPrefix}-${artifactSuffix}`)
 }
 
 function artifactBuildCompleted(buildResult) {
   const oldFilePath = buildResult.file
-  const edition = buildResult.packager.config.extraMetadata?.edition ?? 'global'
   const newFilePath = normalizeArtifactFilePath(
     oldFilePath,
     buildResult.packager.appInfo.productName,
     buildResult.packager.appInfo.version,
-    buildResult.packager.platform.name,
-    getReleaseProductName(buildResult.packager.appInfo.productName, edition)
+    buildResult.packager.platform.name
   )
 
   if (oldFilePath === newFilePath) return

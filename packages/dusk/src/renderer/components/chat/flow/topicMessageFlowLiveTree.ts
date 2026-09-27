@@ -1,10 +1,4 @@
-import type {
-  DuskMessagePart,
-  DuskUIMessage,
-  MessageStatus,
-  TreeNode,
-  TreeResponse
-} from '@shared/data/types/message'
+import type { DuskMessagePart, DuskUIMessage, MessageStatus, TreeNode, TreeResponse } from '@shared/data/types/message'
 import { hasClearContextPart } from '@shared/data/types/uiParts'
 
 const LIVE_PREVIEW_LENGTH = 160

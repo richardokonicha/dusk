@@ -3,7 +3,6 @@ import { defineProvider } from './types'
 export default defineProvider({
   id: 'gpustack',
   name: 'GPUStack',
-  availableInEditions: ['global', 'cn'],
   authOptional: true,
   defaultChatEndpoint: 'openai-chat-completions',
   endpointConfigs: {

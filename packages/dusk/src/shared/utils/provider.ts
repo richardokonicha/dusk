@@ -173,10 +173,10 @@ export function isExternalCliProvider(provider: Pick<Provider, 'authMethods'>): 
 }
 
 /**
-  * Agent-only providers are surfaced only to Agent pickers / runtimes — never to
-  * general chat selectors or the public gateway catalog. External-CLI providers are
-  * always agent-only (no app-side credential).
-  */
+ * Agent-only providers are surfaced only to Agent pickers / runtimes — never to
+ * general chat selectors or the public gateway catalog. External-CLI providers are
+ * always agent-only (no app-side credential).
+ */
 export function isAgentOnlyProvider(provider: Pick<Provider, 'id' | 'authMethods'>): boolean {
   if (isExternalCliProvider(provider)) return true
   return false

@@ -302,9 +302,7 @@ describe('selectLegacyUserData', () => {
 // ── resolveMigrationPaths integration ───────────────────────────────
 
 const REAL_USER_CONFIG = JSON.stringify({
-  appDataPath: [
-    { executablePath: 'D:\\Dusk\\Dusk.exe', dataPath: 'E:\\Dropbox\\Dusk Data\\Dusk' }
-  ]
+  appDataPath: [{ executablePath: 'D:\\Dusk\\Dusk.exe', dataPath: 'E:\\Dropbox\\Dusk Data\\Dusk' }]
 })
 
 const GOOD_VERSION_LOG = '1.9.12|darwin|production|true|normal|2025-03-01T00:00:00Z'

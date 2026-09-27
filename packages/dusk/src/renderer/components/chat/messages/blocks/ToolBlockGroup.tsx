@@ -51,10 +51,7 @@ function getItemIsWaiting(item: ToolRenderItem, partsMap: Record<string, DuskMes
 }
 
 // Get effective UI status for an item
-function getItemEffectiveStatus(
-  item: ToolRenderItem,
-  partsMap: Record<string, DuskMessagePart[]> | null
-): ToolStatus {
+function getItemEffectiveStatus(item: ToolRenderItem, partsMap: Record<string, DuskMessagePart[]> | null): ToolStatus {
   const isWaiting = getItemIsWaiting(item, partsMap)
   return getEffectiveStatus(item.toolResponse?.status, isWaiting)
 }

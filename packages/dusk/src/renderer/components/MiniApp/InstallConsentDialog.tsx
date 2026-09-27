@@ -1,13 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Tooltip
-} from '@dusk/ui'
+import { Button, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Tooltip } from '@dusk/ui'
 import { PermissionChecklist } from '@renderer/components/MiniApp/PermissionChecklist'
 import { UpdateReviewCard } from '@renderer/components/MiniApp/UpdateReviewCard'
 import type { InstallDecision, InstallPreview } from '@renderer/hooks/useMiniAppInstallPreview'

@@ -57,7 +57,7 @@ vi.mock('../../catalog/catalog', async (importOriginal) => {
 })
 
 const { localModelStorageService } = await import('../../installation/LocalModelStorageService')
-const { artifactEntryPath, artifactRegistryOrder, isArtifactSupported } = await import('../tarballArtifact')
+const { artifactEntryPath, ARTIFACT_REGISTRY_ORDER, isArtifactSupported } = await import('../tarballArtifact')
 
 /** A `net.fetch` Response shell streaming `content`. */
 function tarballResponse(content: Buffer) {
@@ -75,7 +75,7 @@ function tarballResponse(content: Buffer) {
 
 const ensure = (
   signal = new AbortController().signal,
-  registryOrder: ['npmjs' | 'npmmirror', ...Array<'npmjs' | 'npmmirror'>] = ['npmjs', 'npmmirror']
+  registryOrder: readonly ['npmjs', ...Array<'npmjs'>] = ARTIFACT_REGISTRY_ORDER
 ) => localModelStorageService.ensureArtifact('onnxruntime-node', signal, undefined, registryOrder)
 const isReady = () => localModelStorageService.isArtifactReady('onnxruntime-node')
 
@@ -151,53 +151,29 @@ describe('shared artifact acquisition', () => {
     expect(extractMock).toHaveBeenCalledTimes(1)
   })
 
-  it('tries npmjs first when requested', async () => {
+  it('tries npmjs registry first', async () => {
     await ensure()
 
     expect(vi.mocked(net.fetch).mock.calls[0][0]).toContain('registry.npmjs.org')
   })
 
-  it('tries npmmirror.com first when requested', async () => {
-    await ensure(new AbortController().signal, ['npmmirror', 'npmjs'])
+  it('rejects and installs nothing when the request fails', async () => {
+    vi.mocked(net.fetch).mockImplementationOnce((async () => {
+      throw new Error('network down')
+    }) as unknown as typeof net.fetch)
 
-    expect(vi.mocked(net.fetch).mock.calls[0][0]).toContain('registry.npmmirror.com')
+    await expect(ensure()).rejects.toThrow('network down')
+
+    expect(extractMock).not.toHaveBeenCalled()
+    expect(isReady()).toBe(false)
+    // A failed download must not leave the staging dir behind either.
+    expect(existsSync(path.join(toolchainDir, '.tmp'))).toBe(false)
   })
 
-  it('maps source preference to registry order once', () => {
-    expect(artifactRegistryOrder('china-first')).toEqual(['npmmirror', 'npmjs'])
-    expect(artifactRegistryOrder('global-first')).toEqual(['npmjs', 'npmmirror'])
-  })
-
-  it('falls back to the second mirror when the first fails', async () => {
-    vi.mocked(net.fetch)
-      .mockImplementationOnce((async () => {
-        throw new Error('network down')
-      }) as unknown as typeof net.fetch)
-      .mockImplementationOnce((async () => tarballResponse(FAKE_TARBALL_CONTENT)) as unknown as typeof net.fetch)
-
-    await ensure()
-
-    expect(net.fetch).toHaveBeenCalledTimes(2)
-    expect(isReady()).toBe(true)
-  })
-
-  it('falls back to the second mirror when the first serves a tarball that fails the checksum', async () => {
-    // A reachable-but-wrong mirror (stale cache, error page, interception) must not be
-    // terminal — the checksum is part of the attempt, so the next mirror still gets its turn.
-    vi.mocked(net.fetch)
-      .mockImplementationOnce((async () =>
-        tarballResponse(Buffer.from('tampered content'))) as unknown as typeof net.fetch)
-      .mockImplementationOnce((async () => tarballResponse(FAKE_TARBALL_CONTENT)) as unknown as typeof net.fetch)
-
-    await ensure()
-
-    expect(net.fetch).toHaveBeenCalledTimes(2)
-    expect(vi.mocked(net.fetch).mock.calls[1][0]).toContain('registry.npmmirror.com')
-    expect(isReady()).toBe(true)
-  })
-
-  it('rejects and installs nothing when every mirror fails the checksum', async () => {
-    vi.mocked(net.fetch).mockImplementation((async () =>
+  it('rejects and installs nothing when the tarball fails the checksum', async () => {
+    // A reachable-but-wrong mirror (stale cache, error page, interception) fails the
+    // checksum and the download is rejected — no fallback mirrors exist.
+    vi.mocked(net.fetch).mockImplementationOnce((async () =>
       tarballResponse(Buffer.from('tampered content'))) as unknown as typeof net.fetch)
 
     await expect(ensure()).rejects.toThrow('sha256 mismatch')

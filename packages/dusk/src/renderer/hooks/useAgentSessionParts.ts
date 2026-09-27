@@ -50,10 +50,7 @@ export function toAgentSessionUIMessage(row: AgentSessionMessageEntity): DuskUIM
   } as DuskUIMessage
 }
 
-function reservedUIMessageToAgentSessionMessage(
-  sessionId: string,
-  message: DuskUIMessage
-): AgentSessionMessageEntity {
+function reservedUIMessageToAgentSessionMessage(sessionId: string, message: DuskUIMessage): AgentSessionMessageEntity {
   const metadata = message.metadata ?? {}
   const createdAt = metadata.createdAt ?? new Date().toISOString()
   return {

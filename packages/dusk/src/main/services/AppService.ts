@@ -67,8 +67,8 @@ export class AppService extends BaseService {
       app.setLoginItemSettings(settings)
     } else if (isLinux) {
       const autostartDir = AbsoluteFilePathSchema.parse(application.getPath('sys.appdata.autostart'))
-        const desktopFile = AbsoluteFilePathSchema.parse(
-          path.join(autostartDir, isDev ? 'dusk-dev.desktop' : 'dusk.desktop')
+      const desktopFile = AbsoluteFilePathSchema.parse(
+        path.join(autostartDir, isDev ? 'dusk-dev.desktop' : 'dusk.desktop')
       )
 
       if (isLaunchOnBoot) {

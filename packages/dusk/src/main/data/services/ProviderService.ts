@@ -24,7 +24,6 @@ import {
   reconcileLogoSlotTx
 } from '@data/services/utils/singleFileRef'
 import { loggerService } from '@logger'
-import { getAppEdition } from '@main/utils/appEdition'
 import { DataApiError, DataApiErrorFactory, ErrorCode } from '@shared/data/api/errors'
 import type { OrderBatchRequest, OrderRequest } from '@shared/data/api/schemas/_endpointHelpers'
 import type { CreateProviderDto, ListProvidersQuery, UpdateProviderDto } from '@shared/data/api/schemas/providers'
@@ -68,19 +67,10 @@ function applyJsonMergePatch(target: unknown, patch: unknown): unknown {
 type NewUserProviderInput = Omit<InsertUserProviderRow, 'orderKey'>
 type ProviderIdentity = Pick<UserProviderRow, 'providerId' | 'presetProviderId'>
 
-function isProviderAvailableInCurrentEdition(provider: Pick<Provider, 'availableInEditions'>): boolean {
-  const availableInEditions = provider.availableInEditions
-  return !availableInEditions || availableInEditions.includes(getAppEdition())
-}
-
 function getAvailableProviderMetadata(row: ProviderIdentity): ProviderDisplayMetadata | null {
   if (isRetiredProvider(row.providerId, row.presetProviderId)) return null
 
-  const metadata = getDataService('ProviderRegistryService').getProviderDisplayMetadata(
-    row.providerId,
-    row.presetProviderId
-  )
-  return isProviderAvailableInCurrentEdition(metadata) ? metadata : null
+  return getDataService('ProviderRegistryService').getProviderDisplayMetadata(row.providerId, row.presetProviderId)
 }
 
 function isProviderIdentityAvailable(row: ProviderIdentity): boolean {
@@ -126,7 +116,6 @@ function maskApiKeyForSnapshot(key: string): string {
   const masked = maskApiKey(key)
   return masked === key ? '****' : masked
 }
-
 
 function assertProviderAvailable<T extends ProviderIdentity>(
   row: T | null | undefined,
@@ -282,7 +271,6 @@ function rowToRuntimeProvider(row: UserProviderRow, metadata?: ProviderDisplayMe
     logoSrc: logoFileId ? application.get('FileManager').getUrl(logoFileId) : undefined,
     description: presetMetadata.description,
     websites: presetMetadata.websites,
-    availableInEditions: presetMetadata.availableInEditions,
     // Registry-owned connection facts (adapterFamily, modelsApiUrls, the
     // endpoint-type key set) resolve from the CURRENT registry at read time
     // (#17096 — the seeder is insert-only, so the row alone goes stale);
@@ -436,12 +424,6 @@ class ProviderService {
       dto.providerId,
       dto.presetProviderId ?? null
     )
-    if (!isProviderAvailableInCurrentEdition(presetMetadata)) {
-      throw DataApiErrorFactory.invalidOperation(
-        `create provider ${dto.providerId}`,
-        'provider is unavailable in the current application edition'
-      )
-    }
     const defaultChatEndpoint =
       dto.defaultChatEndpoint !== presetMetadata.defaultChatEndpoint ? (dto.defaultChatEndpoint ?? null) : null
 
@@ -483,7 +465,6 @@ class ProviderService {
    * writes preserve the user's current order.
    */
   update(providerId: string, dto: UpdateProviderInput): Provider {
-
     // Read + merge + write the providerSettings JSON in ONE serialized write
     // transaction. A bare read-then-update would let two concurrent PATCHes both
     // read the same old providerSettings and have the later write clobber the
@@ -690,7 +671,6 @@ class ProviderService {
    * Returns the updated Provider.
    */
   addApiKey(providerId: string, key: string, label?: string): Provider {
-
     const db = application.get('DbService').getDb()
     const { provider, added } = db.transaction((tx) => {
       const [row] = tx
@@ -741,7 +721,6 @@ class ProviderService {
    * Replace the full API key list via the dedicated API-key resource.
    */
   replaceApiKeys(providerId: string, apiKeys: ApiKeyEntry[]): Provider {
-
     const db = application.get('DbService').getDb()
     const provider = db.transaction((tx) => {
       const [current] = tx
@@ -788,7 +767,6 @@ class ProviderService {
       isEnabled?: boolean
     }
   ): Provider {
-
     const db = application.get('DbService').getDb()
     const provider = db.transaction((tx) => {
       const [row] = tx
@@ -857,7 +835,6 @@ class ProviderService {
    * Delete an API key by key ID and return updated provider.
    */
   deleteApiKey(providerId: string, keyId: string): Provider {
-
     const db = application.get('DbService').getDb()
     const provider = db.transaction((tx) => {
       const [row] = tx
@@ -896,7 +873,6 @@ class ProviderService {
    * cannot be deleted. User-created providers that inherit from a preset can be deleted.
    */
   delete(providerId: string): void {
-
     const deletedModelCount = application.get('DbService').withWriteTx((tx) => {
       const [provider] = tx
         .select({

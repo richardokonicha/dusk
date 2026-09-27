@@ -21,7 +21,6 @@ const toastSuccessMock = vi.fn()
 const toastErrorMock = vi.fn()
 const modelSettingsPropsMock = vi.fn()
 const cloudMocks = vi.hoisted(() => ({
-  appEdition: 'global' as 'cn' | 'global',
   ipcRequest: vi.fn(),
   statusListener: undefined as
     | ((status: { phase: 'signed-out' | 'authorizing' | 'signed-in'; displayName: string | null }) => void)
@@ -56,10 +55,6 @@ vi.mock('@data/DataApiService', () => ({
 
 vi.mock('@renderer/i18n/resolver', () => ({
   default: i18nMock
-}))
-
-vi.mock('@renderer/utils/appEdition', () => ({
-  getAppEdition: () => cloudMocks.appEdition
 }))
 
 vi.mock('@renderer/ipc', () => ({
@@ -148,7 +143,6 @@ async function openModelSelection() {
 describe('OnboardingPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    cloudMocks.appEdition = 'global'
     cloudMocks.statusListener = undefined
     cloudMocks.ipcRequest.mockImplementation(async (route: string) => {
       throw new Error(`Unexpected IPC route: ${route}`)
@@ -161,7 +155,7 @@ describe('OnboardingPage', () => {
     }
     MockUsePreferenceUtils.resetMocks()
     i18nMock.changeLanguage.mockResolvedValue(undefined)
-        addApiKeyMock.mockResolvedValue(undefined)
+    addApiKeyMock.mockResolvedValue(undefined)
     updateProviderMock.mockResolvedValue(undefined)
     syncProviderModelsMock.mockResolvedValue([{ id: 'openai::gpt-4o-mini', providerId: 'openai', isEnabled: true }])
     dataApiMocks.get.mockImplementation(async (path: string) => {
@@ -325,7 +319,6 @@ describe('OnboardingPage', () => {
     expect(dataApiMocks.patch).toHaveBeenCalledTimes(2)
   })
 
-  
   it('explains when an enabled provider has no enabled model', async () => {
     enabledModelsMock.splice(0)
     render(<OnboardingPage />)
@@ -374,7 +367,6 @@ describe('OnboardingPage', () => {
     expect(screen.getByRole('button', { name: /onboarding\.select_model\.start/ })).toBeDisabled()
   })
 
-  
   it.each([
     ['an unconfigured seeded agent', null],
     ['a legacy guided agent', 'openai::gpt-4o']
@@ -420,7 +412,6 @@ describe('OnboardingPage', () => {
     })
   })
 
-  
   it('records a skipped status when the user skips onboarding', async () => {
     render(<OnboardingPage />)
 
@@ -532,8 +523,6 @@ describe('OnboardingPage', () => {
     expect(MockUsePreferenceUtils.getPreferenceValue('app.privacy.data_collection.enabled')).toBe(false)
   })
 
-  
-  
   it('skips onboarding without privacy acceptance and disables data collection', async () => {
     MockUsePreferenceUtils.setPreferenceValue('app.privacy.policy_version', '')
     render(<OnboardingPage />)
@@ -552,7 +541,6 @@ describe('OnboardingPage', () => {
     expect(MockUsePreferenceUtils.getPreferenceValue('app.privacy.data_collection.enabled')).toBe(false)
   })
 
-  
   it('opens the full policy and updates the required agreement choice before closing', async () => {
     MockUsePreferenceUtils.setPreferenceValue('app.privacy.policy_version', '')
     render(<OnboardingPage />)
@@ -575,7 +563,6 @@ describe('OnboardingPage', () => {
     expect(MockUsePreferenceUtils.getPreferenceValue('app.privacy.policy_version')).toBe('')
   })
 
-  
   it('keeps anonymous data collection independent from required privacy acceptance', async () => {
     MockUsePreferenceUtils.setPreferenceValue('app.privacy.policy_version', '')
     MockUsePreferenceUtils.setPreferenceValue('app.privacy.data_collection.enabled', false)
@@ -638,7 +625,4 @@ describe('OnboardingPage', () => {
     expect(i18nMock.changeLanguage).toHaveBeenCalledWith('zh-CN')
     await waitFor(() => expect(MockUsePreferenceUtils.getPreferenceValue('app.language')).toBe('zh-CN'))
   })
-
-  
-  
-  })
+})

@@ -1,13 +1,5 @@
 import { usePreference } from '@data/hooks/usePreference'
-import {
-  Button,
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-  RowFlex,
-  Switch
-} from '@dusk/ui'
+import { Button, InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, RowFlex, Switch } from '@dusk/ui'
 import {
   SettingDivider,
   SettingGroup,

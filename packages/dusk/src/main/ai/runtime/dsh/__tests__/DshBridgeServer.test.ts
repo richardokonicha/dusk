@@ -262,11 +262,7 @@ describe('DshBridgeServer', () => {
         args: { query: 'Dusk' }
       })
     ).resolves.toEqual({ text: 'mcp__dusk-tools__web_search:ok', data: { query: 'Dusk' } })
-    expect(onToolCall).toHaveBeenCalledWith(
-      'mcp__dusk-tools__web_search',
-      { query: 'Dusk' },
-      expect.any(AbortSignal)
-    )
+    expect(onToolCall).toHaveBeenCalledWith('mcp__dusk-tools__web_search', { query: 'Dusk' }, expect.any(AbortSignal))
 
     onToolCall.mockRejectedValueOnce(new Error('provider unavailable'))
     await expect(

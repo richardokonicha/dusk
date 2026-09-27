@@ -54,9 +54,7 @@ describe('validate rejects broken translations', () => {
   })
 
   it('rejects a translated product name', () => {
-    expect(validate('Restart Dusk', 'Перезапустите Вишнёвую Студию', ['Dusk'])).toMatch(
-      /Dusk/
-    )
+    expect(validate('Restart Dusk', 'Перезапустите Вишнёвую Студию', ['Dusk'])).toMatch(/Dusk/)
   })
 
   it('rejects a protected term dropped from a source spelling variant', () => {
@@ -97,7 +95,7 @@ describe('validate accepts translations the catalog already relies on', () => {
 
   it('accepts a protected term whose case or hyphenation shifted', () => {
     expect(validate('Exit GitHub', '退出 Github', ['GitHub'])).toBeNull()
-    expect(validate('Dusk diagnostics', 'Dusk-Studio-Diagnose', ['Dusk'])).toBeNull()
+    expect(validate('Dusk diagnostics', 'Dusk-Diagnose', ['Dusk'])).toBeNull()
   })
 
   it('accepts an empty translation of a punctuation-only source', () => {

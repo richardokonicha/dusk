@@ -16,9 +16,6 @@ const mockTabs = vi.hoisted(() => ({
   updateTab: vi.fn()
 }))
 
-const mocks = vi.hoisted(() => ({ request: vi.fn() }))
-vi.mock('@renderer/ipc', () => ({ ipcApi: { request: mocks.request } }))
-
 vi.mock('@renderer/hooks/tab', () => ({
   useOptionalTabsContext: () =>
     mockTabs.hasContext
@@ -35,23 +32,13 @@ vi.mock('@renderer/utils/webviewStateManager', () => ({
   setWebviewLoaded: vi.fn()
 }))
 
-import { __resetRegionDetectionForTesting, useMiniApps } from '../useMiniApps'
-import { appFixtures, createCnOnlyApp, createGlobalApp, createMiniApp } from './fixtures/miniApp'
+import { useMiniApps } from '../useMiniApps'
+import { appFixtures, createMiniApp } from './fixtures/miniApp'
 
 /** Helper: return the array directly since list() now returns a bare MiniApp[] */
 const paginated = (items: MiniApp[]) => items
 const mockClearWebviewState = vi.mocked(clearWebviewState)
 const mockSetWebviewLoaded = vi.mocked(setWebviewLoaded)
-
-/** Control the `system.get_ip_country` route on the ipcApi facade for region-detection tests. */
-const mockIpCountry = (result: string | Error) => {
-  mocks.request.mockImplementation((route: string) => {
-    if (route === 'system.get_ip_country') {
-      return result instanceof Error ? Promise.reject(result) : Promise.resolve(result)
-    }
-    return Promise.resolve(undefined)
-  })
-}
 
 describe('useMiniApps', () => {
   beforeEach(() => {
@@ -60,12 +47,6 @@ describe('useMiniApps', () => {
     MockUseDataApiUtils.resetMocks()
     MockUseDataApiUtils.mockQueryData('/mini-apps', paginated([]))
 
-    mocks.request.mockReset()
-    mockIpCountry('CN')
-    vi.stubGlobal('__APP_EDITION__', 'global')
-
-    // Reset module-level regionDetectionPromise to ensure fresh detection in each test
-    __resetRegionDetectionForTesting()
     mockTabs.tabs = []
     mockTabs.hasContext = true
     mockTabs.closeTab.mockClear()
@@ -108,11 +89,10 @@ describe('useMiniApps', () => {
   // === Data Loading ===
 
   describe('data loading', () => {
-    it('keeps the catalog and region detection inactive when no consumer needs mini apps', () => {
+    it('keeps the catalog inactive when no consumer needs mini apps', () => {
       renderHook(() => useMiniApps({ enabled: false }))
 
       expect(MockUseDataApi.useQuery).toHaveBeenCalledWith('/mini-apps', { enabled: false })
-      expect(mocks.request).not.toHaveBeenCalled()
     })
 
     it('should return empty arrays when no data', () => {
@@ -151,139 +131,6 @@ describe('useMiniApps', () => {
       MockUseDataApiUtils.mockQueryLoading('/mini-apps')
       const { result } = renderHook(() => useMiniApps())
       expect(result.current.isLoading).toBe(true)
-    })
-  })
-
-  // === Region Filtering ===
-
-  describe('region filtering', () => {
-    it('forces the CN-only catalog in the CN edition without overwriting the shared preference', () => {
-      vi.stubGlobal('__APP_EDITION__', 'cn')
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'Global')
-      const apps = [createGlobalApp('g', { status: 'enabled' }), createCnOnlyApp('c', { status: 'enabled' })]
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-
-      const { result } = renderHook(() => useMiniApps())
-
-      expect(result.current.miniApps.map((app) => app.appId)).toEqual(['c'])
-      expect(result.current.allApps.map((app) => app.appId)).toEqual(['g', 'c'])
-      expect(MockUsePreferenceUtils.getPreferenceValue('feature.mini_app.region')).toBe('Global')
-    })
-
-    it('hides Global-only pinned apps from CN edition launcher surfaces', () => {
-      vi.stubGlobal('__APP_EDITION__', 'cn')
-      const apps = [createGlobalApp('g', { status: 'pinned' }), createCnOnlyApp('c', { status: 'pinned' })]
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-
-      const { result } = renderHook(() => useMiniApps())
-
-      expect(result.current.pinned.map((app) => app.appId)).toEqual(['c'])
-      expect(result.current.allApps.map((app) => app.appId)).toEqual(['g', 'c'])
-    })
-
-    it('does not detect the IP region in the CN edition', () => {
-      vi.stubGlobal('__APP_EDITION__', 'cn')
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'auto')
-      MockUseCacheUtils.setCacheValue('mini_app.detected_region', null)
-
-      renderHook(() => useMiniApps())
-
-      expect(mocks.request).not.toHaveBeenCalledWith('system.get_ip_country')
-    })
-
-    it('should show all apps when region is CN (default)', () => {
-      const { mixedRegion } = appFixtures
-      const apps = Object.values(mixedRegion).map((a) => ({ ...a, status: 'enabled' as const }))
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'CN')
-      const { result } = renderHook(() => useMiniApps())
-      expect(result.current.miniApps).toHaveLength(3)
-    })
-
-    it('should only show Global apps when region is Global', () => {
-      const { mixedRegion } = appFixtures
-      const apps = Object.values(mixedRegion).map((a) => ({ ...a, status: 'enabled' as const }))
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'Global')
-      const { result } = renderHook(() => useMiniApps())
-      expect(result.current.miniApps).toHaveLength(1)
-      expect(result.current.miniApps[0].appId).toBe('global-app')
-    })
-
-    it('should show apps without supportedRegions as CN-only (hidden from Global)', () => {
-      const { mixedRegion } = appFixtures
-      const apps = [mixedRegion.globalApp, mixedRegion.noRegionApp].map((a) => ({
-        ...a,
-        status: 'enabled' as const
-      }))
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'Global')
-      const { result } = renderHook(() => useMiniApps())
-      expect(result.current.miniApps).toHaveLength(1)
-      expect(result.current.miniApps[0].appId).toBe('global-app')
-    })
-
-    it('should not filter pinned apps by region', () => {
-      const apps = [
-        createGlobalApp('g-pinned', { status: 'pinned' }),
-        createCnOnlyApp('cn-pinned', { status: 'pinned' }),
-        createMiniApp('nr-pinned', { status: 'pinned' })
-      ]
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'Global')
-      const { result } = renderHook(() => useMiniApps())
-      expect(result.current.pinned).toHaveLength(3)
-    })
-
-    it('should filter disabled apps by region', () => {
-      const apps = [
-        createGlobalApp('global-disabled', { status: 'disabled' }),
-        createCnOnlyApp('cn-disabled', { status: 'disabled' })
-      ]
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'Global')
-      const { result } = renderHook(() => useMiniApps())
-      expect(result.current.disabled).toHaveLength(1)
-      expect(result.current.disabled[0].appId).toBe('global-disabled')
-    })
-  })
-
-  // === Effective Region Calculation ===
-
-  describe('effective region calculation', () => {
-    it('should use preference CN when explicitly set', () => {
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'CN')
-      const apps = [createGlobalApp('g', { status: 'enabled' }), createCnOnlyApp('c', { status: 'enabled' })]
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-      const { result } = renderHook(() => useMiniApps())
-      expect(result.current.miniApps).toHaveLength(2)
-    })
-
-    it('should use preference Global when explicitly set', () => {
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'Global')
-      const apps = [createGlobalApp('g', { status: 'enabled' }), createCnOnlyApp('c', { status: 'enabled' })]
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-      const { result } = renderHook(() => useMiniApps())
-      expect(result.current.miniApps).toHaveLength(1)
-      expect(result.current.miniApps[0].appId).toBe('g')
-    })
-
-    it('should use detected region when preference is auto and detected region exists', () => {
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'auto')
-      MockUseCacheUtils.setCacheValue('mini_app.detected_region', 'Global')
-      const apps = [createGlobalApp('g', { status: 'enabled' }), createCnOnlyApp('c', { status: 'enabled' })]
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-      const { result } = renderHook(() => useMiniApps())
-      expect(result.current.miniApps).toHaveLength(1)
-    })
-
-    it('should default to CN when preference is auto and no detected region', () => {
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'auto')
-      MockUseCacheUtils.setCacheValue('mini_app.detected_region', null)
-      const apps = [createGlobalApp('g', { status: 'enabled' }), createCnOnlyApp('c', { status: 'enabled' })]
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-      const { result } = renderHook(() => useMiniApps())
-      expect(result.current.miniApps).toHaveLength(2)
     })
   })
 
@@ -536,26 +383,22 @@ describe('useMiniApps', () => {
       expect(patchCalls).toHaveLength(2)
     })
 
-    it('does not touch rows the caller never names — region-hidden apps stay put', async () => {
-      // Replaces the legacy "updateMiniApps under Global mode disables CN apps"
-      // bug. With the command-style API the caller only PATCHes what it names.
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'Global')
-      const globalApp = createGlobalApp('globalA', { status: 'enabled' })
-      const cnOnly = createCnOnlyApp('cnOnly', { status: 'enabled' })
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated([globalApp, cnOnly]))
+    it('does not touch rows the caller never names', async () => {
+      // The command-style API PATCHes only what the caller names.
+      const appA = createMiniApp('appA', { status: 'enabled' })
+      const appB = createMiniApp('appB', { status: 'enabled' })
+      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated([appA, appB]))
 
       const { result } = renderHook(() => useMiniApps())
       MockDataApiUtils.resetMocks()
 
-      // Hide the only visible Global app — should produce one PATCH for it,
-      // never sweep the region-hidden CN app into disabled.
       await act(async () => {
-        await result.current.setAppStatusBulk([{ appId: 'globalA', status: 'disabled' }])
+        await result.current.setAppStatusBulk([{ appId: 'appA', status: 'disabled' }])
       })
 
       const patchCalls = MockDataApiUtils.getCalls('patch')
-      expect(patchCalls).toContainEqual(['/mini-apps/globalA', { body: { status: 'disabled' } }])
-      expect(patchCalls.find(([path]) => path === '/mini-apps/cnOnly')).toBeUndefined()
+      expect(patchCalls).toContainEqual(['/mini-apps/appA', { body: { status: 'disabled' } }])
+      expect(patchCalls.find(([path]) => path === '/mini-apps/appB')).toBeUndefined()
     })
 
     it('returns immediately for an empty update list (no PATCH calls)', async () => {
@@ -656,12 +499,10 @@ describe('useMiniApps', () => {
         return { trigger: vi.fn().mockResolvedValue({ success: true }), isLoading: false, error: undefined }
       })
 
-      const enabled = createGlobalApp('enabled', { status: 'enabled', orderKey: 'a0' })
-      const regionHidden = createCnOnlyApp('region-hidden', { status: 'enabled', orderKey: 'a1' })
-      const pinned = createGlobalApp('pinned', { status: 'pinned', orderKey: 'b0' })
+      const enabled = createMiniApp('enabled', { status: 'enabled', orderKey: 'a0' })
+      const pinned = createMiniApp('pinned', { status: 'pinned', orderKey: 'b0' })
       const hidden = createMiniApp('hidden', { status: 'disabled', orderKey: 'a0' })
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated([pinned, enabled, regionHidden, hidden]))
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'Global')
+      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated([pinned, enabled, hidden]))
 
       const { result } = renderHook(() => useMiniApps())
 
@@ -673,105 +514,6 @@ describe('useMiniApps', () => {
 
       expect(patchOrderTrigger).toHaveBeenCalledWith({ params: { id: 'pinned' }, body: { position: 'first' } })
       expect(patchBatchTrigger).not.toHaveBeenCalled()
-    })
-  })
-
-  // === Edge Cases ===
-
-  describe('edge cases', () => {
-    it('should handle preset apps with empty supportedRegions array as CN-only', () => {
-      const apps = [createMiniApp('empty-regions', { supportedRegions: [], status: 'enabled' })]
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'Global')
-      const { result } = renderHook(() => useMiniApps())
-      expect(result.current.miniApps).toHaveLength(0)
-    })
-
-    it('should treat custom apps without supportedRegions as visible everywhere', () => {
-      // Custom rows (presetMiniAppId === null) without region info come from
-      // migrated v1 data or hand-added apps. Defaulting them to CN-only would
-      // hide a user's own app under Global.
-      const apps = [createMiniApp('mine', { presetMiniAppId: null, status: 'enabled' })]
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated(apps))
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'Global')
-      const { result } = renderHook(() => useMiniApps())
-      expect(result.current.miniApps).toHaveLength(1)
-    })
-  })
-
-  // === Region Auto-Detection ===
-
-  describe('region auto-detection', () => {
-    beforeEach(() => {
-      // Reset the module-level promise between tests
-      // We need to re-import the module or access the internal state
-      // Since regionDetectionPromise is module-scoped, we test via the hook's useEffect
-    })
-
-    it('should call setDetectedRegion with CN when IP resolves to CN', async () => {
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'auto')
-      MockUseCacheUtils.setCacheValue('mini_app.detected_region', null)
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated([]))
-
-      mockIpCountry('CN')
-
-      renderHook(() => useMiniApps())
-
-      // Wait for the async detection to complete
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 50))
-      })
-
-      expect(MockUseCacheUtils.getCacheValue('mini_app.detected_region')).toBe('CN')
-    })
-
-    it('should call setDetectedRegion with Global when IP resolves to US', async () => {
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'auto')
-      MockUseCacheUtils.setCacheValue('mini_app.detected_region', null)
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated([]))
-
-      mockIpCountry('US')
-
-      renderHook(() => useMiniApps())
-
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 50))
-      })
-
-      expect(MockUseCacheUtils.getCacheValue('mini_app.detected_region')).toBe('Global')
-    })
-
-    it('should fallback to CN when IP detection rejects', async () => {
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'auto')
-      MockUseCacheUtils.setCacheValue('mini_app.detected_region', null)
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated([]))
-
-      mockIpCountry(new Error('Network error'))
-
-      renderHook(() => useMiniApps())
-
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 50))
-      })
-
-      expect(MockUseCacheUtils.getCacheValue('mini_app.detected_region')).toBe('CN')
-    })
-
-    it('should not call detectUserRegion when region is explicitly set', async () => {
-      MockUsePreferenceUtils.setPreferenceValue('feature.mini_app.region', 'Global')
-      MockUseCacheUtils.setCacheValue('mini_app.detected_region', null)
-      MockUseDataApiUtils.mockQueryData('/mini-apps', paginated([]))
-
-      mockIpCountry('US')
-
-      renderHook(() => useMiniApps())
-
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 50))
-      })
-
-      // IP detection should not be called when region is explicitly set
-      expect(mocks.request).not.toHaveBeenCalledWith('system.get_ip_country')
     })
   })
 

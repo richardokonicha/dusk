@@ -136,6 +136,7 @@ const DEFAULT_IDLE_TTL_MS = 30_000
 export class RegistryLoader {
   private models: ModelConfig[] | null = null
   private providers: ProviderConfig[] | null = null
+  private providerById: Map<string, ProviderConfig> | null = null
   private providerModels: ProviderModelOverride[] | null = null
   private modelsVersion: string | null = null
   private providersVersion: string | null = null
@@ -185,6 +186,7 @@ export class RegistryLoader {
     if (this.providers) return this.providers
     const data = readProviderRegistry(this.paths.providers)
     this.providers = data.providers ?? []
+    this.providerById = new Map(this.providers.map((provider) => [provider.id, provider]))
     this.providersVersion = data.version
     return this.providers
   }
@@ -309,8 +311,8 @@ export class RegistryLoader {
   }
 
   findProvider(providerId: string): ProviderConfig | null {
-    const providers = this.loadProviders()
-    return providers.find((p) => p.id === providerId) ?? null
+    this.loadProviders()
+    return this.providerById?.get(providerId) ?? null
   }
 
   findOverride(providerId: string, modelId: string): ProviderModelOverride | null {
@@ -344,6 +346,7 @@ export class RegistryLoader {
   invalidate(): void {
     this.models = null
     this.providers = null
+    this.providerById = null
     this.providerModels = null
     this.modelsVersion = null
     this.providersVersion = null

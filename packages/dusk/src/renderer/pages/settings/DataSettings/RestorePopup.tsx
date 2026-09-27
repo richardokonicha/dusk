@@ -1,12 +1,4 @@
-import {
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@dusk/ui'
+import { Button, CircularProgress, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@dusk/ui'
 import { getRestoreProgressLabelKey } from '@renderer/i18n/label'
 import { restore } from '@renderer/services/BackupService'
 import { createPopup, type PopupInjectedProps } from '@renderer/services/popup'

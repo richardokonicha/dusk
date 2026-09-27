@@ -1,13 +1,4 @@
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  FieldError,
-  Input
-} from '@dusk/ui'
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, FieldError, Input } from '@dusk/ui'
 import { formatErrorMessageWithPrefix } from '@renderer/utils/error'
 import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'

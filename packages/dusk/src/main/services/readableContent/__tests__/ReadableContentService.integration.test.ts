@@ -61,7 +61,9 @@ describe('ReadableContentService integration', () => {
     const html = `<!doctype html><html><body><article>${paragraph.repeat(10_000)}</article></body></html>`
     let settled = false
 
-    const extraction = service.extractReadableMarkdown(html).finally(() => {
+    // The fixture is a synthetic stress input; opt out of the production default
+    // timeout so slow CI machines cannot turn this into a timeout test.
+    const extraction = service.extractReadableMarkdown(html, { timeoutMs: 60_000 }).finally(() => {
       settled = true
     })
     await new Promise<void>((resolve) => setImmediate(resolve))
@@ -70,7 +72,7 @@ describe('ReadableContentService integration', () => {
     await expect(extraction).resolves.toMatchObject({
       content: expect.stringContaining('Readable worker regression content')
     })
-  })
+  }, 70_000)
 
   it('keeps the main event loop responsive while cleaning adversarial preview text', async () => {
     const token = '![unclosed'

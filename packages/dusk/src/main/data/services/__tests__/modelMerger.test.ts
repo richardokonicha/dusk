@@ -1,5 +1,3 @@
-import { fileURLToPath } from 'node:url'
-
 import { applyUserOverlay, type UserModelOverlay } from '@data/services/ModelService'
 import {
   applyCapabilityOverride,
@@ -8,7 +6,6 @@ import {
   resolveReasoningProfileFromRegistry
 } from '@data/services/ProviderRegistryService'
 import type { ProtoProviderModelOverride } from '@dusk/provider-registry'
-import { RegistryLoader } from '@dusk/provider-registry/node'
 import { describe, expect, it } from 'vitest'
 
 // Use string literals matching the actual enum values to avoid
@@ -19,13 +16,6 @@ const CAPABILITY = {
   REASONING: 'reasoning',
   EMBEDDING: 'embedding'
 } as const
-
-const registryDataUrl = new URL('../../../../../packages/provider-registry/data/', import.meta.url)
-const registryLoader = new RegistryLoader({
-  models: fileURLToPath(new URL('models.json', registryDataUrl)),
-  providers: fileURLToPath(new URL('providers.json', registryDataUrl)),
-  providerModels: fileURLToPath(new URL('provider-models.json', registryDataUrl))
-})
 
 // ---------- applyCapabilityOverride ----------
 
@@ -134,47 +124,6 @@ describe('mergePresetModel', () => {
     } satisfies ProtoProviderModelOverride
     expect(mergePresetModel(presetModel, override, 'openai-codex').supportsFastMode).toBe(true)
     expect(mergePresetModel(presetModel, null, 'openai-codex').supportsFastMode).toBeUndefined()
-  })
-})
-
-describe('DuskLegacySub Qwen media capability overrides', () => {
-  const unsupportedAudioModels = [
-    ['qwen/qwen3.5-122b-a10b', 'qwen3-5-122b-a10b', ['text', 'image', 'video']],
-    ['qwen/qwen3.5-27b', 'qwen3-5-27b', ['text', 'image', 'video']],
-    ['qwen/qwen3.5-35b-a3b', 'qwen3-5-35b-a3b', ['text', 'image', 'video']],
-    ['qwen/qwen3.5-35b-a3b(free)', 'qwen3-5-35b-a3b', ['text', 'image']],
-    ['qwen/qwen3.5-397b-a17b', 'qwen3-5-397b-a17b', ['text', 'image', 'video']],
-    ['qwen/qwen3.5-4b(free)', 'qwen3-5-4b', ['text', 'image']],
-    ['qwen/qwen3.5-9b(free)', 'qwen3-5-9b', ['text', 'image']]
-  ] as const
-
-  it.each(unsupportedAudioModels)(
-    'resolves %s without unsupported media',
-    (apiModelId, presetModelId, inputModalities) => {
-      const override = registryLoader.findOverride('duskin', apiModelId)
-      expect(override).not.toBeNull()
-
-      const presetModel = registryLoader.findModel(override!.modelId)
-      expect(presetModel?.id).toBe(presetModelId)
-
-      const model = mergePresetModel(presetModel!, override, 'duskin')
-      expect(model.apiModelId).toBe(apiModelId)
-      expect(model.capabilities).not.toContain('audio-recognition')
-      expect(model.inputModalities).toEqual(inputModalities)
-      expect(model.inputModalities).not.toContain('audio')
-
-      if (!inputModalities.some((modality) => modality === 'video')) {
-        expect(model.capabilities).not.toContain('video-recognition')
-      }
-    }
-  )
-
-  it('preserves Qwen Omni audio support', () => {
-    expect(registryLoader.findOverride('duskin', 'qwen3-omni-flash')).toBeNull()
-
-    const presetModel = registryLoader.findModel('qwen3-omni-flash')
-    expect(presetModel?.capabilities).toContain('audio-recognition')
-    expect(presetModel?.inputModalities).toContain('audio')
   })
 })
 

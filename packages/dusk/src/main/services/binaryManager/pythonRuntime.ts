@@ -5,7 +5,6 @@ import { promisify } from 'node:util'
 
 import { application } from '@application'
 import { loggerService } from '@logger'
-import { regionService } from '@main/services/RegionService'
 import { isPathWithin } from '@main/utils/binaryEnv'
 import { getBinaryName } from '@main/utils/binaryResolver'
 import fs from 'fs'
@@ -25,12 +24,8 @@ import { sanitizedCommandError } from './commandError'
 const logger = loggerService.withContext('pythonRuntime')
 
 const DEFAULT_VERSION = '3.12.13'
-const MIRROR_TIMEOUT_MS = 5 * 60_000
-const OFFICIAL_TIMEOUT_MS = 10 * 60_000
+const TIMEOUT_MS = 10 * 60_000
 const FIND_TIMEOUT_MS = 120_000
-// uv appends `/{build-tag}/{archive}` and verifies the result against its
-// built-in catalog's checksums, so any host mirroring that layout is safe.
-const CHINA_PYTHON_MIRROR = 'https://registry.npmmirror.com/-/binary/python-build-standalone'
 
 const execFileAsync = promisify(execFile)
 
@@ -83,11 +78,10 @@ async function findInstalled(version: string, env: Record<string, string>): Prom
 
 /**
  * Absolute path to a Dusk-managed interpreter for `requestedVersion` (a bare
- * version such as `3.12`, not a mise spec), installing one if needed. In China
- * the npmmirror mirror is tried first, then the official source.
+ * version such as `3.12`, not a mise spec), installing one if needed.
  *
  * @param baseEnv the isolated environment the uv subprocess should inherit
- * @throws if every source fails, carrying each source's error
+ * @throws if the install fails, carrying the error
  */
 export async function provideManagedPython(requestedVersion: string, baseEnv: Record<string, string>): Promise<string> {
   const version = semverValid(requestedVersion) ?? (requestedVersion === '3.12' ? DEFAULT_VERSION : requestedVersion)
@@ -116,24 +110,13 @@ export async function provideManagedPython(requestedVersion: string, baseEnv: Re
     '--managed-python',
     '--no-config'
   ]
-  const inChina = await regionService.isInChina().catch(() => false)
   const failures: string[] = []
 
-  if (inChina) {
-    try {
-      await runUv(installArgs, { ...env, UV_PYTHON_INSTALL_MIRROR: CHINA_PYTHON_MIRROR }, MIRROR_TIMEOUT_MS)
-    } catch (error) {
-      failures.push(`npmmirror: ${sanitizedCommandError(error)}`)
-    }
-  }
-
-  if (!inChina || failures.length > 0) {
-    try {
-      await runUv(installArgs, env, OFFICIAL_TIMEOUT_MS)
-    } catch (error) {
-      failures.push(`official: ${sanitizedCommandError(error)}`)
-      throw new Error(`Failed to install Python ${version}\n${failures.join('\n')}`)
-    }
+  try {
+    await runUv(installArgs, env, TIMEOUT_MS)
+  } catch (error) {
+    failures.push(`official: ${sanitizedCommandError(error)}`)
+    throw new Error(`Failed to install Python ${version}\n${failures.join('\n')}`)
   }
 
   const installed = await findInstalled(version, env)

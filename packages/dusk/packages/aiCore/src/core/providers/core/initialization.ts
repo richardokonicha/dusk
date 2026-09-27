@@ -267,7 +267,7 @@ type CoreExtensions = readonly [
   typeof XaiExtension,
   typeof DeepSeekExtension,
   typeof OpenRouterExtension,
-  typeof OpenAICompatibleExtension,
+  typeof OpenAICompatibleExtension
 ]
 
 export const coreExtensions: CoreExtensions = [
@@ -278,7 +278,7 @@ export const coreExtensions: CoreExtensions = [
   XaiExtension,
   DeepSeekExtension,
   OpenRouterExtension,
-  OpenAICompatibleExtension,
+  OpenAICompatibleExtension
 ]
 
 /**

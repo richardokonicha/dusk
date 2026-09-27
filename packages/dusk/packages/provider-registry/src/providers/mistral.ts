@@ -3,7 +3,6 @@ import { defineProvider } from './types'
 export default defineProvider({
   id: 'mistral',
   name: 'Mistral',
-  availableInEditions: ['global'],
   defaultChatEndpoint: 'openai-chat-completions',
   endpointConfigs: {
     'openai-chat-completions': {

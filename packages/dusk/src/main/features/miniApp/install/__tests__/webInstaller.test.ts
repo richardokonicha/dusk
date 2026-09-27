@@ -16,15 +16,12 @@ import type * as InstallerModule from '../installer'
 const fetchManifest = vi.fn()
 const fetchPackage = vi.fn()
 const fetchIcon = vi.fn()
-// `mirrorOrder` too: leaving it out makes it `undefined` at call time and every case
-// here dies. Region order belongs to httpSource's own test; here it just has to exist.
 // The pure helpers (`assertHttps`) stay real; only the three network calls are replaced.
 vi.mock('../httpSource', async (importOriginal) => ({
   ...(await importOriginal<typeof HttpSourceModule>()),
   fetchManifest,
   fetchPackage,
-  fetchIcon,
-  mirrorOrder: async (url: string, urlCn?: string) => (urlCn ? [url, urlCn] : [url])
+  fetchIcon
 }))
 vi.mock('@main/services/entityLogo', () => ({ setInstalledMiniAppLogo: vi.fn().mockResolvedValue(undefined) }))
 // The consent card's icon goes through the real transcoder; here the bytes just have to come back.
@@ -104,8 +101,6 @@ const { pendingDeclaredAdditions } = await import('../../grants')
 const APP_ID = 'com.example.mygame'
 const ORIGIN = 'https://example.com'
 const MANIFEST_URL = `${ORIGIN}/mygame/manifest.json`
-const ORIGIN_CN = 'https://cdn.example.cn'
-const MANIFEST_URL_CN = `${ORIGIN_CN}/mygame/manifest.json`
 
 /** What the mocked extractor materializes — set by each test's `remote(...)`. */
 let packagedManifest: Record<string, unknown>
@@ -138,12 +133,9 @@ const remote = (over: Record<string, unknown> = {}) => {
     // Present as the real (schema-parsed) `fetchManifest` result always has it.
     optionalPermissions: [],
     network: [],
-    // BOTH endpoints, in both blocks: the schema and the `mai_source_consistency` CHECK
-    // have required them since the dual-source gate landed.
-    update: { url: MANIFEST_URL, urlCn: MANIFEST_URL_CN },
+    update: { url: MANIFEST_URL },
     package: {
       url: `${ORIGIN}/mygame/1.1.0.miniapp`,
-      urlCn: `${ORIGIN_CN}/mygame/1.1.0.miniapp`,
       sha256: 'a'.repeat(64),
       size: 1024
     },
@@ -220,8 +212,6 @@ describe('web install and update', () => {
       icon?: { path: string; sha256: string }
       /** Lets a case seed a row whose stored endpoint is off-origin. */
       manifestUpdateUrl?: string
-      /** Defaults to `manifestUpdateUrl` — the pair is required, never one alone. */
-      manifestUpdateUrlCn?: string
       /** `'file'` and `'builtin'` drop the three url-only columns, as the CHECK requires. */
       source?: 'file' | 'url'
       /** What v1 declared. Defaults to the two leaves every case's grants are seeded from. */
@@ -248,7 +238,7 @@ describe('web install and update', () => {
         contentHash: 'sha256:old',
         ...(over.source === 'file'
           ? { source: 'file' as const, sourceUrl: null, sourceOrigin: null }
-          : { source: 'url' as const, sourceUrl: MANIFEST_URL, sourceOrigin: ORIGIN, sourceOriginCn: ORIGIN_CN }),
+          : { source: 'url' as const, sourceUrl: MANIFEST_URL, sourceOrigin: ORIGIN }),
         manifestJson: {
           id: APP_ID,
           name: 'My Game',
@@ -259,9 +249,7 @@ describe('web install and update', () => {
           optionalPermissions: [],
           network: [],
           ...(over.icon ? { icon: over.icon } : {}),
-          ...(over.manifestUpdateUrl
-            ? { update: { url: over.manifestUpdateUrl, urlCn: over.manifestUpdateUrlCn ?? over.manifestUpdateUrl } }
-            : {})
+          ...(over.manifestUpdateUrl ? { update: { url: over.manifestUpdateUrl } } : {})
         },
         consentedDeclaredJson: over.consentedDeclaredJson ?? ['storage.get', 'storage.set']
       })
@@ -336,9 +324,7 @@ describe('web install and update', () => {
 
   it('refuses a manifest served from a different origin', async () => {
     await seedInstalled()
-    fetchManifest.mockResolvedValue(
-      remote({ update: { url: 'https://attacker.io/m.json', urlCn: 'https://attacker.cn/m.json' } })
-    )
+    fetchManifest.mockResolvedValue(remote({ update: { url: 'https://attacker.io/m.json' } }))
     await expect(checkForUpdate(APP_ID)).rejects.toThrow(/origin/i)
   })
 
@@ -432,12 +418,12 @@ describe('web install and update', () => {
     await applyUpdate(APP_ID, { updateToken: checked.updateToken! })
 
     expect(fetchPackage).toHaveBeenCalledWith(
-      expect.arrayContaining([`${ORIGIN}/mygame/1.1.0.miniapp`, `${ORIGIN_CN}/mygame/1.1.0.miniapp`]),
-      expect.objectContaining({
+      [`${ORIGIN}/mygame/1.1.0.miniapp`],
+      {
         sha256: 'a'.repeat(64),
         size: 1024,
-        origins: expect.arrayContaining([ORIGIN, ORIGIN_CN])
-      }),
+        origins: [ORIGIN]
+      },
       expect.any(Function)
     )
   })
@@ -474,9 +460,7 @@ describe('web install and update', () => {
     expect(grantsOf()).toEqual(['storage.set'])
   })
 
-  it('installs from a manifest with no accelerator and pins a single origin', async () => {
-    // `urlCn` is optional for third-party authors. The row then holds one origin, and the
-    // CHECK that used to demand a China origin for every url install must let it through.
+  it('pins the single declared origin at install', async () => {
     fetchManifest.mockResolvedValue(
       remote({
         update: { url: MANIFEST_URL },
@@ -489,7 +473,7 @@ describe('web install and update', () => {
     await confirmPendingInstall(preview.installToken, 'win-1')
 
     const [row] = dbh.db.select().from(miniAppInstallationTable).all()
-    expect(row).toMatchObject({ source: 'url', sourceOrigin: ORIGIN, sourceOriginCn: null })
+    expect(row).toMatchObject({ source: 'url', sourceUrl: MANIFEST_URL, sourceOrigin: ORIGIN })
   })
 
   it('cleans up the download when staging cannot even be created', async () => {
@@ -613,7 +597,7 @@ describe('web install and update', () => {
     const checked = await checkForUpdate(APP_ID)
     packagedManifest = {
       ...remote({ version: '1.1.0' }),
-      update: { url: 'https://evil.com/m.json', urlCn: 'https://evil.cn/m.json' }
+      update: { url: 'https://evil.com/m.json' }
     }
     fetchPackage.mockResolvedValue(downloadedFixture())
 
@@ -638,17 +622,15 @@ describe('web install and update', () => {
     // stored `sourceUrl` they collapse into one and the bug is invisible.
     const V1_ENDPOINT = `${ORIGIN}/mygame/manifest.json`
     const V2_ENDPOINT = `${ORIGIN}/mygame/v2/manifest.json`
-    const V1_ENDPOINT_CN = `${ORIGIN_CN}/mygame/v1/manifest.json`
-    const V2_ENDPOINT_CN = `${ORIGIN_CN}/mygame/v2/manifest.json`
     const INSTALL_URL = `${ORIGIN}/mygame/install-once.json`
 
-    fetchManifest.mockResolvedValue(remote({ version: '1.0.0', update: { url: V1_ENDPOINT, urlCn: V1_ENDPOINT_CN } }))
+    fetchManifest.mockResolvedValue(remote({ version: '1.0.0', update: { url: V1_ENDPOINT } }))
     const preview = await previewUrlForInstall(INSTALL_URL, 'win-1')
     fetchPackage.mockResolvedValue(downloadedFixture())
     await confirmPendingInstall(preview.installToken, 'win-1')
 
     fetchManifest.mockClear()
-    fetchManifest.mockResolvedValue(remote({ version: '1.1.0', update: { url: V2_ENDPOINT, urlCn: V2_ENDPOINT_CN } }))
+    fetchManifest.mockResolvedValue(remote({ version: '1.1.0', update: { url: V2_ENDPOINT } }))
     const checked = await checkForUpdate(APP_ID)
     expect(fetchManifest).toHaveBeenCalledWith(expect.arrayContaining([V1_ENDPOINT]))
 
@@ -672,7 +654,6 @@ describe('web install and update', () => {
       remote({
         package: {
           url: 'https://attacker.io/p.miniapp',
-          urlCn: 'https://attacker.cn/p.miniapp',
           sha256: 'a'.repeat(64),
           size: 1024
         }
@@ -744,9 +725,7 @@ describe('web install and update', () => {
 
   it('refuses a manifest that points its own updates at another origin', async () => {
     // Otherwise the pin is set to a value the very first update escapes.
-    fetchManifest.mockResolvedValue(
-      remote({ version: '1.0.0', update: { url: 'https://attacker.io/m.json', urlCn: 'https://attacker.cn/m.json' } })
-    )
+    fetchManifest.mockResolvedValue(remote({ version: '1.0.0', update: { url: 'https://attacker.io/m.json' } }))
 
     await expect(previewMiniAppUrl(MANIFEST_URL)).rejects.toThrow(/origin/i)
     expect(dbh.db.select().from(miniAppInstallationTable).all()).toHaveLength(0)
@@ -1114,13 +1093,11 @@ describe('web install and update', () => {
     await expect(checkForUpdate(APP_ID)).resolves.toEqual({ status: 'current' })
   })
 
-  it('refuses an update that changes the pinned origins', async () => {
-    // Adding a mirror is as much a supply-chain move as replacing one: whoever controls
-    // the endpoint could otherwise walk the app onto a host the user never approved.
+  it('refuses an update that changes the pinned origin', async () => {
+    // Moving the endpoint to another host is a supply-chain move: whoever controls the
+    // pinned origin could otherwise walk the app onto a host the user never approved.
     await seedInstalled()
-    fetchManifest.mockResolvedValue(
-      remote({ version: '1.1.0', update: { url: MANIFEST_URL, urlCn: 'https://evil.cn/m.json' } })
-    )
+    fetchManifest.mockResolvedValue(remote({ version: '1.1.0', update: { url: 'https://evil.com/m.json' } }))
 
     await expect(checkForUpdate(APP_ID)).rejects.toThrow(/origins changed/i)
   })
@@ -1309,8 +1286,7 @@ describe('web install and update', () => {
         version: '1.1.0',
         source: 'url',
         sourceUrl: MANIFEST_URL,
-        sourceOrigin: ORIGIN,
-        sourceOriginCn: ORIGIN_CN
+        sourceOrigin: ORIGIN
       })
       await expect(checkForUpdate(APP_ID)).resolves.toMatchObject({ status: 'current' })
     })

@@ -57,7 +57,6 @@ const bedrockEffortModels = new Set([
 export default defineProvider({
   id: 'aws-bedrock',
   name: 'AWS Bedrock',
-  availableInEditions: ['global'],
   defaultChatEndpoint: 'anthropic-messages',
   endpointConfigs: {
     'anthropic-messages': {

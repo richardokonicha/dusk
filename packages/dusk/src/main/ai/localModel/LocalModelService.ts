@@ -12,7 +12,7 @@ import { LOCAL_MODEL_STATUS_CACHE_KEY } from '@shared/data/presets/localModel'
 import { capabilityHooksFor } from './capabilities/capabilityHooks'
 import { ALL_MODEL_BUNDLE_IDS, bundleForCapability, getModelBundle } from './catalog/catalog'
 import type { SharedArtifactId } from './catalog/types'
-import { BundleInstaller, type ResolveDownloadSourcePreference } from './installation/BundleInstaller'
+import { BundleInstaller } from './installation/BundleInstaller'
 import { localModelStorageService } from './installation/LocalModelStorageService'
 import { isLocalInferenceHardwareAccelerationSupported } from './runtime/inferenceAcceleration'
 
@@ -60,11 +60,8 @@ export class LocalModelService extends BaseService {
     return snapshot.errorCode ? { status: snapshot.status, errorCode: snapshot.errorCode } : { status: snapshot.status }
   }
 
-  download(
-    id: LocalModelBundleId,
-    resolvePreference: ResolveDownloadSourcePreference
-  ): Promise<LocalModelDownloadResult> {
-    return this.installerFor(id).download(resolvePreference)
+  download(id: LocalModelBundleId): Promise<LocalModelDownloadResult> {
+    return this.installerFor(id).download()
   }
 
   async cancel(id: LocalModelBundleId): Promise<void> {

@@ -6,7 +6,6 @@ const webSearchImageModels = ['gemini-3-pro-image', 'gemini-3-pro-image-preview'
 export default defineProvider({
   id: 'gemini',
   name: 'Gemini',
-  availableInEditions: ['global'],
   defaultChatEndpoint: 'google-generate-content',
   endpointConfigs: {
     'google-generate-content': {

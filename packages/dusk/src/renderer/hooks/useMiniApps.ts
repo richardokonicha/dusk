@@ -1,22 +1,18 @@
 import { dataApiService } from '@data/DataApiService'
 import { useCache } from '@data/hooks/useCache'
 import { useDataChange, useInvalidateCache, useMutation, useQuery } from '@data/hooks/useDataApi'
-import { usePreference } from '@data/hooks/usePreference'
 import { useReorder } from '@data/hooks/useReorder'
 import { loggerService } from '@logger'
 import { computeMinimalMoves } from '@renderer/data/utils/reorder'
 import { useOptionalTabsContext } from '@renderer/hooks/tab'
 import { useSidebarFavorites } from '@renderer/hooks/useSidebarFavorites'
 import i18n from '@renderer/i18n/resolver'
-import { ipcApi } from '@renderer/ipc'
-import { getAppEdition } from '@renderer/utils/appEdition'
 import { clearWebviewState, setWebviewLoaded } from '@renderer/utils/webviewStateManager'
 import { DataApiErrorFactory, isDataApiError, toDataApiError } from '@shared/data/api/errors'
 import type { CreateMiniAppDto, UpdateMiniAppDto } from '@shared/data/api/schemas/miniApps'
-import type { MiniApp, MiniAppRegion, MiniAppStatus } from '@shared/data/types/miniApp'
-import type { AppEdition } from '@shared/types/appEdition'
+import type { MiniApp, MiniAppStatus } from '@shared/data/types/miniApp'
 import { resolveLocalizedText } from '@shared/types/miniAppManifest'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 /**
@@ -25,34 +21,9 @@ import { useTranslation } from 'react-i18next'
  * PRINCIPLE: Catalog filtering is a VIEW concern, not a DATA concern.
  *
  * - DataApi stores ALL apps (including hidden catalog entries) to preserve user preferences
- * - PRESETS_MINI_APPS is the preset data source containing region definitions
- * - This hook applies region and edition filtering only when reading for UI display
+ * - PRESETS_MINI_APPS is the preset data source
  * - Mutations target individual apps by appId, never touching hidden apps
  */
-
-/**
- * Check if app should be visible for the given region.
- *
- * Region-based visibility rules:
- * 1. CN users see everything.
- * 2. Global users see presets that support Global. Presets without a region
- *    declaration retain the legacy CN-only default.
- * 3. User-added sites and installed local apps remain visible everywhere.
- */
-const isVisibleForRegion = (app: MiniApp, region: MiniAppRegion): boolean => {
-  if (app.kind === 'app') return true
-  if (region === 'CN') return true
-
-  if (!app.supportedRegions || app.supportedRegions.length === 0) {
-    return app.presetMiniAppId === null
-  }
-  return app.supportedRegions.includes('Global')
-}
-
-const isVisibleForEdition = (app: MiniApp, appEdition: AppEdition): boolean => {
-  if (appEdition === 'global' || app.kind === 'app' || app.presetMiniAppId === null) return true
-  return !app.supportedRegions?.length || app.supportedRegions.includes('CN')
-}
 
 function isVisibleStatus(status: MiniAppStatus): boolean {
   return status === 'enabled' || status === 'pinned'
@@ -60,52 +31,6 @@ function isVisibleStatus(status: MiniAppStatus): boolean {
 
 function compareOrderKey(a: MiniApp, b: MiniApp): number {
   return a.orderKey < b.orderKey ? -1 : a.orderKey > b.orderKey ? 1 : 0
-}
-
-// Filter apps by region
-const filterByRegion = (apps: MiniApp[], region: MiniAppRegion): MiniApp[] => {
-  return apps.filter((app) => isVisibleForRegion(app, region))
-}
-
-const filterByEdition = (apps: MiniApp[], appEdition: AppEdition): MiniApp[] => {
-  return apps.filter((app) => isVisibleForEdition(app, appEdition))
-}
-
-// Module-level promise to ensure only one IP detection request is made
-let regionDetectionPromise: Promise<MiniAppRegion> | null = null
-
-/**
- * @only_for_testing - Reset module-level region detection state between tests
- */
-export const __resetRegionDetectionForTesting = () => {
-  regionDetectionPromise = null
-}
-
-// Detect user region via IPC call to main process (cached at module level)
-const detectUserRegion = async (): Promise<MiniAppRegion> => {
-  // Return existing promise if detection is already in progress
-  if (regionDetectionPromise) {
-    return regionDetectionPromise
-  }
-
-  regionDetectionPromise = (async () => {
-    try {
-      const country = await ipcApi.request('system.get_ip_country')
-      return country.toUpperCase() === 'CN' ? 'CN' : 'Global'
-    } catch (err) {
-      // Default to CN so mainland China users — the primary audience — never
-      // silently lose access to region-restricted apps they expect.
-      const error = err as Error
-      loggerService.withContext('detectUserRegion').error('Region detection failed, falling back to CN', {
-        error: error.message,
-        stack: error.stack,
-        fallback: 'CN'
-      })
-      return 'CN'
-    }
-  })()
-
-  return regionDetectionPromise
 }
 
 /**
@@ -156,7 +81,6 @@ async function settleAndInvalidate(
 
 export const useMiniApps = (options: { enabled?: boolean } = {}) => {
   const queryEnabled = options.enabled ?? true
-  const appEdition = getAppEdition()
   const { data, isLoading, error, mutate: refetch } = useQuery('/mini-apps', { enabled: queryEnabled })
   const { i18n: i18nInstance } = useTranslation()
   const language = i18nInstance.language
@@ -185,56 +109,15 @@ export const useMiniApps = (options: { enabled?: boolean } = {}) => {
     return { allApps: all, enabled: ena, disabled: dis, pinned: pin }
   }, [rawApps])
 
-  // === Region (Preference + Cache) ===
-  const [miniAppRegionSetting] = usePreference('feature.mini_app.region')
-  const [detectedRegion, setDetectedRegion] = useCache('mini_app.detected_region')
-
-  const effectiveRegion: MiniAppRegion =
-    appEdition === 'cn'
-      ? 'CN'
-      : miniAppRegionSetting === 'auto'
-        ? (detectedRegion ?? 'CN')
-        : miniAppRegionSetting === 'CN' || miniAppRegionSetting === 'Global'
-          ? miniAppRegionSetting
-          : 'CN'
-
-  // Auto-detect region once per session
-  useEffect(() => {
-    if (appEdition === 'cn' || !queryEnabled || miniAppRegionSetting !== 'auto' || detectedRegion) return
-    let cancelled = false
-    detectUserRegion()
-      .then((region) => {
-        if (!cancelled) setDetectedRegion(region)
-      })
-      .catch((err) => {
-        const error = err as Error
-        loggerService.withContext('useMiniApps').error('Region detection failed in effect, falling back to CN', {
-          error: error.message,
-          stack: error.stack,
-          fallback: 'CN'
-        })
-        if (!cancelled) setDetectedRegion('CN')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [appEdition, detectedRegion, miniAppRegionSetting, queryEnabled, setDetectedRegion])
-
-  // === Region-filtered views ===
+  // === Filtered views ===
   // Include pinned apps so they remain visible in the grid when pinned to launchpad/sidebar
   // Sort by orderKey to maintain consistent visible positions regardless of status
   const miniApps = useMemo(() => {
     const visibleApps = [...enabled, ...pinned]
-    const regionFiltered = filterByRegion(visibleApps, effectiveRegion)
-    const editionFiltered = filterByEdition(regionFiltered, appEdition)
-    return editionFiltered.sort((a, b) => (a.orderKey < b.orderKey ? -1 : a.orderKey > b.orderKey ? 1 : 0))
-  }, [appEdition, enabled, effectiveRegion, pinned])
-  const disabledApps = useMemo(
-    () => filterByEdition(filterByRegion(disabled, effectiveRegion), appEdition),
-    [appEdition, disabled, effectiveRegion]
-  )
-  // Global keeps pinned apps across region choices; CN still enforces its edition catalog.
-  const pinnedApps = useMemo(() => filterByEdition(pinned, appEdition), [appEdition, pinned])
+    return visibleApps.sort((a, b) => (a.orderKey < b.orderKey ? -1 : a.orderKey > b.orderKey ? 1 : 0))
+  }, [enabled, pinned])
+  const disabledApps = disabled
+  const pinnedApps = pinned
 
   // === UI State Cache (unchanged) ===
   const [openedKeepAliveMiniApps, setOpenedKeepAliveMiniApps] = useCache('mini_app.opened_keep_alive')

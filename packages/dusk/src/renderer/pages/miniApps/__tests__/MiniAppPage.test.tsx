@@ -21,8 +21,7 @@ const stubApp = (overrides: Partial<SiteMiniApp> & Pick<SiteMiniApp, 'appId' | '
   url: overrides.url,
   logo: overrides.logo ?? `${overrides.appId}-logo`,
   bordered: overrides.bordered,
-  background: overrides.background,
-  supportedRegions: overrides.supportedRegions
+  background: overrides.background
 })
 
 const mocks = vi.hoisted(() => ({

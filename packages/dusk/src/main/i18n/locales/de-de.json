@@ -1,5 +1,5 @@
 {
-  "agent.builtin.dusk_assistant.description": "Integrierter Dusk-Studio-Berater. Diagnostiziert Probleme, gibt Bedienungshinweise, sammelt häufige Fragen, übermittelt Fehler und Funktionswünsche und sucht oder erstellt Fähigkeiten",
+  "agent.builtin.dusk_assistant.description": "Integrierter Dusk-Berater. Diagnostiziert Probleme, gibt Bedienungshinweise, sammelt häufige Fragen, übermittelt Fehler und Funktionswünsche und sucht oder erstellt Fähigkeiten",
   "agent.builtin.dusk_support.description": "Offizieller Dusk Support-Agent für Einrichtung, Fehlerbehebung, FAQs und Feedback",
   "agent.session.new": "Neue Aufgabe",
   "agent.session.run_status.busy": "Die Agent-Sitzung ist beschäftigt. Bitte versuchen Sie es in Kürze erneut.",
@@ -16,7 +16,7 @@
   "apiGateway.docs.operations.get_mcp_server": "Details eines MCP-Servers und seine Tool-Liste abrufen.",
   "apiGateway.docs.operations.health": "Dienststatus, aktuelle Zeit und Version. Keine Authentifizierung erforderlich.",
   "apiGateway.docs.operations.info": "Name und Version der API sowie die wichtigsten Endpunkte. Keine Authentifizierung erforderlich.",
-  "apiGateway.docs.operations.list_knowledge_bases": "Listet die in dieser Dusk-Studio-Instanz verfügbaren Wissensdatenbanken auf.",
+  "apiGateway.docs.operations.list_knowledge_bases": "Listet die in dieser Dusk-Instanz verfügbaren Wissensdatenbanken auf.",
   "apiGateway.docs.operations.list_mcp_servers": "Die in Dusk aktivierten MCP-Server mit der jeweiligen Verbindungs-URL auflisten.",
   "apiGateway.docs.operations.list_models": "Listet die über dieses Gateway verfügbaren Modelle im OpenAI-Models-Format auf.",
   "apiGateway.docs.operations.mcp_proxy": "Model-Context-Protocol-Endpunkt für einen MCP-Server (Streamable HTTP). Verwenden Sie diese URL in einem beliebigen MCP-Client, um den Server über Dusk zu nutzen.",

@@ -108,16 +108,12 @@ export interface Registry {
 }
 
 export const NpmRegistry: Registry[] = [
-  { nameKey: 'settings.mcp.registryOptions.npmTaobao', url: 'https://registry.npmmirror.com' },
+  { nameKey: 'settings.mcp.registryOptions.npmOfficial', url: 'https://registry.npmjs.org' },
   { nameKey: 'settings.mcp.registryOptions.custom', url: 'custom' }
 ]
 
 export const PipRegistry: Registry[] = [
-  { nameKey: 'settings.mcp.registryOptions.pipTsinghua', url: 'https://pypi.tuna.tsinghua.edu.cn/simple' },
-  { nameKey: 'settings.mcp.registryOptions.pipAliyun', url: 'http://mirrors.aliyun.com/pypi/simple/' },
-  { nameKey: 'settings.mcp.registryOptions.pipUstc', url: 'https://mirrors.ustc.edu.cn/pypi/simple/' },
-  { nameKey: 'settings.mcp.registryOptions.pipHuawei', url: 'https://repo.huaweicloud.com/repository/pypi/simple/' },
-  { nameKey: 'settings.mcp.registryOptions.pipTencent', url: 'https://mirrors.cloud.tencent.com/pypi/simple/' }
+  { nameKey: 'settings.mcp.registryOptions.pypiOfficial', url: 'https://pypi.org/simple' }
 ]
 
 export const registryForCommand = (command: string): Registry[] | undefined => {
