@@ -180,5 +180,5 @@ artifactBuildCompleted: scripts/artifact-build-completed.js
 releaseInfo:
   releaseNotes: |
     <!--LANG:en-->
-    Dusk 0.1.0 — Work OS for AI. Forked from Dusk.
+    Dusk 0.1.0-alpha.1 — first public alpha of the Dusk Work OS for AI.
     <!--LANG:END-->

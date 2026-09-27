@@ -1,8 +1,8 @@
 {
   "name": "dusk",
-  "version": "2.0.12",
+  "version": "0.1.0-alpha.1",
   "private": true,
-  "description": "A powerful AI assistant for producer.",
+  "description": "Work OS for AI — a desktop workspace for agents, chats, files, and knowledge.",
   "desktopName": "Dusk.desktop",
   "main": "./out/main/main.js",
   "author": "Dusk Team <hello@dusk.app>",
