@@ -1,496 +1,136 @@
 # Dusk — DevOps & Release Engineering
 
-## 1. CI/CD Pipeline Architecture
+This document describes the release engineering setup that actually exists after the
+alpha-readiness sweep. It covers the two GitHub Actions workflows, the
+`electron-builder` configuration, and the pre-release validation flow.
 
-### 1.1 Pipeline Overview
+## 1. CI Pipeline
+
+### 1.1 `.github/workflows/ci.yml`
+
+Triggers on push to `main` and on pull requests targeting `main`. Two jobs, both on
+`ubuntu-latest`. Installs **must** run inside `packages/dusk` — the
+`patchedDependencies` and workspace overrides live in
+`packages/dusk/pnpm-workspace.yaml`, so every install step uses
+`defaults.run.working-directory: packages/dusk`.
+
+| Job | Steps |
+| --- | --- |
+| `lint-and-build` | checkout → setup pnpm → setup Node 24.15 → `pnpm install --frozen-lockfile` → `pnpm lint` → `pnpm build` |
+| `test` | checkout → setup pnpm → setup Node 24.15 → `pnpm install --frozen-lockfile` → `pnpm test` (timeout 45 min) |
+
+`pnpm lint` is the gate that runs in CI — it covers format + oxlint + eslint +
+typecheck + i18n:check. `pnpm test:lint` (oxlint `--deny-warnings`) is **not** used
+in CI because it fails on 47 pre-existing warnings.
+
+### 1.2 Pipeline overview
 
 ```
 GitHub Event (push/PR/tag)
     │
     ▼
-┌─────────────────┐
-│  Lint & Format  │  biome check, prettier
-└────────┬────────┘
-    │
-    ▼
-┌─────────────────┐
-│  Type Check     │  TypeScript strict mode
-└────────┬────────┘
-    │
-    ▼
-┌─────────────────┐
-│  Unit Tests     │  vitest (packages/*)
-└────────┬────────┘
-    │
-    ▼
-┌─────────────────┐
-│  Build          │  vite build (renderer), tsc (desktop)
-└────────┬────────┘
-    │
-    ▼
-┌─────────────────┐
-│  E2E Tests      │  Playwright (optional for PRs)
-└────────┬────────┘
-    │
-    ▼
-┌─────────────────┐
-│  Package        │  electron-builder (mac/win/linux)
-└────────┬────────┘
-    │
-    ▼
-┌─────────────────┐
-│  Release        │  GitHub Release (on tag)
-└─────────────────┘
+┌──────────────┐
+│  pnpm lint   │  oxlint + eslint + typecheck + i18n:check + format
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│  pnpm build  │  electron-vite build
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│  pnpm test   │  vitest (all projects)
+└──────────────┘
 ```
 
-### 1.2 GitHub Actions Workflows
+## 2. Release Pipeline
 
-**`.github/workflows/ci.yml`**
+### 2.1 `.github/workflows/release.yml`
 
-```yaml
-name: CI
+Triggers on tags matching `v*`. Matrix of three OS runners; installs run inside
+`packages/dusk`. Per-OS build scripts (read from `packages/dusk/package.json`):
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+| Runner | Script | Signing secrets referenced |
+| --- | --- | --- |
+| `macos-14` (arm64) | `pnpm build:mac` | `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`, `CSC_LINK`, `CSC_KEY_PASSWORD` |
+| `windows-latest` | `pnpm build:win` | `WIN_SIGN`, `DUSK_CERT_PATH`, `DUSK_CERT_KEY`, `DUSK_CERT_CSP`, `WIN_SIGN_TIMESTAMP_URLS`, `CSC_LINK`, `CSC_KEY_PASSWORD` |
+| `ubuntu-latest` | `pnpm build:linux` | (none) |
 
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install
-      - run: pnpm lint
-      - run: pnpm format:check
+Windows signing is driven by `scripts/win-sign.js`, which reads the env vars listed
+above. `WIN_SIGN` must be set to a truthy value for signing to actually run.
 
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install
-      - run: pnpm typecheck
+Artifacts are uploaded from `packages/dusk/out` (the default `electron-builder`
+output directory — `electron-builder.yml` sets `directories.buildResources` but
+does not set `directories.output`).
 
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install
-      - run: pnpm test
+**Publishing:** `electron-builder.yml` currently has no `publish` block (the
+generic provider URL is commented out as a TODO placeholder). The release workflow
+therefore does not publish to GitHub releases; this is tracked as a TODO in the
+workflow file.
 
-  build:
-    runs-on: ubuntu-latest
-    needs: [lint, typecheck, test]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install
-      - run: pnpm build
+### 2.2 `electron-builder.yml`
+
+- `appId`: `com.dusk.app`
+- `productName`: `Dusk`
+- `directories.buildResources`: `build`
+- `directories.output`: not set — defaults to `out` (i.e. `packages/dusk/out`)
+- macOS: dmg + zip targets, hardened runtime, notarization via `scripts/notarize.js`
+- Windows: nsis + portable targets, signed via `scripts/win-sign.js`
+- Linux: AppImage + deb + rpm targets
+- Release notes live under `releaseInfo.releaseNotes` with bilingual
+  `<!--LANG:en-->` / `<!--LANG:zh-CN-->` / `<!--LANG:END-->` markers
+
+## 3. Pre-Release Validation
+
+Before committing a release-prep change (version bump + release notes update), run
+the validator to confirm the change set is exactly what a release is allowed to
+touch:
+
+```bash
+cd packages/dusk
+node scripts/release/validate-prepared-release.js --target-version 0.1.0-alpha.1
 ```
 
-**`.github/workflows/release.yml`**
+The validator checks:
 
-```yaml
-name: Release
+- The changed file set matches the expected set for the release type
+  (`electron-builder.yml`, `package.json`, and for stable releases also
+  `resources/dusk/release-history.json`).
+- `package.json` changes **only** the `version` field.
+- `electron-builder.yml` changes **only** `releaseInfo.releaseNotes`.
+- Release notes contain one ordered set of bilingual markers with non-empty
+  English and Chinese sections.
+- For stable releases, `resources/dusk/release-history.json` starts with the new
+  version and its notes match `electron-builder.yml` exactly.
 
-on:
-  push:
-    tags: ['v*']
+For prereleases (`0.1.0-alpha.1`), the release history file must remain unchanged.
 
-jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-    
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install
-      - run: pnpm build
-      
-      - name: Package (macOS)
-        if: matrix.os == 'macos-latest'
-        run: pnpm package:mac
-        env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-      
-      - name: Package (Windows)
-        if: matrix.os == 'windows-latest'
-        run: pnpm package:win
-        env:
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-      
-      - name: Package (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: pnpm package:linux
-      
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.os }}
-          path: |
-            packages/desktop/dist/*.dmg
-            packages/desktop/dist/*.exe
-            packages/desktop/dist/*.AppImage
-            packages/desktop/dist/*.deb
-            packages/desktop/dist/*.rpm
-```
+## 4. Secrets Management
 
----
+Secrets referenced by the release workflow (configured per-repo under
+Settings → Secrets and variables → Actions):
 
-## 2. Packaging Configuration
-
-### 2.1 electron-builder Configuration
-
-```yaml
-# electron-builder.yml
-appId: com.fugoku.dusk
-productName: Dusk
-copyright: Copyright © 2026 Fugoku
-
-directories:
-  output: packages/desktop/dist
-  buildResources: packages/desktop/build
-
-files:
-  - packages/desktop/dist/**/*
-  - packages/renderer/dist/**/*
-  - node_modules/**/*
-
-mac:
-  category: public.app-category.productivity
-  target:
-    - target: dmg
-      arch: [x64, arm64]
-    - target: pkg
-  notarize: true
-  identity: "Fugoku Inc."
-
-win:
-  target:
-    - target: nsis
-      arch: [x64, ia32]
-    - target: portable
-  publisherName: Fugoku Inc.
-
-linux:
-  target:
-    - target: AppImage
-    - target: deb
-    - target: rpm
-  category: Utility
-
-# Code signing
-# macOS: Use Apple Developer certificate
-# Windows: Use EV code signing certificate
-
-# Auto-update
-publish:
-  provider: github
-  owner: Fugoku
-  repo: dusk
-```
-
-### 2.2 Build Scripts
-
-```json
-{
-  "scripts": {
-    "build": "pnpm --filter desktop build && pnpm --filter renderer build",
-    "build:desktop": "cd packages/desktop && tsc && vite build",
-    "build:renderer": "cd packages/renderer && vite build",
-    "package": "pnpm build && electron-builder",
-    "package:mac": "electron-builder --mac",
-    "package:win": "electron-builder --win",
-    "package:linux": "electron-builder --linux",
-    "package:all": "electron-builder --mac --win --linux"
-  }
-}
-```
-
----
-
-## 3. Release Process
-
-### 3.1 Release Checklist
-
-```markdown
-## Pre-Release
-- [ ] Version bumped in package.json
-- [ ] CHANGELOG.md updated
-- [ ] All tests passing
-- [ ] Manual smoke test passed (mac/win/linux)
-- [ ] Code signed (if required)
-- [ ] Notarized (macOS)
-
-## Release
-- [ ] Create git tag: `git tag -a v0.1.0 -m "Release v0.1.0"`
-- [ ] Push tag: `git push origin v0.1.0`
-- [ ] GitHub Actions builds packages
-- [ ] GitHub Release created with assets
-- [ ] Release notes published
-
-## Post-Release
-- [ ] Update website download links
-- [ ] Announce on social media
-- [ ] Update documentation
-- [ ] Monitor crash reports
-```
-
-### 3.2 Automated Release Notes
-
-```yaml
-# .github/workflows/release.yml (additional step)
-- name: Generate release notes
-  uses: release-drafter/release-drafter@v6
-  with:
-    config-file: .github/release-drafter.yml
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
-
----
-
-## 4. Auto-Update System
-
-### 4.1 electron-updater Configuration
-
-```typescript
-// packages/desktop/src/main/auto-update.ts
-import { autoUpdater } from 'electron-updater';
-import { app } from 'electron';
-
-export class AutoUpdateService {
-  constructor() {
-    autoUpdater.checkForUpdatesAndNotify();
-    
-    autoUpdater.on('update-available', () => {
-      // Notify user via IPC
-      BrowserWindow.getAllWindows().forEach(window => {
-        window.webContents.send('update:available');
-      });
-    });
-    
-    autoUpdater.on('update-downloaded', () => {
-      BrowserWindow.getAllWindows().forEach(window => {
-        window.webContents.send('update:downloaded');
-      });
-    });
-  }
-  
-  async installUpdate() {
-    autoUpdater.quitAndInstall();
-  }
-}
-```
-
-```json
-// package.json
-{
-  "build": {
-    "publish": {
-      "provider": "github",
-      "owner": "Fugoku",
-      "repo": "dusk"
-    }
-  }
-}
-```
-
----
+| Secret | Used for |
+| --- | --- |
+| `APPLE_ID` | macOS notarization |
+| `APPLE_APP_SPECIFIC_PASSWORD` | macOS notarization |
+| `APPLE_TEAM_ID` | macOS notarization |
+| `CSC_LINK` | Code signing certificate (macOS + Windows) |
+| `CSC_KEY_PASSWORD` | Code signing certificate password |
+| `WIN_SIGN` | Enable Windows code signing |
+| `DUSK_CERT_PATH` | Windows signing certificate path |
+| `DUSK_CERT_KEY` | Windows signing key container |
+| `DUSK_CERT_CSP` | Windows signing CSP |
+| `WIN_SIGN_TIMESTAMP_URLS` | Comma-separated timestamp URLs (optional) |
 
 ## 5. Distribution Channels
 
-### 5.1 GitHub Releases
-
-- Primary distribution channel
-- Assets: DMG (mac), EXE (win), AppImage/deb/rpm (linux)
-- Auto-generated release notes from PRs
-
-### 5.2 Package Managers (Phase 2)
-
-```bash
-# Homebrew (macOS/Linux)
-brew install fugoku/tap/dusk
-
-# winget (Windows)
-winget install Fugoku.Dusk
-
-# apt (Debian/Ubuntu)
-# Add repository to apt sources
-
-# snap (Linux)
-snap install dusk
-```
-
-### 5.3 Direct Download
-
-- Website: https://dusk.fugoku.ai/download
-- Links to GitHub releases
-- Checksums for verification
+- **GitHub Releases** — primary distribution channel (currently disabled pending
+  the `publish` configuration in `electron-builder.yml`).
+- Assets: DMG/zip (mac), EXE (win), AppImage/deb/rpm (linux).
 
 ---
 
-## 6. Environment Management
-
-### 6.1 Environment Variables
-
-```bash
-# .env.development
-NODE_ENV=development
-VITE_DEV_SERVER_URL=http://localhost:5173
-ELECTRON_IS_DEV=true
-
-# .env.production
-NODE_ENV=production
-VITE_DEV_SERVER_URL=
-ELECTRON_IS_DEV=false
-```
-
-### 6.2 Secrets Management
-
-```yaml
-# GitHub Secrets (Settings → Secrets)
-APPLE_ID                    # Apple Developer ID
-APPLE_ID_PASSWORD           # App-specific password
-CSC_LINK                    # Code signing certificate (base64)
-CSC_KEY_PASSWORD            # Certificate password
-GITHUB_TOKEN                # For releases
-SENTRY_DSN                  # Crash reporting
-```
-
----
-
-## 7. Monitoring & Observability
-
-### 7.1 Crash Reporting (Sentry)
-
-```typescript
-// packages/desktop/src/main/sentry.ts
-import * as Sentry from '@sentry/electron';
-
-export function initSentry() {
-  Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    environment: process.env.NODE_ENV,
-    release: `dusk@${app.getVersion()}`,
-    
-    // User opt-in
-    beforeSend(event, hint) {
-      if (!getSetting('telemetry.enabled')) {
-        return null;
-      }
-      // Scrub sensitive data
-      if (event.request) {
-        delete event.request.cookies;
-        delete event.request.headers?.authorization;
-      }
-      return event;
-    },
-  });
-}
-```
-
-### 7.2 Error Tracking
-
-```typescript
-// packages/desktop/src/main/error-handler.ts
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught exception:', error);
-  Sentry.captureException(error);
-});
-
-process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled rejection:', reason);
-  Sentry.captureException(reason);
-});
-```
-
-### 7.3 Performance Monitoring
-
-```typescript
-// Track app startup time
-const startupStart = Date.now();
-app.whenReady().then(() => {
-  const startupTime = Date.now() - startupStart;
-  console.log(`App started in ${startupTime}ms`);
-});
-```
-
----
-
-## 8. Developer Experience
-
-### 8.1 Local Development
-
-```bash
-# Terminal 1: Start renderer dev server
-pnpm --filter renderer dev
-
-# Terminal 2: Start Electron
-pnpm --filter desktop dev
-```
-
-### 8.2 Pre-commit Hooks
-
-```yaml
-# .pre-commit-config.yaml
-repos:
-  - repo: local
-    hooks:
-      - id: biome-check
-        name: biome check
-        entry: pnpm biome check --write
-        language: system
-        types: [javascript, typescript, jsx, tsx]
-      - id: typecheck
-        name: typecheck
-        entry: pnpm typecheck
-        language: system
-        types: [javascript, typescript, jsx, tsx]
-```
-
-### 8.3 Conventional Commits
-
-```
-feat: add workspace switcher
-fix: resolve IPC memory leak
-docs: update architecture docs
-refactor: simplify agent runtime
-test: add workspace tests
-chore: update dependencies
-```
-
----
-
-*This DevOps plan is ready for implementation. All pipelines, configs, and processes are defined.*
+*This DevOps plan reflects what exists after the alpha-readiness sweep. It is the
+single source of truth for the CI and release setup.*
