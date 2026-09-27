@@ -70,6 +70,13 @@ vi.mock('@dusk/provider-registry/node', async () => {
       this.cachedProviders = d.providers ?? []
       return this.cachedProviders
     }
+    findProvider(providerId: string) {
+      return this.loadProviders()!.find((p: any) => p.id === providerId) ?? null
+    }
+    getProvidersVersion() {
+      this.loadProviders()
+      return '1.0'
+    }
     loadProviderModels() {
       if (this.cachedProviderModels) return this.cachedProviderModels
       const d = readProviderModelRegistry(this.paths.providerModels)

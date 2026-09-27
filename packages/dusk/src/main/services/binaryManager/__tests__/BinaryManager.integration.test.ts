@@ -187,5 +187,5 @@ if (command === 'use') {
       { name: 'node', tool: 'core:node' }
     ])
     expect(fs.existsSync(path.join(tempDir, 'shims', 'mytool'))).toBe(false)
-  })
+  }, 60_000) // Spawns real processes per assertion; needs headroom under full-suite load.
 })

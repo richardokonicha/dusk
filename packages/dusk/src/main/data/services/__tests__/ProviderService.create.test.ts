@@ -14,6 +14,9 @@ import { describe, expect, it, vi } from 'vitest'
 // whose path is mocked away in the test harness.
 vi.mock('@dusk/provider-registry/node', () => {
   class RegistryLoader {
+    findProvider(providerId: string) {
+      return this.loadProviders().find((p: any) => p.id === providerId) ?? null
+    }
     loadProviders() {
       return [
         {

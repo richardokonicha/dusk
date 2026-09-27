@@ -19,6 +19,9 @@ import { describe, expect, it, vi } from 'vitest'
 // so resolver assertions stay meaningful.
 vi.mock('@dusk/provider-registry/node', () => {
   class RegistryLoader {
+    findProvider(providerId: string) {
+      return this.loadProviders().find((p: any) => p.id === providerId) ?? null
+    }
     loadProviders() {
       return [
         {

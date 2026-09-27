@@ -2173,9 +2173,19 @@ describe('SkillService', () => {
       const destDir = await createTempDir('skill-dest-')
       const zip = new AdmZip()
       zip.addFile('SKILL.md', Buffer.from('---\nname: x\n---\n'))
-      zip.addFile('../../../evil-slip-marker.sh', Buffer.from('pwn'))
+      // adm-zip ≥0.5 sanitizes '../' out of entry names at addFile time, so the
+      // traversal name has to be patched into the finished archive (same length,
+      // both local and central-directory headers) to keep the fixture malicious.
+      zip.addFile('evil-slip-marker.sh', Buffer.from('pwn'))
+      const zipBytes = zip.toBuffer()
+      const cleanName = Buffer.from('evil-slip-marker.sh')
+      const evilName = Buffer.from('../evil-slip-marker')
       const zipPath = path.join(zipDir, 'skill.zip')
-      zip.writeZip(zipPath)
+      let idx = -1
+      while ((idx = zipBytes.indexOf(cleanName, idx + 1)) !== -1) {
+        evilName.copy(zipBytes, idx)
+      }
+      fs.writeFileSync(zipPath, zipBytes)
 
       // node-stream-zip rejects malicious names itself ('Malicious entry') and the
       // explicit guard is defense-in-depth — either layer rejecting satisfies the contract.
