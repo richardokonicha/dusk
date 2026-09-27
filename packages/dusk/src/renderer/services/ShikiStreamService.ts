@@ -9,25 +9,25 @@ import { ShikiStreamTokenizer } from './ShikiStreamTokenizer'
 const logger = loggerService.withContext('ShikiStreamService')
 
 const SERVICE_CONFIG = {
-  // LRU 缓存配置
+  // LRU cache configuration
   TOKENIZER_CACHE: {
-    MAX_SIZE: 100, // 最大缓存数量
-    TTL: 1000 * 60 * 30 // 30 分钟过期时间（毫秒）
+    MAX_SIZE: 100, // Maximum cache entries
+    TTL: 1000 * 60 * 30 // 30 minute expiry (ms)
   },
 
-  // 降级策略配置
+  // Degradation strategy configuration
   DEGRADATION_CACHE: {
-    MAX_SIZE: 500, // 最大记录数量
-    TTL: 1000 * 60 * 60 * 12 // 12 小时自动过期（毫秒）
+    MAX_SIZE: 500, // Maximum records
+    TTL: 1000 * 60 * 60 * 12 // 12 hour auto-expiry (ms)
   },
 
-  // Worker 初始化配置
+  // Worker initialization configuration
   WORKER: {
-    MAX_INIT_RETRY: 2, // 最大初始化重试次数
+    MAX_INIT_RETRY: 2, // Maximum initialization retries
     REQUEST_TIMEOUT: {
-      INIT: 5000, // 初始化操作超时时间（毫秒）
-      HIGHLIGHT: 30000, // 高亮操作超时时间（毫秒）
-      DEFAULT: 10000 // 默认超时时间（毫秒）
+      INIT: 5000, // Initialization timeout (ms)
+      HIGHLIGHT: 30000, // Highlight timeout (ms)
+      DEFAULT: 10000 // Default timeout (ms)
     }
   }
 }
@@ -39,10 +39,10 @@ export type ShikiPreProperties = {
 }
 
 /**
- * 代码 chunk 高亮结果
+ * Code chunk highlight result
  *
- * @param lines 所有高亮行（包括稳定和不稳定）
- * @param recall 需要撤回的行数，-1 表示撤回所有行
+ * @param lines All highlighted lines (including stable and unstable)
+ * @param recall Number of lines to recall, -1 means recall all lines
  */
 export interface HighlightChunkResult {
   lines: ThemedToken[][]
@@ -50,16 +50,16 @@ export interface HighlightChunkResult {
 }
 
 /**
- * Shiki 代码高亮服务
+ * Shiki code highlighting service
  *
- * - 支持流式代码高亮。
- * - 优先使用 Worker 处理高亮请求。
+ * - Supports streaming code highlighting.
+ * - Prefers Worker for highlight requests.
  */
 class ShikiStreamService {
-  // 主线程 highlighter 和 tokenizers
+  // Main thread highlighter and tokenizers
   private highlighter: HighlighterGeneric<any, any> | null = null
 
-  // 保存以 callerId-language-theme 为键的 tokenizer map
+  // Tokenizer map keyed by callerId-language-theme
   private tokenizerCache = new LRUCache<string, ShikiStreamTokenizer>({
     max: SERVICE_CONFIG.TOKENIZER_CACHE.MAX_SIZE,
     ttl: SERVICE_CONFIG.TOKENIZER_CACHE.TTL,
@@ -69,14 +69,14 @@ class ShikiStreamService {
     }
   })
 
-  // 缓存每个 callerId 对应的已处理内容
+  // Cache processed content per callerId
   private codeCache = new LRUCache<string, string>({
     max: SERVICE_CONFIG.TOKENIZER_CACHE.MAX_SIZE,
     ttl: SERVICE_CONFIG.TOKENIZER_CACHE.TTL,
     updateAgeOnGet: true
   })
 
-  // Worker 相关资源
+  // Worker-related resources
   private worker: Worker | null = null
   private workerInitPromise: Promise<void> | null = null
   private workerInitRetryCount: number = 0
@@ -89,32 +89,32 @@ class ShikiStreamService {
   >()
   private requestId = 0
 
-  // 降级策略相关变量，用于记录调用 worker 失败过的 callerId
+  // Degradation strategy variables, tracks callerIds with worker failures
   private workerDegradationCache = new LRUCache<string, boolean>({
     max: SERVICE_CONFIG.DEGRADATION_CACHE.MAX_SIZE,
     ttl: SERVICE_CONFIG.DEGRADATION_CACHE.TTL
   })
 
   constructor() {
-    // 延迟初始化
+    // Lazy initialization
   }
 
   /**
-   * 判断是否正在使用 Worker 高亮。外部不要依赖这个方法来判断。
+   * Check if using Worker highlighting. External code should not rely on this.
    */
   public hasWorkerHighlighter(): boolean {
     return !!this.worker && !this.workerInitPromise
   }
 
   /**
-   * 判断是否正在使用主线程高亮。外部不要依赖这个方法来判断。
+   * Check if using main thread highlighting. External code should not rely on this.
    */
   public hasMainHighlighter(): boolean {
     return !!this.highlighter
   }
 
   /**
-   * 初始化 Worker
+   * Initialize Worker
    */
   private async initWorker(): Promise<void> {
     if (typeof Worker === 'undefined') return
@@ -128,15 +128,15 @@ class ShikiStreamService {
 
     this.workerInitPromise = (async () => {
       try {
-        // 动态导入 worker
+        // Dynamic worker import
         const WorkerModule = await import('../workers/shikiStream.worker?worker')
         this.worker = new WorkerModule.default()
 
-        // 设置消息处理器
+        // Set message handler
         this.worker.onmessage = (event) => {
           const { id, type, result, error } = event.data
 
-          // 查找对应的请求
+          // Find corresponding request
           const pendingRequest = this.pendingRequests.get(id)
           if (!pendingRequest) return
 
@@ -152,7 +152,7 @@ class ShikiStreamService {
           }
         }
 
-        // 初始化 worker
+        // Initialize worker
         await this.sendWorkerMessage({
           type: 'init',
           languages: DEFAULT_LANGUAGES,
@@ -173,7 +173,7 @@ class ShikiStreamService {
   }
 
   /**
-   * 向 Worker 发送消息并等待回复
+   * Send message to Worker and wait for reply
    */
   private sendWorkerMessage(message: any): Promise<any> {
     if (!this.worker) {
@@ -205,7 +205,7 @@ class ShikiStreamService {
 
       this.pendingRequests.set(id, { resolve: safeResolve, reject: safeReject })
 
-      // 根据操作类型设置不同的超时时间
+      // Set different timeouts based on operation type
       const getTimeoutForMessageType = (type: string): number => {
         switch (type) {
           case 'init':
@@ -222,9 +222,9 @@ class ShikiStreamService {
 
       const timeout = getTimeoutForMessageType(message.type)
 
-      // 设置超时处理
+      // Set timeout handler
       timerId = setTimeout(() => {
-        // 如果是高亮操作超时，说明代码块太长，记录callerId以便降级
+        // If highlight operation times out, code block is too long, record callerId for degradation
         if (message.type === 'highlight' && message.callerId) {
           this.workerDegradationCache.set(message.callerId, true)
           safeReject(new Error(`Worker ${message.type} request timeout for callerId ${message.callerId}`))
@@ -247,9 +247,9 @@ class ShikiStreamService {
   }
 
   /**
-   * 确保 highlighter 已配置
-   * @param language 语言
-   * @param theme 主题
+   * Ensure highlighter is configured
+   * @param language Language
+   * @param theme Theme
    */
   private async ensureHighlighterConfigured(
     language: string,
@@ -263,13 +263,13 @@ class ShikiStreamService {
   }
 
   /**
-   * 获取 Shiki 的 pre 标签属性
+   * Get Shiki pre tag properties
    *
-   * 跑一个简单的 hast 结果，从中提取 properties 属性。
-   * 如果有更加稳定的方法可以替换。
-   * @param language 语言
-   * @param theme 主题
-   * @returns pre 标签属性
+   * Run a simple hast result and extract properties attribute.
+   * Can be replaced if a more stable method exists.
+   * @param language Language
+   * @param theme Theme
+   * @returns pre tag properties
    */
   async getShikiPreProperties(language: string, theme: string): Promise<ShikiPreProperties> {
     const { loadedLanguage, loadedTheme } = await this.ensureHighlighterConfigured(language, theme)
@@ -288,18 +288,18 @@ class ShikiStreamService {
   }
 
   /**
-   * 高亮流式输出的代码，调用方传入完整代码内容，得到增量高亮结果。
+   * Highlight streaming code output, caller passes full code content, gets incremental highlight result.
    *
-   * - 检测当前内容与上次处理内容的差异。
-   * - 如果是末尾追加，只传输增量部分（此时性能最好，如遇性能问题，考虑检查这里的逻辑）。
-   * - 如果不是追加，重置 tokenizer 并处理完整内容。
+   * - Detects diff between current content and last processed content.
+   * - If tail append, only transmit delta (best performance; check here if issues).
+   * - If not append, reset tokenizer and process full content.
    *
-   * 调用者需要自行处理撤回。
-   * @param code 完整代码内容
-   * @param language 语言
-   * @param theme 主题
-   * @param callerId 调用者ID
-   * @returns 高亮结果，recall 为 -1 表示撤回所有行
+   * Caller handles recall.
+   * @param code Full code content
+   * @param language Language
+   * @param theme Theme
+   * @param callerId Caller ID
+   * @returns Highlight result, recall -1 means recall all lines
    */
   async highlightStreamingCode(
     code: string,
@@ -313,12 +313,12 @@ class ShikiStreamService {
     let isAppend = false
 
     if (code.length === lastContent.length) {
-      // 内容没有变化，返回空结果
+      // Content unchanged, return empty result
       if (code === lastContent) {
         return { lines: [], recall: 0 }
       }
     } else if (code.length > lastContent.length) {
-      // 长度增加，可能是追加
+      // Length increased, likely append
       isAppend = code.startsWith(lastContent)
     }
 
@@ -326,42 +326,42 @@ class ShikiStreamService {
       let result: HighlightChunkResult
 
       if (isAppend) {
-        // 流式追加，只传输增量
+        // Streaming append, only transmit delta
         const chunk = code.slice(lastContent.length)
         result = await this.highlightCodeChunk(chunk, language, theme, callerId)
       } else {
-        // 非追加变化，重置并处理完整内容
+        // Non-append change, reset and process full content
         this.cleanupTokenizers(callerId)
-        this.codeCache.delete(cacheKey) // 清除缓存
+        this.codeCache.delete(cacheKey) // Clear cache
 
         result = await this.highlightCodeChunk(code, language, theme, callerId)
 
-        // 撤回所有行
+        // Recall all lines
         result = {
           ...result,
           recall: -1
         }
       }
 
-      // 成功处理后更新缓存
+      // Update cache after successful processing
       this.codeCache.set(cacheKey, code)
       return result
     } catch (error) {
-      // 处理失败时不更新缓存，保持之前的状态
+      // On failure, don't update cache, preserve previous state
       logger.error('Failed to highlight streaming code:', error as Error)
       throw error
     }
   }
 
   /**
-   * 一次性静态高亮，返回 shiki codeToHtml 的 HTML 字符串（非 ThemedToken 行）。
+   * One-shot static highlight, returns shiki codeToHtml HTML string (not ThemedToken lines).
    *
-   * 优先使用 Worker 处理（静态高亮曾长期占用主线程，这是迁移动机）；
-   * 失败时逐次回退主线程，不做永久降级（无 tokenizer 状态可丢）。
-   * @param code 代码内容
-   * @param language 语言
-   * @param theme 主题
-   * @returns 高亮后的 HTML 字符串
+   * Prefers Worker (static highlight long occupied main thread, hence migration);
+   * Falls back to main thread on failure, no permanent degradation (no tokenizer state to lose).
+   * @param code Code content
+   * @param language Language
+   * @param theme Theme
+   * @returns Highlighted HTML string
    */
   async highlightCodeToHtml(code: string, language: string, theme: string): Promise<string> {
     // The worker rejects an empty language; 'text' (shiki's plain language)
@@ -397,15 +397,15 @@ class ShikiStreamService {
   }
 
   /**
-   * 高亮代码 chunk，返回本次高亮的所有 ThemedToken 行
+   * Highlight code chunk, returns all ThemedToken lines for this highlight
    *
-   * 优先使用 Worker 处理，失败时回退到主线程处理。
-   * 调用者需要自行处理撤回。
-   * @param chunk 代码内容
-   * @param language 语言
-   * @param theme 主题
-   * @param callerId 调用者ID，用于标识不同的组件实例
-   * @returns ThemedToken 行
+   * Prefers Worker, falls back to main thread on failure.
+   * Caller handles recall.
+   * @param chunk Code content
+   * @param language Language
+   * @param theme Theme
+   * @param callerId Caller ID, identifies different component instances
+   * @returns ThemedToken lines
    */
   async highlightCodeChunk(
     chunk: string,
@@ -413,12 +413,12 @@ class ShikiStreamService {
     theme: string,
     callerId: string
   ): Promise<HighlightChunkResult> {
-    // 检查callerId是否需要降级处理
+    // Check if callerId needs degradation
     if (this.workerDegradationCache.has(callerId)) {
       return this.highlightWithMainThread(chunk, language, theme, callerId)
     }
 
-    // 初始化 worker
+    // Initialize worker
     if (!this.worker) {
       try {
         await this.initWorker()
@@ -427,7 +427,7 @@ class ShikiStreamService {
       }
     }
 
-    // 如果 Worker 可用，优先使用 Worker 处理
+    // If Worker available, prefer Worker
     if (this.hasWorkerHighlighter()) {
       try {
         const result = await this.sendWorkerMessage({
@@ -439,8 +439,8 @@ class ShikiStreamService {
         })
         return result
       } catch (error) {
-        // Worker 处理失败，记录callerId并永久降级到主线程
-        // FIXME: 这种情况如果出现，流式高亮语法状态就会丢失，目前用降级策略来处理
+        // Worker failed, record callerId and permanently degrade to main thread
+        // FIXME: If this happens, streaming highlight syntax state is lost, currently handled by degradation
         this.workerDegradationCache.set(callerId, true)
         logger.error(
           `Worker highlight failed for callerId ${callerId}, permanently falling back to main thread:`,
@@ -449,17 +449,17 @@ class ShikiStreamService {
       }
     }
 
-    // 使用主线程处理
+    // Use main thread
     return this.highlightWithMainThread(chunk, language, theme, callerId)
   }
 
   /**
-   * 使用主线程处理代码高亮
-   * @param chunk 代码内容
-   * @param language 语言
-   * @param theme 主题
-   * @param callerId 调用者ID
-   * @returns 高亮结果
+   * Process code highlight on main thread
+   * @param chunk Code content
+   * @param language Language
+   * @param theme Theme
+   * @param callerId Caller ID
+   * @returns Highlight result
    */
   private async highlightWithMainThread(
     chunk: string,
@@ -472,7 +472,7 @@ class ShikiStreamService {
 
       const result = await tokenizer.enqueue(chunk)
 
-      // 合并稳定和不稳定的行作为本次高亮的所有行
+      // Merge stable and unstable lines as all lines for this highlight
       return {
         lines: [...result.stable, ...result.unstable],
         recall: result.recall
@@ -480,7 +480,7 @@ class ShikiStreamService {
     } catch (error) {
       logger.error('Failed to highlight code chunk:', error as Error)
 
-      // 提供简单的 fallback
+      // Simple fallback
       const fallbackToken: ThemedToken = { content: chunk || '', color: '#000000', offset: 0 }
       return {
         lines: [[fallbackToken]],
@@ -490,29 +490,29 @@ class ShikiStreamService {
   }
 
   /**
-   * 获取或创建 tokenizer
-   * @param callerId 调用者ID
-   * @param language 语言
-   * @param theme 主题
-   * @returns tokenizer 实例
+   * Get or create tokenizer
+   * @param callerId Caller ID
+   * @param language Language
+   * @param theme Theme
+   * @returns tokenizer instance
    */
   private async getStreamTokenizer(callerId: string, language: string, theme: string): Promise<ShikiStreamTokenizer> {
-    // 创建复合键
+    // Create composite key
     const cacheKey = `${callerId}-${language}-${theme}`
 
-    // 如果已存在，直接返回
+    // Return existing if present
     if (this.tokenizerCache.has(cacheKey)) {
       return this.tokenizerCache.get(cacheKey)!
     }
 
-    // 确保 highlighter 已配置
+    // Ensure highlighter configured
     const { loadedLanguage, loadedTheme } = await this.ensureHighlighterConfigured(language, theme)
 
     if (!this.highlighter) {
       throw new Error('Highlighter not initialized')
     }
 
-    // 创建新的 tokenizer
+    // Create new tokenizer
     const options: ShikiStreamTokenizerOptions = {
       highlighter: this.highlighter,
       lang: loadedLanguage,
@@ -526,11 +526,11 @@ class ShikiStreamService {
   }
 
   /**
-   * 清理特定调用者的 tokenizers
-   * @param callerId 调用者ID
+   * Clean up tokenizers for specific caller
+   * @param callerId Caller ID
    */
   cleanupTokenizers(callerId: string): void {
-    // 先尝试清理 Worker 中的 tokenizers
+    // Try cleaning Worker tokenizers first
     if (this.hasWorkerHighlighter()) {
       this.sendWorkerMessage({
         type: 'cleanup',
@@ -540,14 +540,14 @@ class ShikiStreamService {
       })
     }
 
-    // 清理对应的内容缓存
+    // Clean corresponding content cache
     for (const key of this.codeCache.keys()) {
       if (key.startsWith(`${callerId}-`)) {
         this.codeCache.delete(key)
       }
     }
 
-    // 再清理主线程中的 tokenizers，移除所有以 callerId 开头的缓存项
+    // Clean main thread tokenizers, remove all cache entries starting with callerId
     for (const key of this.tokenizerCache.keys()) {
       if (key.startsWith(`${callerId}-`)) {
         this.tokenizerCache.delete(key)
@@ -556,7 +556,7 @@ class ShikiStreamService {
   }
 
   /**
-   * 销毁所有资源
+   * Dispose all resources
    */
   dispose() {
     if (this.worker) {
@@ -573,8 +573,8 @@ class ShikiStreamService {
     this.tokenizerCache.clear()
     this.codeCache.clear()
 
-    // Don't dispose the highlighter directly since it's managed by AsyncInitializer
-    // Just clear the reference
+    // Don't dispose highlighter directly since it's managed by AsyncInitializer
+    // Just clear reference
     this.highlighter = null
     this.workerInitPromise = null
     this.workerInitRetryCount = 0

@@ -3,27 +3,27 @@ import i18n from '@renderer/i18n/resolver'
 import { isSystemProvider, isSystemProviderId, type Provider } from '@renderer/types/provider'
 
 /**
- * 从模型 ID 中提取默认组名。
- * 规则如下：
- * 1. 第一类分隔规则：以第一个出现的分隔符分割，取第 0 个部分作为组名。
- * 2. 第二类分隔规则：取前两个部分拼接（如 'a-b-c' 得到 'a-b'）。
- * 3. 其他情况返回 id。
+ * Extract default group name from model ID.
+ * Rules:
+ * 1. First delimiter rule: split by first occurring delimiter, take part 0 as group name.
+ * 2. Second delimiter rule: take first two parts joined (e.g. 'a-b-c' -> 'a-b').
+ * 3. Otherwise return id.
  *
- * 例如：
+ * Examples:
  * - 'gpt-3.5-turbo-16k-0613' => 'gpt-3.5'
  * - 'qwen3:32b' => 'qwen3'
  * - 'Qwen/Qwen3-32b' => 'qwen'
  * - 'deepseek-r1' => 'deepseek-r1'
  * - 'o3' => 'o3'
  *
- * @param {string} id 模型 ID 字符串
- * @param {string} [provider] 提供商 ID 字符串
- * @returns {string} 提取的组名
+ * @param {string} id Model ID string
+ * @param {string} [provider] Provider ID string
+ * @returns {string} Extracted group name
  */
 export const getDefaultGroupName = (id: string, provider?: string): string => {
   const str = id.toLowerCase()
 
-  // 定义分隔符
+  // Define delimiters
   let firstDelimiters = ['/', ' ', ':']
   let secondDelimiters = ['-', '_']
 
@@ -32,14 +32,14 @@ export const getDefaultGroupName = (id: string, provider?: string): string => {
     secondDelimiters = []
   }
 
-  // 第一类分隔规则
+  // First delimiter rule
   for (const delimiter of firstDelimiters) {
     if (str.includes(delimiter)) {
       return str.split(delimiter)[0]
     }
   }
 
-  // 第二类分隔规则
+  // Second delimiter rule
   for (const delimiter of secondDelimiters) {
     if (str.includes(delimiter)) {
       const parts = str.split(delimiter)
@@ -51,13 +51,13 @@ export const getDefaultGroupName = (id: string, provider?: string): string => {
 }
 
 /**
- * 从模型 ID 中提取基础名称。
- * 例如：
+ * Extract base name from model ID.
+ * Examples:
  * - 'deepseek/deepseek-r1' => 'deepseek-r1'
  * - 'deepseek-ai/deepseek/deepseek-r1' => 'deepseek-r1'
- * @param {string} id 模型 ID
- * @param {string} [delimiter='/'] 分隔符，默认为 '/'
- * @returns {string} 基础名称
+ * @param {string} id Model ID
+ * @param {string} [delimiter='/'] Delimiter, defaults to '/'
+ * @returns {string} Base name
  */
 export const getBaseModelName = (id: string, delimiter: string = '/'): string => {
   const parts = id.split(delimiter)
@@ -65,13 +65,13 @@ export const getBaseModelName = (id: string, delimiter: string = '/'): string =>
 }
 
 /**
- * 从模型 ID 中提取基础名称并转换为小写。
- * 例如：
+ * Extract base name from model ID and convert to lowercase.
+ * Examples:
  * - 'deepseek/DeepSeek-R1' => 'deepseek-r1'
  * - 'deepseek-ai/deepseek/DeepSeek-R1' => 'deepseek-r1'
- * @param {string} id 模型 ID
- * @param {string} [delimiter='/'] 分隔符，默认为 '/'
- * @returns {string} 小写的基础名称
+ * @param {string} id Model ID
+ * @param {string} [delimiter='/'] Delimiter, defaults to '/'
+ * @returns {string} Lowercase base name
  */
 export const getLowerBaseModelName = (id: string, delimiter: string = '/'): string => {
   // Normalize Fireworks model IDs: Fireworks replaces '.' with 'p' in version numbers
@@ -99,9 +99,9 @@ export const getLowerBaseModelName = (id: string, delimiter: string = '/'): stri
 }
 
 /**
- * 获取模型服务商名称，根据是否内置服务商来决定要不要翻译
- * @param provider 服务商
- * @returns 描述性的名字
+ * Get model provider name, decide whether to translate based on whether it's a system provider
+ * @param provider Provider
+ * @returns Descriptive name
  */
 export const getFancyProviderName = (provider: Provider) => {
   return isSystemProvider(provider) ? i18n.t(getProviderLabelKey(provider.id)) : provider.name
@@ -139,9 +139,9 @@ const EMOJI_LEADING_REGEX = new RegExp(`^(?:${EMOJI_CLUSTER_PATTERN})+`, 'u')
 const FIRST_LETTER_OR_EMOJI_REGEX = new RegExp(`${EMOJI_CLUSTER_PATTERN}|\\p{L}\\p{M}*`, 'u')
 
 /**
- * 用于获取 avatar 名字的辅助函数，会取出字符串的第一个字符，支持表情符号。
- * @param {string} str 输入字符串
- * @returns {string} 第一个字符，或者返回空字符串
+ * Helper to get avatar name's first character, supports emoji.
+ * @param {string} str Input string
+ * @returns {string} First character, or empty string
  */
 export function firstLetter(str: string): string {
   const match = str?.match(FIRST_LETTER_OR_EMOJI_REGEX)
@@ -149,18 +149,18 @@ export function firstLetter(str: string): string {
 }
 
 /**
- * 移除字符串开头的表情符号。
- * @param {string} str 输入字符串
- * @returns {string} 移除开头表情符号后的字符串
+ * Remove leading emoji from string.
+ * @param {string} str Input string
+ * @returns {string} String with leading emoji removed
  */
 export function removeLeadingEmoji(str: string): string {
   return str.replace(EMOJI_LEADING_REGEX, '').trim()
 }
 
 /**
- * 提取字符串开头的表情符号。
- * @param {string} str 输入字符串
- * @returns {string} 开头的表情符号，如果没有则返回空字符串
+ * Extract leading emoji from string.
+ * @param {string} str Input string
+ * @returns {string} Leading emoji, or empty string if none
  */
 export function getLeadingEmoji(str: string): string {
   const match = str.match(EMOJI_LEADING_REGEX)
@@ -168,9 +168,9 @@ export function getLeadingEmoji(str: string): string {
 }
 
 /**
- * 检查字符串是否为纯表情符号。
- * @param {string} str 输入字符串
- * @returns {boolean} 如果字符串是纯表情符号则返回 true，否则返回 false
+ * Check if string is purely emoji.
+ * @param {string} str Input string
+ * @returns {boolean} True if string is purely emoji, false otherwise
  */
 export function isEmoji(str: string): boolean {
   if (str.startsWith('data:')) {
@@ -183,22 +183,22 @@ export function isEmoji(str: string): boolean {
 }
 
 /**
- * 从话题名称中移除特殊字符：
- * - 替换换行符为空格。
- * @param {string} str 输入字符串
- * @returns {string} 处理后的字符串
+ * Remove special characters from topic name:
+ * - Replace newlines with spaces.
+ * @param {string} str Input string
+ * @returns {string} Processed string
  */
 export function removeSpecialCharactersForTopicName(str: string): string {
   return str.replace(/["'\r\n]+/g, ' ').trim()
 }
 
 /**
- * 获取字符串的第一个字符。
- * @param {string} str 输入字符串
- * @returns {string} 第一个字符，或者空字符串
+ * Get first character of string.
+ * @param {string} str Input string
+ * @returns {string} First character, or empty string
  */
 export function getFirstCharacter(str: string): string {
-  // 使用 for...of 循环来获取第一个字符
+  // Use for...of to get first character
   for (const char of str) {
     return char
   }
@@ -207,21 +207,21 @@ export function getFirstCharacter(str: string): string {
 }
 
 /**
- * 用于简化文本。按照给定长度限制截断文本，考虑语义边界。
- * @param {string} text 输入文本
- * @param {number} [maxLength=50] 最大长度，默认为 50
- * @returns {string} 处理后的简短文本
+ * Simplify text. Truncate to given length, considering semantic boundaries.
+ * @param {string} text Input text
+ * @param {number} [maxLength=50] Maximum length, defaults to 50
+ * @returns {string} Processed brief text
  */
 export function getBriefInfo(text: string, maxLength: number = 50): string {
-  // 去除空行
+  // Remove empty lines
   const noEmptyLinesText = text.replace(/\n\s*\n/g, '\n')
 
-  // 检查文本是否超过最大长度
+  // Check if text exceeds max length
   if (noEmptyLinesText.length <= maxLength) {
     return noEmptyLinesText
   }
 
-  // 找到最近的单词边界
+  // Find nearest word boundary
   let truncatedText = noEmptyLinesText.slice(0, maxLength)
   const lastSpaceIndex = truncatedText.lastIndexOf(' ')
 
@@ -229,7 +229,7 @@ export function getBriefInfo(text: string, maxLength: number = 50): string {
     truncatedText = truncatedText.slice(0, lastSpaceIndex)
   }
 
-  // 截取前面的内容，并在末尾添加 "..."
+  // Take preceding content and append "..."
   return truncatedText + '...'
 }
 

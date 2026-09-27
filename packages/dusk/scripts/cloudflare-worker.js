@@ -1,39 +1,39 @@
-// 配置信息
+// Configuration
 const config = {
   R2_CUSTOM_DOMAIN: 'dusk.ocool.online',
   R2_BUCKET_NAME: 'dusk',
-  // 缓存键名
+  // Cache key name
   CACHE_KEY: 'dusk-latest-release',
   VERSION_DB: 'versions.json',
   LOG_FILE: 'logs.json',
-  MAX_LOGS: 1000 // 最多保存多少条日志
+  MAX_LOGS: 1000 // Maximum number of logs to keep
 }
 
-// Worker 入口函数
+// Worker entry point
 const worker = {
-  // 定时器触发配置
+  // Scheduled trigger configuration
   scheduled: {
-    cron: '*/1 * * * *' // 每分钟执行一次
+    cron: '*/1 * * * *' // Run every minute
   },
 
-  // 定时器执行函数 - 只负责检查和更新
+  // Scheduled execution function - only responsible for checking and updating
   async scheduled(event, env, ctx) {
     try {
       await initDataFiles(env)
-      console.log('开始定时检查新版本...')
-      // 使用新的 checkNewRelease 函数
+      console.log('Starting scheduled version check...')
+      // Use the new checkNewRelease function
       await checkNewRelease(env)
     } catch (error) {
-      console.error('定时任务执行失败:', error)
+      console.error('Scheduled task failed:', error)
     }
   },
 
-  // HTTP 请求处理函数 - 只负责返回数据
+  // HTTP request handler - only responsible for returning data
   async fetch(request, env, ctx) {
     if (!env || !env.R2_BUCKET) {
       return new Response(
         JSON.stringify({
-          error: 'R2 存储桶未正确配置'
+          error: 'R2 bucket not properly configured'
         }),
         {
           status: 500,
@@ -46,12 +46,12 @@ const worker = {
     const filename = url.pathname.slice(1)
 
     try {
-      // 处理文件下载请求
+      // Handle file download requests
       if (filename) {
         return await handleDownload(env, filename)
       }
 
-      // 只返回缓存的版本信息
+      // Only return cached version info
       return await getCachedRelease(env)
     } catch (error) {
       return new Response(
@@ -70,7 +70,7 @@ const worker = {
 export default worker
 
 /**
- * 添加日志记录函数
+ * Add log entry
  */
 async function addLog(env, type, event, details = null) {
   try {
@@ -88,30 +88,30 @@ async function addLog(env, type, event, details = null) {
       details
     })
 
-    // 保持日志数量在限制内
+    // Keep log count within limit
     if (logs.logs.length > config.MAX_LOGS) {
       logs.logs = logs.logs.slice(0, config.MAX_LOGS)
     }
 
     await env.R2_BUCKET.put(config.LOG_FILE, JSON.stringify(logs, null, 2))
   } catch (error) {
-    console.error('写入日志失败:', error)
+    console.error('Failed to write log:', error)
   }
 }
 
 /**
- * 获取最新版本信息
+ * Get latest release information
  */
 async function getLatestRelease(env) {
   try {
     const cached = await env.R2_BUCKET.get(config.CACHE_KEY)
     if (!cached) {
-      // 如果缓存不存在，先检查版本数据库
+      // If cache doesn't exist, check version database first
       const versionDB = await env.R2_BUCKET.get(config.VERSION_DB)
       if (versionDB) {
         const versions = JSON.parse(await versionDB.text())
         if (versions.latestVersion) {
-          // 从版本数据库重建缓存
+          // Rebuild cache from version database
           const latestVersion = versions.versions[versions.latestVersion]
           const cacheData = {
             version: latestVersion.version,
@@ -125,7 +125,7 @@ async function getLatestRelease(env) {
                 size: formatFileSize(file.size)
               }))
           }
-          // 更新缓存
+          // Update cache
           await env.R2_BUCKET.put(config.CACHE_KEY, JSON.stringify(cacheData))
           return new Response(JSON.stringify(cacheData), {
             headers: {
@@ -135,7 +135,7 @@ async function getLatestRelease(env) {
           })
         }
       }
-      // 如果版本数据库也没有数据，才执行检查更新
+      // If version database also has no data, then check for updates
       const data = await checkNewRelease(env)
       return new Response(JSON.stringify(data), {
         headers: {
@@ -153,11 +153,11 @@ async function getLatestRelease(env) {
       }
     })
   } catch (error) {
-    await addLog(env, 'ERROR', '获取版本信息失败', error.message)
+    await addLog(env, 'ERROR', 'Failed to get version info', error.message)
     return new Response(
       JSON.stringify({
-        error: '获取版本信息失败: ' + error.message,
-        detail: '请稍���再试'
+        error: 'Failed to get version info: ' + error.message,
+        detail: 'Please try again later'
       }),
       {
         status: 500,
@@ -170,16 +170,16 @@ async function getLatestRelease(env) {
   }
 }
 
-// 修改下载处理函数，直接接收 env
+// Modified download handler to directly accept env
 async function handleDownload(env, filename) {
   try {
     const object = await env.R2_BUCKET.get(filename)
 
     if (!object) {
-      return new Response('文件未找到', { status: 404 })
+      return new Response('File not found', { status: 404 })
     }
 
-    // 设置响应头
+    // Set response headers
     const headers = new Headers()
     object.writeHttpMetadata(headers)
     headers.set('etag', object.httpEtag)
@@ -189,29 +189,29 @@ async function handleDownload(env, filename) {
       headers
     })
   } catch (error) {
-    console.error('下载文件时发生错误:', error)
-    return new Response('获取文件失败', { status: 500 })
+    console.error('Error downloading file:', error)
+    return new Response('Failed to get file', { status: 500 })
   }
 }
 
 /**
- * 根据文件扩展名获取对应的 Content-Type
+ * Get Content-Type based on file extension
  */
 function getContentType(filename) {
   const ext = filename.split('.').pop().toLowerCase()
   const types = {
-    exe: 'application/x-msdownload', // Windows 可执行文件
-    dmg: 'application/x-apple-diskimage', // macOS 安装包
-    zip: 'application/zip', // 压缩包
-    AppImage: 'application/x-executable', // Linux 可执行文件
-    blockmap: 'application/octet-stream' // 更新文件
+    exe: 'application/x-msdownload', // Windows executable
+    dmg: 'application/x-apple-diskimage', // macOS installer
+    zip: 'application/zip', // Archive
+    AppImage: 'application/x-executable', // Linux executable
+    blockmap: 'application/octet-stream' // Update file
   }
   return types[ext] || 'application/octet-stream'
 }
 
 /**
- * 格式化文件大小
- * 将字节转换为人类可读的格式（B, KB, MB, GB）
+ * Format file size
+ * Convert bytes to human-readable format (B, KB, MB, GB)
  */
 function formatFileSize(bytes) {
   const units = ['B', 'KB', 'MB', 'GB']
@@ -227,8 +227,8 @@ function formatFileSize(bytes) {
 }
 
 /**
- * 版本号比较函数
- * 用于对版本号进行排序
+ * Version comparison function
+ * Used for sorting version numbers
  */
 function compareVersions(a, b) {
   const partsA = a.replace('v', '').split('.')
@@ -247,11 +247,11 @@ function compareVersions(a, b) {
 }
 
 /**
- * 初始化数据文件
+ * Initialize data files
  */
 async function initDataFiles(env) {
   try {
-    // 检查并初始化版本数据库
+    // Check and initialize version database
     const versionDB = await env.R2_BUCKET.get(config.VERSION_DB)
     if (!versionDB) {
       const initialVersions = {
@@ -260,10 +260,10 @@ async function initDataFiles(env) {
         lastChecked: new Date().toISOString()
       }
       await env.R2_BUCKET.put(config.VERSION_DB, JSON.stringify(initialVersions, null, 2))
-      await addLog(env, 'INFO', 'versions.json 初始化成功')
+      await addLog(env, 'INFO', 'versions.json initialized successfully')
     }
 
-    // 检查并初始化日志文件
+    // Check and initialize log file
     const logFile = await env.R2_BUCKET.get(config.LOG_FILE)
     if (!logFile) {
       const initialLogs = {
@@ -271,24 +271,24 @@ async function initDataFiles(env) {
           {
             timestamp: new Date().toISOString(),
             type: 'INFO',
-            event: '系统初始化'
+            event: 'System initialized'
           }
         ]
       }
       await env.R2_BUCKET.put(config.LOG_FILE, JSON.stringify(initialLogs, null, 2))
-      console.log('logs.json 初始化成功')
+      console.log('logs.json initialized successfully')
     }
   } catch (error) {
-    console.error('初始化数据文件失败:', error)
+    console.error('Failed to initialize data files:', error)
   }
 }
 
-// 新增：只获取缓存的版本信息
+// New: Only get cached version info
 async function getCachedRelease(env) {
   try {
     const cached = await env.R2_BUCKET.get(config.CACHE_KEY)
     if (!cached) {
-      // 如果缓存不存在，从版本数据库获取
+      // If cache doesn't exist, get from version database
       const versionDB = await env.R2_BUCKET.get(config.VERSION_DB)
       if (versionDB) {
         const versions = JSON.parse(await versionDB.text())
@@ -306,7 +306,7 @@ async function getCachedRelease(env) {
                 size: formatFileSize(file.size)
               }))
           }
-          // 重建缓存
+          // Rebuild cache
           await env.R2_BUCKET.put(config.CACHE_KEY, JSON.stringify(cacheData))
           return new Response(JSON.stringify(cacheData), {
             headers: {
@@ -316,10 +316,10 @@ async function getCachedRelease(env) {
           })
         }
       }
-      // 如果没有任何数据，返回错误
+      // If no data at all, return error
       return new Response(
         JSON.stringify({
-          error: '没有可用的版本信息'
+          error: 'No version information available'
         }),
         {
           status: 404,
@@ -331,7 +331,7 @@ async function getCachedRelease(env) {
       )
     }
 
-    // 返回缓存数据
+    // Return cached data
     return new Response(await cached.text(), {
       headers: {
         'Content-Type': 'application/json',
@@ -339,31 +339,31 @@ async function getCachedRelease(env) {
       }
     })
   } catch (error) {
-    await addLog(env, 'ERROR', '获取缓存版本信息失败', error.message)
+    await addLog(env, 'ERROR', 'Failed to get cached version info', error.message)
     throw error
   }
 }
 
-// 新增：只检查新版本并更新
+// New: Only check for new version and update
 async function checkNewRelease(env) {
   try {
-    // 获取 GitLab 最新版本
+    // Get latest release from GitLab
     const githubResponse = await fetch('https://gitlab.com/api/v4/projects/fugoku.inc%2Fdusk/releases', {
       headers: { 'User-Agent': 'CloudflareWorker' }
     })
 
     if (!githubResponse.ok) {
-      throw new Error('GitLab API 请求失败')
+      throw new Error('GitLab API request failed')
     }
 
     const releases = await githubResponse.json()
     const releaseData = Array.isArray(releases) ? releases[0] : undefined
     if (!releaseData) {
-      throw new Error('未找到任何 release')
+      throw new Error('No release found')
     }
     const version = releaseData.tag_name
 
-    // 获取版本数据库
+    // Get version database
     const versionDB = await env.R2_BUCKET.get(config.VERSION_DB)
     let versions = { versions: {}, latestVersion: null, lastChecked: new Date().toISOString() }
 
@@ -371,16 +371,16 @@ async function checkNewRelease(env) {
       versions = JSON.parse(await versionDB.text())
     }
 
-    // 移除版本检查，改为记录是否有文件更新的标志
+    // Remove version check, instead record flag for file updates
     let hasUpdates = false
     if (versions.latestVersion !== version) {
-      await addLog(env, 'INFO', `发现新版本: ${version}`)
+      await addLog(env, 'INFO', `New version found: ${version}`)
       hasUpdates = true
     } else {
-      await addLog(env, 'INFO', `版本 ${version} 文件完整性检查开始`)
+      await addLog(env, 'INFO', `Version ${version} file integrity check started`)
     }
 
-    // 准备新版本记录（GitLab release: assets.links[].name / .url / .direct_asset_url）
+    // Prepare new version record (GitLab release: assets.links[].name / .url / .direct_asset_url)
     const assetLinks = releaseData.assets?.links ?? []
     const versionRecord = {
       version,
@@ -394,7 +394,7 @@ async function checkNewRelease(env) {
       changelog: releaseData.description
     }
 
-    // 检查并上传文件
+    // Check and upload files
     for (const asset of assetLinks) {
       try {
         const existingFile = await env.R2_BUCKET.get(asset.name)
@@ -404,7 +404,7 @@ async function checkNewRelease(env) {
           hasUpdates = true
           const response = await fetch(asset.direct_asset_url ?? asset.url)
           if (!response.ok) {
-            throw new Error(`下载失败: HTTP ${response.status}`)
+            throw new Error(`Download failed: HTTP ${response.status}`)
           }
 
           const file = await response.arrayBuffer()
@@ -412,37 +412,37 @@ async function checkNewRelease(env) {
             httpMetadata: { contentType: getContentType(asset.name) }
           })
 
-          // 更新文件状态
+          // Update file status
           const fileIndex = versionRecord.files.findIndex((f) => f.name === asset.name)
           if (fileIndex !== -1) {
             versionRecord.files[fileIndex].uploaded = true
           }
 
-          await addLog(env, 'INFO', `文件${existingFile ? '更新' : '上传'}成功: ${asset.name}`)
+          await addLog(env, 'INFO', `File ${existingFile ? 'updated' : 'uploaded'} successfully: ${asset.name}`)
         } else {
-          // 文件存在且大小相同，标记为已上传
+          // File exists and size matches, mark as uploaded
           const fileIndex = versionRecord.files.findIndex((f) => f.name === asset.name)
           if (fileIndex !== -1) {
             versionRecord.files[fileIndex].uploaded = true
           }
-          await addLog(env, 'INFO', `文件完整性验证通过: ${asset.name}`)
+          await addLog(env, 'INFO', `File integrity verified: ${asset.name}`)
         }
       } catch (error) {
-        await addLog(env, 'ERROR', `文件处理失败: ${asset.name}`, error.message)
+        await addLog(env, 'ERROR', `File processing failed: ${asset.name}`, error.message)
       }
     }
 
-    // 只有在有更新或是新版本时才更新数据库和缓存
+    // Only update database and cache if there are updates or it's a new version
     if (hasUpdates) {
-      // 更新版本记录
+      // Update version record
       versionRecord.uploadedAt = new Date().toISOString()
       versions.versions[version] = versionRecord
       versions.latestVersion = version
 
-      // 保存版本数据库
+      // Save version database
       await env.R2_BUCKET.put(config.VERSION_DB, JSON.stringify(versions, null, 2))
 
-      // 更新缓存
+      // Update cache
       const cacheData = {
         version,
         publishedAt: releaseData.published_at,
@@ -457,69 +457,69 @@ async function checkNewRelease(env) {
       }
 
       await env.R2_BUCKET.put(config.CACHE_KEY, JSON.stringify(cacheData))
-      await addLog(env, 'INFO', hasUpdates ? '更新完成' : '文件完整性检查完成')
+      await addLog(env, 'INFO', hasUpdates ? 'Update complete' : 'File integrity check complete')
 
-      // 清理旧版本
+      // Clean up old versions
       const versionList = Object.keys(versions.versions).sort((a, b) => compareVersions(b, a))
       if (versionList.length > 2) {
-        // 获取需要保留的两个最新版本
+        // Get the two latest versions to keep
         const keepVersions = versionList.slice(0, 2)
-        // 获取所有需要删除的版本
+        // Get all versions to delete
         const oldVersions = versionList.slice(2)
 
-        // 先获取 R2 桶中的所有文件列表
+        // First get all files in R2 bucket
         const allFiles = await listAllFiles(env)
 
-        // 获取需要保留的文件名列表
+        // Get list of files to keep
         const keepFiles = new Set()
         for (const keepVersion of keepVersions) {
           const versionFiles = versions.versions[keepVersion].files
           versionFiles.forEach((file) => keepFiles.add(file.name))
         }
 
-        // 删除所有旧版本文件
+        // Delete all old version files
         for (const oldVersion of oldVersions) {
           const oldFiles = versions.versions[oldVersion].files
           for (const file of oldFiles) {
             try {
               if (file.uploaded) {
                 await env.R2_BUCKET.delete(file.name)
-                await addLog(env, 'INFO', `删除旧文件: ${file.name}`)
+                await addLog(env, 'INFO', `Deleted old file: ${file.name}`)
               }
             } catch (error) {
-              await addLog(env, 'ERROR', `删除旧文件失败: ${file.name}`, error.message)
+              await addLog(env, 'ERROR', `Failed to delete old file: ${file.name}`, error.message)
             }
           }
           delete versions.versions[oldVersion]
         }
 
-        // 清理可能遗留的旧文件
+        // Clean up any leftover old files
         for (const file of allFiles) {
           if (!keepFiles.has(file.name)) {
             try {
               await env.R2_BUCKET.delete(file.name)
-              await addLog(env, 'INFO', `删除遗留文件: ${file.name}`)
+              await addLog(env, 'INFO', `Deleted leftover file: ${file.name}`)
             } catch (error) {
-              await addLog(env, 'ERROR', `删除遗留文件失败: ${file.name}`, error.message)
+              await addLog(env, 'ERROR', `Failed to delete leftover file: ${file.name}`, error.message)
             }
           }
         }
 
-        // 保存更新后的版本数据库
+        // Save updated version database
         await env.R2_BUCKET.put(config.VERSION_DB, JSON.stringify(versions, null, 2))
       }
     } else {
-      await addLog(env, 'INFO', '所有文件完整性检查通过，无需更新')
+      await addLog(env, 'INFO', 'All file integrity checks passed, no update needed')
     }
 
     return hasUpdates ? cacheData : null
   } catch (error) {
-    await addLog(env, 'ERROR', '检查新版本失败', error.message)
+    await addLog(env, 'ERROR', 'Failed to check new version', error.message)
     throw error
   }
 }
 
-// 新增：获取 R2 桶中的所有文件列表
+// New: Get all files list from R2 bucket
 async function listAllFiles(env) {
   const files = []
   let cursor
