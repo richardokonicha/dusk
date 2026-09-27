@@ -2,8 +2,6 @@
 
 Status: implemented
 
-English | [中文](2026-08-19-phase-0b-doc-audit-outcomes.zh.md)
-
 ## Problem
 
 The Phase 0b audit found two places where the implementation needed to depart
