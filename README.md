@@ -82,7 +82,6 @@ packages/dusk/
 └── tsconfig.*.json
 ```
 
-The sibling `packages/desktop`, `packages/renderer`, and `packages/shared` directories in the repository root are the original greenfield scaffold, kept as a design reference only — they are not extended in place and are not part of the Dusk product.
 
 ## Repository
 
