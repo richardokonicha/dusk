@@ -1,0 +1,98 @@
+# Release build for the Dusk Electron app, triggered by tags `v*`.
+#
+# NOTE: installs MUST run inside packages/dusk, never the repo root. The
+# patchedDependencies (and the pnpm-workspace.yaml overrides) live in
+# packages/dusk/pnpm-workspace.yaml, so every install step uses
+# `defaults.run.working-directory: packages/dusk`.
+#
+# Windows signing is driven by scripts/win-sign.js, which reads:
+#   WIN_SIGN              - set to any truthy value to actually sign
+#   DUSK_CERT_PATH        - path to the .pfx / cert file
+#   DUSK_CERT_KEY         - the key container / password
+#   DUSK_CERT_CSP         - the CSP (cryptographic service provider) string
+#   WIN_SIGN_TIMESTAMP_URLS - comma-separated timestamp URLs (optional)
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, windows-latest, ubuntu-latest]
+    defaults:
+      run:
+        working-directory: packages/dusk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.15'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (macOS)
+        if: matrix.os == 'macos-14'
+        run: pnpm build:mac
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+
+      - name: Build (Windows)
+        if: matrix.os == 'windows-latest'
+        run: pnpm build:win
+        env:
+          WIN_SIGN: 'true'
+          DUSK_CERT_PATH: ${{ secrets.DUSK_CERT_PATH }}
+          DUSK_CERT_KEY: ${{ secrets.DUSK_CERT_KEY }}
+          DUSK_CERT_CSP: ${{ secrets.DUSK_CERT_CSP }}
+          WIN_SIGN_TIMESTAMP_URLS: ${{ secrets.WIN_SIGN_TIMESTAMP_URLS }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+
+      - name: Build (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: pnpm build:linux
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.os }}
+          path: |
+            out/*.dmg
+            out/*.zip
+            out/*.exe
+            out/*.AppImage
+            out/*.deb
+            out/*.rpm
+            out/*.snap
+            out/*.yml
+          if-no-files-found: error
+
+# TODO: electron-builder.yml currently has no `publish` block (the generic
+# provider URL is commented out as a placeholder). Re-enable the publish step
+# below once the Dusk update server exists, e.g.:
+#
+#     - name: Publish to GitHub Release
+#       if: startsWith(github.ref, 'refs/tags/v')
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       run: electron-builder --publish always

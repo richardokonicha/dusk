@@ -1,0 +1,65 @@
+# CI for the Dusk Electron app.
+#
+# NOTE: installs MUST run inside packages/dusk, never the repo root. The
+# patchedDependencies (and the pnpm-workspace.yaml overrides) live in
+# packages/dusk/pnpm-workspace.yaml, so every install step uses
+# `defaults.run.working-directory: packages/dusk`.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-build:
+    name: Lint & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.15'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: packages/dusk
+
+      - name: Lint
+        run: pnpm lint
+        working-directory: packages/dusk
+
+      - name: Build
+        run: pnpm build
+        working-directory: packages/dusk
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.15'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: packages/dusk
+
+      - name: Run tests
+        run: pnpm test
+        working-directory: packages/dusk
+        timeout-minutes: 45
