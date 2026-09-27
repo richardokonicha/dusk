@@ -35,6 +35,9 @@ const registryFixtures = {
 vi.mock('@dusk/provider-registry/node', async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>()
   class RegistryLoader {
+    findProvider(providerId: string) {
+      return this.loadProviders().find((p: any) => p.id === providerId) ?? null
+    }
     constructor(paths: { models: string; providers: string; providerModels: string }) {
       registryFixtures.loaderPaths.push(paths)
     }
