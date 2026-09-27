@@ -59,4 +59,4 @@ Goal: Dusk Studio fork becomes a recognizable, shippable Dusk desktop client on 
 - **Name churn** — you've changed names several times (Odu, Dusk Work OS, Dusk AI Studio, Dusk). Locking **"Dusk"** now and branding decisions later avoids rework.
 - **Scope creep** — Work OS + Cloud gateway + compute + sync is a lot. Phase 1 must be rebrand/package only; Work OS layer is Phase 1.5.
 - **Upstream drift** — the fork must track Dusk upstream (`git subtree pull`) or we inherit a frozen, aging base. Budget recurring sync time.
-- **Greenfield duplication** — `packages/desktop|renderer|shared` scaffold overlaps with what the fork provides; it's reference-only now, do not extend it.
+- **Greenfield scaffold removed** — the `packages/desktop|renderer|shared` reference scaffold and the scaffold-targeted `e2e/` suite were deleted ahead of alpha; `packages/dusk` is the only product tree.
