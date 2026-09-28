@@ -24,7 +24,7 @@
     "node": ">=22.0.0",
     "pnpm": ">=11.0.0"
   },
-  "packageManager": "pnpm@11.0.0",
+  "packageManager": "pnpm@11.28.1",
   "devDependencies": {
     "@rollup/plugin-alias": "^6.0.0",
     "@vitest/coverage-v8": "^2.1.9",
