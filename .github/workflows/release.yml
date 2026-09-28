@@ -68,7 +68,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libx11-dev libxkbcommon-dev
+          sudo apt-get install -y --no-install-recommends libx11-dev libxext-dev libxkbcommon-dev
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -107,14 +107,14 @@ jobs:
       # publish job below owns the release instead.
       - name: Package
         run: |
-          pnpm run ${{ matrix.script }} -- --publish never || {
+          pnpm run ${{ matrix.script }} --publish never || {
             echo "Retrying after hdiutil cleanup"
             hdiutil detach -all -quiet 2>/dev/null || true
             sleep 5
-            pnpm run ${{ matrix.script }} -- --publish never
+            pnpm run ${{ matrix.script }} --publish never
           } || {
             echo "Falling back to the zip target"
-            pnpm run ${{ matrix.zipScript }} -- --publish never
+            pnpm run ${{ matrix.zipScript }} --publish never
           }
 
       - name: Upload artifacts
