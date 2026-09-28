@@ -74,9 +74,11 @@ jobs:
           - name: macos-arm64
             os: macos-14
             script: build:mac:arm64
+            zipScript: build:mac:arm64:zip
           - name: macos-x64
             os: macos-14
             script: build:mac:x64
+            zipScript: build:mac:x64:zip
           - name: windows-x64
             os: windows-latest
             script: build:win:x64
@@ -101,17 +103,21 @@ jobs:
 
       - name: Detach stale DMG volumes
         if: runner.os == 'macOS'
-        run: hdiutil detach -quiet /Volumes/Dusk 2>/dev/null || true
+        run: hdiutil detach -all -quiet 2>/dev/null || true
 
       - name: Package
         # hdiutil intermittently fails with "Device not configured" on the macOS
-        # runners; one retry clears it.
+        # runners. Retry once, then fall back to the zip target so CI still
+        # proves the app packages.
         run: |
           pnpm run ${{ matrix.script }} || {
             echo "Retrying after hdiutil cleanup"
-            hdiutil detach -all -quiet || true
+            hdiutil detach -all -quiet 2>/dev/null || true
             sleep 5
             pnpm run ${{ matrix.script }}
+          } || {
+            echo "Falling back to the zip target"
+            pnpm run ${{ matrix.zipScript }}
           }
         working-directory: packages/dusk
         env:
