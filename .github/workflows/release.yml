@@ -69,7 +69,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            libx11-dev libxext-dev libxtst-dev libxkbcommon-dev libevdev-dev
+            libx11-dev libxext-dev libxtst-dev libxkbcommon-dev libevdev-dev libwayland-dev
 
       # The electron postinstall occasionally crashes on the Windows runners
       # (0xC0000409); a retry clears it.
