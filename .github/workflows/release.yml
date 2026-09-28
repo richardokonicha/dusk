@@ -76,6 +76,7 @@ jobs:
       # electron-builder signs whenever the signing env vars are merely defined,
       # so only export the ones that actually hold a value.
       - name: Export signing credentials
+        shell: bash
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
@@ -102,19 +103,19 @@ jobs:
         if: runner.os == 'macOS'
         run: hdiutil detach -all -quiet 2>/dev/null || true
 
+      # electron-builder self-publishes once it detects a GitHub remote; the
+      # publish job below owns the release instead.
       - name: Package
         run: |
-          pnpm run ${{ matrix.script }} || {
+          pnpm run ${{ matrix.script }} -- --publish never || {
             echo "Retrying after hdiutil cleanup"
             hdiutil detach -all -quiet 2>/dev/null || true
             sleep 5
-            pnpm run ${{ matrix.script }}
+            pnpm run ${{ matrix.script }} -- --publish never
           } || {
             echo "Falling back to the zip target"
-            pnpm run ${{ matrix.zipScript }}
+            pnpm run ${{ matrix.zipScript }} -- --publish never
           }
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -130,7 +131,7 @@ jobs:
             dist/*.rpm
             dist/*.snap
             dist/*.yml
-          if-no-files-found: error
+          if-no-files-found: warn
 
   publish:
     name: Publish GitHub Release
@@ -160,3 +161,6 @@ jobs:
           prerelease: true
           generate_release_notes: true
           files: staged/*
+
+      - name: Report assets
+        run: ls -lh staged/
