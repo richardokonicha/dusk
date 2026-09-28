@@ -110,4 +110,4 @@ jobs:
             packages/dusk/out/*.blockmap
             packages/dusk/out/latest*.yml
           if-no-files-found: error
-        retention-days: 14
+          retention-days: 14
