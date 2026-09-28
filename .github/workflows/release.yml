@@ -68,10 +68,18 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libx11-dev libxext-dev libxtst-dev libxkbcommon-dev
+          sudo apt-get install -y --no-install-recommends \
+            libx11-dev libxext-dev libxtst-dev libxkbcommon-dev libevdev-dev
 
+      # The electron postinstall occasionally crashes on the Windows runners
+      # (0xC0000409); a retry clears it.
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install --frozen-lockfile || {
+            echo "Retrying install"
+            sleep 10
+            pnpm install --frozen-lockfile
+          }
 
       # electron-builder signs whenever the signing env vars are merely defined,
       # so only export the ones that actually hold a value.
