@@ -80,6 +80,7 @@ jobs:
             out/*.dmg
             out/*.zip
             out/*.exe
+            out/*.blockmap
             out/*.AppImage
             out/*.deb
             out/*.rpm
@@ -87,12 +88,31 @@ jobs:
             out/*.yml
           if-no-files-found: error
 
-# TODO: electron-builder.yml currently has no `publish` block (the generic
-# provider URL is commented out as a placeholder). Re-enable the publish step
-# below once the Dusk update server exists, e.g.:
-#
-#     - name: Publish to GitHub Release
-#       if: startsWith(github.ref, 'refs/tags/v')
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#       run: electron-builder --publish always
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          merge-multiple: false
+          path: dist
+
+      - name: Collect installers
+        run: |
+          mkdir -p staged
+          find dist -type f \( -name '*.dmg' -o -name '*.zip' -o -name '*.exe' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' -o -name '*.blockmap' -o -name '*.yml' \) \
+            -exec cp -n {} staged/ \;
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Dusk ${{ github.ref_name }}
+          draft: false
+          prerelease: true
+          generate_release_notes: true
+          files: staged/*
