@@ -20,12 +20,30 @@ on:
 
 jobs:
   build:
-    name: Build (${{ matrix.os }})
+    name: Build (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14, windows-latest, ubuntu-latest]
+        include:
+          - name: macos-arm64
+            os: macos-14
+            script: build:mac:arm64
+          - name: macos-x64
+            os: macos-14
+            script: build:mac:x64
+          - name: windows-x64
+            os: windows-latest
+            script: build:win:x64
+          - name: windows-arm64
+            os: windows-latest
+            script: build:win:arm64
+          - name: linux-x64
+            os: ubuntu-latest
+            script: build:linux:x64
+          - name: linux-arm64
+            os: ubuntu-latest
+            script: build:linux:arm64
     defaults:
       run:
         working-directory: packages/dusk
@@ -46,46 +64,35 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build (macOS)
-        if: matrix.os == 'macos-14'
-        run: pnpm build:mac
+      - name: Package
+        run: pnpm run ${{ matrix.script }}
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-
-      - name: Build (Windows)
-        if: matrix.os == 'windows-latest'
-        run: pnpm build:win
-        env:
-          WIN_SIGN: 'true'
+          WIN_SIGN: ${{ secrets.DUSK_CERT_PATH != '' && 'true' || '' }}
           DUSK_CERT_PATH: ${{ secrets.DUSK_CERT_PATH }}
           DUSK_CERT_KEY: ${{ secrets.DUSK_CERT_KEY }}
           DUSK_CERT_CSP: ${{ secrets.DUSK_CERT_CSP }}
           WIN_SIGN_TIMESTAMP_URLS: ${{ secrets.WIN_SIGN_TIMESTAMP_URLS }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-
-      - name: Build (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: pnpm build:linux
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: release-${{ matrix.os }}
+          name: release-${{ matrix.name }}
           path: |
-            out/*.dmg
-            out/*.zip
-            out/*.exe
-            out/*.blockmap
-            out/*.AppImage
-            out/*.deb
-            out/*.rpm
-            out/*.snap
-            out/*.yml
+            dist/*.dmg
+            dist/*.zip
+            dist/*.exe
+            dist/*.blockmap
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
+            dist/*.snap
+            dist/*.yml
           if-no-files-found: error
 
   publish:
