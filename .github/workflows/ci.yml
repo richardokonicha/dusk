@@ -99,8 +99,20 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: packages/dusk
 
+      - name: Detach stale DMG volumes
+        if: runner.os == 'macOS'
+        run: hdiutil detach -quiet /Volumes/Dusk 2>/dev/null || true
+
       - name: Package
-        run: pnpm run ${{ matrix.script }}
+        # hdiutil intermittently fails with "Device not configured" on the macOS
+        # runners; one retry clears it.
+        run: |
+          pnpm run ${{ matrix.script }} || {
+            echo "Retrying after hdiutil cleanup"
+            hdiutil detach -all -quiet || true
+            sleep 5
+            pnpm run ${{ matrix.script }}
+          }
         working-directory: packages/dusk
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

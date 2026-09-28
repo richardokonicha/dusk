@@ -80,6 +80,20 @@ index 5774837..a06b785 100644
            }
          });
        },
+@@ -8509,7 +8509,12 @@
+     onError: handleError
+   }).finally(() => {
+     if (!hasErrored) {
+-      controller == null ? void 0 : controller.close();
++      // PATCHED: a consumer that already closed/cancelled the readable makes this
++      // terminal close throw ERR_INVALID_STATE as an unhandled rejection.
++      try {
++        controller == null ? void 0 : controller.close();
++      } catch (error) {
++      }
+     }
+   });
+   return createAsyncIterableStream(outputStream);
 @@ -9636,6 +9646,14 @@ var DefaultEmbedManyResult = class {
  
  // src/generate-image/generate-image.ts
@@ -200,6 +214,20 @@ index 6862f01..ccdb020 100644
            }
          });
        },
+@@ -8433,7 +8433,12 @@
+     onError: handleError
+   }).finally(() => {
+     if (!hasErrored) {
+-      controller == null ? void 0 : controller.close();
++      // PATCHED: a consumer that already closed/cancelled the readable makes this
++      // terminal close throw ERR_INVALID_STATE as an unhandled rejection.
++      try {
++        controller == null ? void 0 : controller.close();
++      } catch (error) {
++      }
+     }
+   });
+   return createAsyncIterableStream(outputStream);
 @@ -9575,6 +9585,14 @@ import {
    convertBase64ToUint8Array as convertBase64ToUint8Array4,
    withUserAgentSuffix as withUserAgentSuffix5
