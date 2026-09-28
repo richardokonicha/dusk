@@ -29,9 +29,11 @@ jobs:
           - name: macos-arm64
             os: macos-14
             script: build:mac:arm64
+            zipScript: build:mac:arm64:zip
           - name: macos-x64
             os: macos-14
             script: build:mac:x64
+            zipScript: build:mac:x64:zip
           - name: windows-x64
             os: windows-latest
             script: build:win:x64
@@ -61,23 +63,58 @@ jobs:
         with:
           node-version: '24.15'
 
+      # selection-hook compiles X11 code on Linux; the runner image lacks the headers.
+      - name: Install X11 build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libx11-dev libxkbcommon-dev
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Package
-        run: pnpm run ${{ matrix.script }}
+      # electron-builder signs whenever the signing env vars are merely defined,
+      # so only export the ones that actually hold a value.
+      - name: Export signing credentials
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          WIN_SIGN: ${{ secrets.DUSK_CERT_PATH != '' && 'true' || '' }}
           DUSK_CERT_PATH: ${{ secrets.DUSK_CERT_PATH }}
           DUSK_CERT_KEY: ${{ secrets.DUSK_CERT_KEY }}
           DUSK_CERT_CSP: ${{ secrets.DUSK_CERT_CSP }}
           WIN_SIGN_TIMESTAMP_URLS: ${{ secrets.WIN_SIGN_TIMESTAMP_URLS }}
+        run: |
+          for name in APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID CSC_LINK CSC_KEY_PASSWORD DUSK_CERT_PATH DUSK_CERT_KEY DUSK_CERT_CSP WIN_SIGN_TIMESTAMP_URLS; do
+            if [ -n "${!name}" ]; then
+              echo "export ${name}='${!name}'" >> "$GITHUB_ENV"
+            else
+              echo "skipping empty ${name}"
+            fi
+          done
+          if [ -n "$DUSK_CERT_PATH" ]; then
+            echo "WIN_SIGN=true" >> "$GITHUB_ENV"
+          fi
+
+      - name: Detach stale DMG volumes
+        if: runner.os == 'macOS'
+        run: hdiutil detach -all -quiet 2>/dev/null || true
+
+      - name: Package
+        run: |
+          pnpm run ${{ matrix.script }} || {
+            echo "Retrying after hdiutil cleanup"
+            hdiutil detach -all -quiet 2>/dev/null || true
+            sleep 5
+            pnpm run ${{ matrix.script }}
+          } || {
+            echo "Falling back to the zip target"
+            pnpm run ${{ matrix.zipScript }}
+          }
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
