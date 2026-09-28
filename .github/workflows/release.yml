@@ -130,16 +130,16 @@ jobs:
         with:
           name: release-${{ matrix.name }}
           path: |
-            dist/*.dmg
-            dist/*.zip
-            dist/*.exe
-            dist/*.blockmap
-            dist/*.AppImage
-            dist/*.deb
-            dist/*.rpm
-            dist/*.snap
-            dist/*.yml
-          if-no-files-found: warn
+            packages/dusk/dist/*.dmg
+            packages/dusk/dist/*.zip
+            packages/dusk/dist/*.exe
+            packages/dusk/dist/*.blockmap
+            packages/dusk/dist/*.AppImage
+            packages/dusk/dist/*.deb
+            packages/dusk/dist/*.rpm
+            packages/dusk/dist/*.snap
+            packages/dusk/dist/*.yml
+          if-no-files-found: error
 
   publish:
     name: Publish GitHub Release
@@ -160,6 +160,8 @@ jobs:
           mkdir -p staged
           find dist -type f \( -name '*.dmg' -o -name '*.zip' -o -name '*.exe' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' -o -name '*.blockmap' -o -name '*.yml' \) \
             -exec cp -n {} staged/ \;
+          ls -lh staged/
+          test -n "$(ls -A staged)"
 
       - name: Create release
         uses: softprops/action-gh-release@v2
