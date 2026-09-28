@@ -6,7 +6,14 @@
   "desktopName": "Dusk.desktop",
   "main": "./out/main/main.js",
   "author": "Dusk Team <hello@dusk.app>",
-  "homepage": "https://gitlab.com/fugoku.inc/dusk",
+  "homepage": "https://github.com/richardokonicha/dusk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/richardokonicha/dusk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/richardokonicha/dusk/issues"
+  },
   "engines": {
     "node": ">=24.11.1 <24.16.0"
   },
