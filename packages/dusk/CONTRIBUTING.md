@@ -32,7 +32,7 @@ For a comprehensive overview of the project architecture, tech stack, convention
 
 ## Getting Started
 
-To help you get familiar with the codebase, we recommend tackling issues tagged with one or more of the following labels: [good first issue](https://gitlab.com/fugoku.inc/dusk/-/labels/good%20first%20issue), [help wanted](https://gitlab.com/fugoku.inc/dusk/-/labels/help%20wanted), or [bug](https://gitlab.com/fugoku.inc/dusk/-/labels/bug). Any help is welcome.
+To help you get familiar with the codebase, we recommend tackling issues tagged with one or more of the following labels: [good first issue](https://github.com/richardokonicha/dusk/labels/good%20first%20issue), [help wanted](https://github.com/richardokonicha/dusk/labels/help%20wanted), or [bug](https://github.com/richardokonicha/dusk/labels/bug). Any help is welcome.
 
 ### Testing
 
@@ -83,6 +83,6 @@ Please review the following critical information before submitting your Pull Req
 
 If you have any questions or suggestions, feel free to contact us through the following ways:
 
-- [GitHub Issues](https://gitlab.com/fugoku.inc/dusk/-/issues)
+- [GitHub Issues](https://github.com/richardokonicha/dusk/issues)
 
 Thank you for your support and contributions! We look forward to working with you to make Dusk a better product.

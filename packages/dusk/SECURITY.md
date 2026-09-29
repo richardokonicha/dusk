@@ -6,7 +6,7 @@ At Dusk, we take security seriously and appreciate your efforts to responsibly d
 
 **Please do not create public issues for security-related reports.**
 
-- To report a security issue, please email **security@dusk.app** or open a confidential issue at <https://gitlab.com/fugoku.inc/dusk>.
+- To report a security issue, please email **security@dusk.app** or open a confidential report via [GitHub Security Advisories](https://github.com/richardokonicha/dusk/security/advisories/new).
 - Include a detailed description of the issue, steps to reproduce, potential impact, and any possible mitigations.
 - If applicable, please also attach proof-of-concept code or screenshots.
 
