@@ -14,8 +14,7 @@ Dusk is in alpha. Current version: `0.1.0-alpha.1`.
 
 Prebuilt installers are attached to each [GitHub Release](https://github.com/richardokonicha/dusk/releases) as a prerelease. Alpha builds are unsigned, so macOS Gatekeeper and Windows SmartScreen will warn on first launch.
 
-- **macOS (Apple Silicon)** — download the `.dmg`, drag Dusk to Applications.
-- **macOS (Intel)** — download the `.zip`, unzip it, and drag `Dusk.app` to Applications.
+- **macOS** — download the `.dmg` (Apple Silicon and Intel), drag Dusk to Applications. A `.zip` is attached for each architecture as a fallback.
 - **Windows** — download the `-setup.exe` installer (x64 and arm64).
 
 Linux builds (`.AppImage`, `.deb`, `.rpm`) are attached too, but are not part of the alpha download set yet.
