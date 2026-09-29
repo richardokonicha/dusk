@@ -1,3 +1,13 @@
+# This workspace exists only to install the VitePress docs site (see the
+# `docs:*` scripts in package.json). It is NOT the app's dependency tree.
+#
+# The Electron app's overrides, patchedDependencies and pnpm-lock.yaml live in
+# packages/dusk/. Always run app installs from there:
+#
+#     cd packages/dusk && pnpm install
+#
+# Installing from this directory resolves the app differently and without its
+# patches applied.
 packages:
   - "packages/dusk"
   - "packages/dusk/packages/*"
