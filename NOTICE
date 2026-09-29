@@ -1,0 +1,32 @@
+Dusk
+Copyright (C) 2026 Dusk Team
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with this program. If not, see <https://www.gnu.org/licenses/>.
+
+---
+
+Provenance
+----------
+
+Parts of this program are derived from an AGPL-3.0 licensed open-source
+desktop AI workspace project, which was used as the starting point for this
+codebase. That project is not endorsed by, affiliated with, or operated by the
+Dusk project, and no reference to it is made in the product, its user
+interface, or its documentation.
+
+Dusk is distributed under the same license. The changes made to the derived
+code are marked as changed throughout the source tree; they include the
+product name, package identifiers, data paths, protocol scheme, provider
+registry, i18n catalogs, and user-facing strings. The license and copyright
+notices of the original project are retained unmodified in the LICENSE files
+and in the notices of the third-party components this program depends on.
