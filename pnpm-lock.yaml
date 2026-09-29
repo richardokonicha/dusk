@@ -1106,8 +1106,8 @@ importers:
         specifier: ~5.8.3
         version: 5.8.3
       undici:
-        specifier: 6.27.0
-        version: 6.27.0
+        specifier: 6.28.1
+        version: 6.28.1
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -16622,6 +16622,10 @@ packages:
     resolution: {integrity: sha512-zWpdTVD54H48CIybL0rWQ3ukpb9d23wM7eH5RtfdmeP70cWHNjtfo7P4vZX+5CoDcO53J4Pu5uXp7lNfjc6DRA==}
     engines: {node: '>=18.17'}
 
+  undici@6.29.0:
+    resolution: {integrity: sha512-R+RODBqp6i2pPflGdq+xIOUkl+RNfGgHwoinecKu/JCuf2uO06cOKoDbI2P7Dn6KcswdKwrczbU6IYJ6K8X+wg==}
+    engines: {node: '>=18.17'}
+
   undici@7.29.1:
     resolution: {integrity: sha512-RYONW2MeafgYlkVOKYKkA/Ag7BmXqgIWCa8t1m0JcxrQg9pI9lEqRhAOruOBCbAohOa/gkCF+iPi9hrgvTzu6Q==}
     engines: {node: '>=20.18.1'}
@@ -17562,7 +17566,7 @@ snapshots:
       '@ai-sdk/provider': 3.0.15
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.1.1
-      undici: 6.28.1
+      undici: 6.29.0
       zod: 4.5.4
 
   '@ai-sdk/provider-utils@4.0.50(zod@4.5.4)':
@@ -17570,7 +17574,7 @@ snapshots:
       '@ai-sdk/provider': 3.0.15
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.1.1
-      undici: 6.28.1
+      undici: 6.29.0
       zod: 4.5.4
 
   '@ai-sdk/provider@3.0.10':
@@ -27970,7 +27974,7 @@ snapshots:
   fetch-socks@1.3.2:
     dependencies:
       socks: 2.8.9
-      undici: 6.27.0
+      undici: 6.28.1
 
   fflate@0.8.3: {}
 
@@ -33281,6 +33285,8 @@ snapshots:
 
   undici@6.28.1: {}
 
+  undici@6.29.0: {}
+
   undici@7.29.1: {}
 
   undici@8.5.0: {}
@@ -34251,7 +34257,7 @@ snapshots:
     dependencies:
       '@bufbuild/protobuf': 2.14.1
       jintr: 3.3.1
-      undici: 6.27.0
+      undici: 6.28.1
 
   zip-stream@4.1.1:
     dependencies:
