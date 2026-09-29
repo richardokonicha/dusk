@@ -78,7 +78,7 @@ Per `AGENTS.md`: nothing shipped may carry `dusk` in any case. Attribution notic
 - [ ] H1 **[B]** Package renames: `@duskstudio/ai-core` → `@dusk/ai-core`, `@duskstudio/ui` → `@dusk/ui`, `@duskstudio/ai-sdk-provider` → `@dusk/ai-sdk-provider`, etc. — rename package dirs, `name` fields, and every import specifier across the monorepo (`@duskstudio/` appears in thousands of imports; mechanical codemod + full gate after)
 - [ ] H2 **[B]** `duskai` + `duskin` provider presets: both are Dusk-owned infrastructure (api.dusk-ai.com) — remove from `src/shared/data/presets/duskai.ts`, ProviderService guards, `systemProviderId.ts` enum (regenerate via `pnpm gen:system-provider-ids`), and the `packages/provider-registry` catalog data (duskin still listed there as a dead preset); delete `DUSKAI_*`/`duskin` constants. Migration: existing installs with duskai keys → keep read-only, hide from new-provider lists
 - [ ] H3 **[C]** Identifier sweep: grep -ri `dusk` in src/ after H1/H2 and rename remaining symbols (`DUSK_EDITION`→edition env, `isManagedDusk*`, `duskAssistant` keys, etc.). i18n KEY renames allowed here if all references update in the same commit (26 locale files + code, single sweep)
-- [ ] H4 **[C]** `assets-brand/` and build asset filenames now dusk — confirm no dusk-named asset remains under `packages/dusk/` (build/, resources/, packages/*/assets)
+- [ ] H4 **[C]** Build asset filenames are Dusk — confirm no upstream-named asset remains under `packages/dusk/` (build/, resources/, packages/*/assets)
 
 ## Keep (verified fine, no action)
 
