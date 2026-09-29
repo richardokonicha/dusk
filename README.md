@@ -114,5 +114,3 @@ packages/dusk/
 ## License
 
 Dusk is licensed under the [GNU Affero General Public License v3.0](LICENSE).
-
-It is a fork of an AGPL-3.0 open-source desktop AI workspace project. This fork keeps that license and the attribution required by it.
