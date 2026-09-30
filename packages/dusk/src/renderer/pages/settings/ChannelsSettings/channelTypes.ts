@@ -1,7 +1,7 @@
 import type { AgentSessionWorkspaceSource } from '@shared/data/api/schemas/agentWorkspaces'
 
 export type AvailableChannel = {
-  type: 'telegram' | 'feishu' | 'qq' | 'wechat' | 'discord' | 'slack'
+  type: 'mobile' | 'telegram' | 'discord' | 'slack'
   name: string
   titleKey: string
   description: string
@@ -11,19 +11,12 @@ export type AvailableChannel = {
 
 export const AVAILABLE_CHANNELS: AvailableChannel[] = [
   {
-    type: 'feishu',
-    name: 'Feishu',
-    titleKey: 'agent.channels.feishu.title',
-    description: 'agent.channels.feishu.description',
-    available: true,
-    defaultConfig: {
-      app_id: '',
-      app_secret: '',
-      encrypt_key: '',
-      verification_token: '',
-      allowed_chat_ids: [],
-      domain: 'feishu'
-    }
+    type: 'mobile',
+    name: 'Mobile',
+    titleKey: 'agent.channels.mobile.title',
+    description: 'agent.channels.mobile.description',
+    available: false,
+    defaultConfig: { device_token: '', allowed_chat_ids: [] }
   },
   {
     type: 'telegram',
@@ -32,22 +25,6 @@ export const AVAILABLE_CHANNELS: AvailableChannel[] = [
     description: 'agent.channels.telegram.description',
     available: true,
     defaultConfig: { bot_token: '', allowed_chat_ids: [] }
-  },
-  {
-    type: 'qq',
-    name: 'QQ',
-    titleKey: 'agent.channels.qq.title',
-    description: 'agent.channels.qq.description',
-    available: true,
-    defaultConfig: { app_id: '', client_secret: '', allowed_chat_ids: [], mention_only: true }
-  },
-  {
-    type: 'wechat',
-    name: 'WeChat',
-    titleKey: 'agent.channels.wechat.title',
-    description: 'agent.channels.wechat.description',
-    available: true,
-    defaultConfig: { token_path: '', allowed_chat_ids: [] }
   },
   {
     type: 'discord',

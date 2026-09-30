@@ -214,7 +214,7 @@ describe('ClaudeCodeWarmQueryManager', () => {
       options: { model: 'sonnet' } as any,
       notificationContext: {
         sourceChannel: null,
-        channels: [{ id: 'channel-2', type: 'feishu' }],
+        channels: [{ id: 'channel-2', type: 'slack' }],
         allowAnyOwnedChannel: false
       }
     })

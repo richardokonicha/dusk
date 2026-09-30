@@ -62,18 +62,8 @@ function getChannelSummary(channel: ChannelData): string {
   const parts: string[] = []
 
   switch (channel.type) {
-    case 'feishu': {
-      if (cfg.app_id) parts.push(truncateId(cfg.app_id as string))
-      const domain = cfg.domain as string
-      parts.push(domain === 'lark' ? 'Lark (International)' : 'Feishu (China)')
-      break
-    }
     case 'telegram':
       if (cfg.bot_token) parts.push(`Token: ${truncateId(cfg.bot_token as string)}`)
-      if (chatIds.length > 0) parts.push(`${chatIds.length} chat IDs`)
-      break
-    case 'qq':
-      if (cfg.app_id) parts.push(truncateId(cfg.app_id as string))
       if (chatIds.length > 0) parts.push(`${chatIds.length} chat IDs`)
       break
     case 'discord': {
@@ -88,8 +78,6 @@ function getChannelSummary(channel: ChannelData): string {
       if (slackChannelIds.length > 0) parts.push(`${slackChannelIds.length} channel IDs`)
       break
     }
-    case 'wechat':
-      break
   }
   return parts.join(' \u00b7 ')
 }
@@ -190,7 +178,7 @@ type EditModalProps = {
   onDelete: (id: string) => void
 }
 
-const ChannelEditModal: FC<EditModalProps> = ({ open, channel, agents, onClose, onSave, onDelete }) => {
+const ChannelEditModal: FC<EditModalProps> = ({ open, channel, agents, onClose, onSave }) => {
   const { t } = useTranslation()
   const [name, setName] = useState('')
   const [agentId, setAgentId] = useState<string | null>(null)
@@ -309,13 +297,7 @@ const ChannelEditModal: FC<EditModalProps> = ({ open, channel, agents, onClose, 
                   />
                 </div>
               </div>
-              {FormComponent && (
-                <FormComponent
-                  channel={renderedChannel}
-                  onConfigChange={handleUpdate}
-                  onRemove={() => channel && onDelete(channel.id)}
-                />
-              )}
+              {FormComponent && <FormComponent channel={renderedChannel} onConfigChange={handleUpdate} />}
             </div>
           </>
         )}
@@ -487,12 +469,6 @@ const ChannelDetail: FC<ChannelDetailProps> = ({ channelDef }) => {
     })
   })
 
-  useIpcOn('channel.feishu.qr_login', (data) => {
-    if (channelDef.type === 'feishu' && data.status === 'confirmed') {
-      void mutate()
-    }
-  })
-
   const handleAdd = useCallback(async () => {
     const existingCount = channels?.length ?? 0
     const newChannel = await createChannel({
@@ -500,9 +476,9 @@ const ChannelDetail: FC<ChannelDetailProps> = ({ channelDef }) => {
       name: existingCount > 0 ? `${channelDef.name} ${existingCount + 1}` : channelDef.name,
       workspace: { type: AGENT_WORKSPACE_TYPE.SYSTEM },
       config: channelDef.defaultConfig,
-      // Feishu and WeChat register by QR, so binding an active channel to an agent
-      // starts the adapter flow. Credential-gated channels start inactive.
-      isActive: channelDef.type === 'feishu' || channelDef.type === 'wechat'
+      // Channels that register by QR start the adapter flow on bind; the rest are
+      // credential-gated and start inactive.
+      isActive: false
     } as never)
     if (newChannel) {
       openEditModal(newChannel.id)
