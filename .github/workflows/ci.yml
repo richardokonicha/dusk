@@ -29,7 +29,14 @@ jobs:
           node-version: '24.15'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        # Native postinstall scripts (onnxruntime-node) fetch binaries from a
+        # vendor CDN and intermittently time out on the runners. Retry once.
+        run: |
+          pnpm install --frozen-lockfile || {
+            echo "Retrying install after a postinstall network timeout"
+            sleep 15
+            pnpm install --frozen-lockfile
+          }
         working-directory: packages/dusk
 
       - name: Lint
@@ -56,7 +63,14 @@ jobs:
           node-version: '24.15'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        # Native postinstall scripts (onnxruntime-node) fetch binaries from a
+        # vendor CDN and intermittently time out on the runners. Retry once.
+        run: |
+          pnpm install --frozen-lockfile || {
+            echo "Retrying install after a postinstall network timeout"
+            sleep 15
+            pnpm install --frozen-lockfile
+          }
         working-directory: packages/dusk
 
       - name: Run tests
@@ -98,7 +112,14 @@ jobs:
           node-version: '24.15'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        # Native postinstall scripts (onnxruntime-node) fetch binaries from a
+        # vendor CDN and intermittently time out on the runners. Retry once.
+        run: |
+          pnpm install --frozen-lockfile || {
+            echo "Retrying install after a postinstall network timeout"
+            sleep 15
+            pnpm install --frozen-lockfile
+          }
         working-directory: packages/dusk
 
       - name: Detach stale DMG volumes
