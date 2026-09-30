@@ -81,6 +81,13 @@ const startApp = async () => {
   // Wait for lifecycle bootstrap (all core services are now ready)
   await bootstrapPromise
 
+  // Packaged builds take their dock icon from the .icns in the bundle, but an
+  // unpackaged run has none, so macOS shows the Electron default. Point it at
+  // the same artwork electron-builder packs.
+  if (process.platform === 'darwin' && !app.isPackaged) {
+    app.dock?.setIcon(application.getPath('app.root', 'build/icon.png'))
+  }
+
   // Record current version for upgrade-path tracking
   versionService.recordCurrentVersion()
 
