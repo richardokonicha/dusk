@@ -1,10 +1,10 @@
-# Dusk — Dusk Studio source scout
+# Dusk — the upstream project source scout
 
-Scouted Dusk Studio to unblock decision **D1: fork vs greenfield**.
+Scouted the upstream project to unblock decision **D1: fork vs greenfield**.
 
 ## Source facts
 
-- **Repo:** `github.com/DuskHQ/dusk-studio`
+- **Repo:** `the upstream repository`
 - **Tagline:** "AI productivity studio with smart chat, autonomous agents, and 300+ assistants. Unified access to frontier LLMs"
 - **Platforms:** Desktop client — Windows, Mac, Linux
 - **License:** **AGPL-3.0** (+ commercial license available on request — `license@dusk-ai.com`)
@@ -33,7 +33,7 @@ So **a plain fork is risky for a commercial product.**
 | Path | Speed to MVP | Commercial risk | Recommendation |
 |---|---|---|---|
 | **A. Greenfield, Dusk as reference** | Slower (months) | None — clean IP | ✅ Safest for a commercial Fugoku product |
-| **B. Commercial license from DuskHQ** | Fast (fork) | Low if purchased | Good if you have budget & DuskHQ agrees |
+| **B. Commercial license from the upstream project** | Fast (fork) | Low if purchased | Good if you have budget & the upstream project agrees |
 | **C. AGPL fork, embrace open-source** | Fast | Brand/commercial-monetization limits | Only if you're OK shipping Dusk open-source |
 
 ## Recommendation
@@ -41,7 +41,7 @@ So **a plain fork is risky for a commercial product.**
 Given you're resource-constrained *and* building Dusk as a commercial Fugoku ecosystem product → **avoid a plain AGPL fork**.
 
 - **Default path: A (greenfield, Dusk as reference)** — build the Work OS you actually want (workspaces, files-as-objects, ecosystem on-ramp) without inheriting Dusk's architecture debt or AGPL obligations. Dusk becomes a *design reference*, not your codebase.
-- **If budget frees up: B** — contact DuskHQ for a commercial license if you want to ship faster and keep it proprietary.
+- **If budget frees up: B** — contact the upstream project for a commercial license if you want to ship faster and keep it proprietary.
 - **Only C** if you decide Dusk is an open-source product (which could be a legit distribution play, but conflicts with closed commercial Fugoku).
 
 ## What to inherit as *design* (not code) from Dusk
@@ -57,5 +57,5 @@ Even greenfield, Dusk's feature map is a great spec:
 ## Updated decision (D1)
 
 - ❌ Do **not** fork Dusk source as the Dusk base (AGPL risk to commercial Fugoku).
-- ✅ **Greenfield**, using Dusk Studio as a design/architecture reference.
+- ✅ **Greenfield**, using the upstream project as a design/architecture reference.
 - ↻ Revisit if budget allows a commercial license (B).
