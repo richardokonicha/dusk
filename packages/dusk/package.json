@@ -1,6 +1,6 @@
 {
   "name": "dusk",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "private": true,
   "description": "Work OS for AI — a desktop workspace for agents, chats, files, and knowledge.",
   "desktopName": "Dusk.desktop",

@@ -89,7 +89,7 @@ Remaining sweep (verified 2026-09-29 — all clean, no action):
 
 ## Track F — CI — ✅ SUPERSEDED (now GitHub-hosted)
 
-- [x] F1 **[B]** Done in the opposite direction: the repo now uses `.github/workflows/ci.yml` + `release.yml` (green, publishing the v0.1.0-alpha.1 prerelease). `.gitlab-ci.yml` was deleted as dead config.
+- [x] F1 **[B]** Done in the opposite direction: the repo now uses `.github/workflows/ci.yml` + `release.yml` (green, publishing the v0.1.0-alpha.2 prerelease). `.gitlab-ci.yml` was deleted as dead config.
 - [x] F2 **[C]** Superseded — the GitHub release workflow is the intended one. Do **not** delete it.
 
 ## Track H — "dusk" name purge — ⚠️ INVERTED, DO NOT EXECUTE

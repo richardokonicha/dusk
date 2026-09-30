@@ -89,7 +89,7 @@ touch:
 
 ```bash
 cd packages/dusk
-node scripts/release/validate-prepared-release.js --target-version 0.1.0-alpha.1
+node scripts/release/validate-prepared-release.js --target-version 0.1.0-alpha.2
 ```
 
 The validator checks:
@@ -104,7 +104,7 @@ The validator checks:
 - For stable releases, `resources/dusk/release-history.json` starts with the new
   version and its notes match `electron-builder.yml` exactly.
 
-For prereleases (`0.1.0-alpha.1`), the release history file must remain unchanged.
+For prereleases (`0.1.0-alpha.2`), the release history file must remain unchanged.
 
 ## 4. Secrets Management
 
