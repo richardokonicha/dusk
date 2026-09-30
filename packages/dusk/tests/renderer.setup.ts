@@ -1,5 +1,7 @@
 import '@testing-library/jest-dom/vitest'
 
+import { configure } from '@testing-library/react'
+
 import { createRequire } from 'node:module'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
@@ -8,6 +10,11 @@ import { resetPopupMocks } from './__mocks__/renderer/popup'
 import { resetToastMocks } from './__mocks__/renderer/toast'
 
 vi.stubGlobal('__APP_EDITION__', 'global')
+
+// The 1s default starves async assertions (findBy*, waitFor) when the whole suite
+// runs in parallel and workers contend for CPU. Genuinely broken renders still
+// fail fast against this, so it only absorbs scheduling latency.
+configure({ asyncUtilTimeout: 5000 })
 
 const require = createRequire(import.meta.url)
 const bufferModule = require('buffer')
