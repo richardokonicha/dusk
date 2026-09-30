@@ -5,7 +5,6 @@ import { BaseService, DependsOn, type Disposable, Injectable, Phase, ServicePhas
 import { WindowType } from '@main/core/window/types'
 import { t } from '@main/i18n'
 import type { AgentChannelEntity as ChannelRow, AgentChannelType } from '@shared/data/api/schemas/agentChannels'
-import type { ChannelConfig } from '@shared/data/types/channel'
 import type { IpcEventName } from '@shared/ipc/schemas/ipcSchemas'
 import type { EventPayload } from '@shared/ipc/types'
 
@@ -36,15 +35,13 @@ export function registerAdapterFactory<T extends AgentChannelType>(type: T, fact
 /**
  * Lazy-load map: adapter type → dynamic import of the adapter module.
  * Each module registers itself via `registerAdapterFactory()` as a side effect.
- * This avoids eagerly importing all 6 heavy adapter modules at startup.
+ * This avoids eagerly importing all 4 adapter modules at startup.
  */
 const adapterImportMap: Record<AgentChannelType, () => Promise<unknown>> = {
   discord: () => import('./adapters/discord/DiscordAdapter'),
-  feishu: () => import('./adapters/feishu/FeishuAdapter'),
-  qq: () => import('./adapters/qq/QqAdapter'),
+  mobile: () => import('./adapters/mobile/MobileAdapter'),
   slack: () => import('./adapters/slack/SlackAdapter'),
-  telegram: () => import('./adapters/telegram/TelegramAdapter'),
-  wechat: () => import('./adapters/wechat/WeChatAdapter')
+  telegram: () => import('./adapters/telegram/TelegramAdapter')
 }
 
 /** Ensure the adapter factory for the given type is loaded (idempotent). */
@@ -265,27 +262,6 @@ export class ChannelManager extends BaseService {
     channelMessageHandler.clearSessionTracker(agentId)
   }
 
-  /**
-   * Persist credentials obtained from QR registration into the channel config,
-   * then re-sync so a new adapter connects with the saved credentials.
-   */
-  private async saveCredentialsAndReconnect(
-    agentId: string,
-    channelId: string,
-    creds: { appId: string; appSecret: string }
-  ): Promise<void> {
-    const channel = channelService.getChannel(channelId)
-    if (!channel) return
-
-    const config = channel.config as ChannelConfig & Record<string, unknown>
-    channelService.updateChannel(channelId, {
-      config: { ...config, app_id: creds.appId, app_secret: creds.appSecret } as ChannelConfig
-    })
-
-    logger.info('Saved QR registration credentials, reconnecting', { agentId, channelId })
-    await this.syncChannel(channelId)
-  }
-
   private async connectChannelFromRow(row: ChannelRow, options: { awaitConnect?: boolean } = {}): Promise<void> {
     const agentId = row.agentId
     if (!agentId) return
@@ -375,18 +351,6 @@ export class ChannelManager extends BaseService {
           this.qrWaiters.delete(waiterKey)
           waiter.resolve(url)
         }
-      })
-
-      // When an adapter obtains credentials via QR registration, persist them
-      // to the channel config and re-sync so a new adapter connects with creds.
-      adapter.on('credentials', (creds) => {
-        this.saveCredentialsAndReconnect(agentId, row.id, creds).catch((err) => {
-          logger.error('Failed to save credentials and reconnect', {
-            agentId,
-            channelId: row.id,
-            error: err instanceof Error ? err.message : String(err)
-          })
-        })
       })
 
       // Forward log & status events to renderer via IPC

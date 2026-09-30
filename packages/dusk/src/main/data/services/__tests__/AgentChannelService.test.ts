@@ -257,8 +257,8 @@ describe('AgentChannelService', () => {
       const agentId = 'agent-channel-session'
       await insertAgent(agentId)
       const channel = agentChannelService.createChannel({
-        type: 'feishu',
-        name: 'Feishu',
+        type: 'slack',
+        name: 'Slack',
         agentId,
         workspace: SYSTEM_WORKSPACE,
         config: {}

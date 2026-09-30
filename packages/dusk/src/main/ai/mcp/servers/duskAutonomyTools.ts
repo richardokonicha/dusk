@@ -32,7 +32,6 @@ import { CONFIG_TOOL_NAME, CRON_TOOL_NAME, NOTIFY_TOOL_NAME } from '@shared/ai/b
 import type { AgentSessionWorkspaceSource } from '@shared/data/api/schemas/agentWorkspaces'
 import type { Trigger } from '@shared/data/api/schemas/jobs'
 import { ChannelConfigSchema } from '@shared/data/types/channel'
-import QRCode from 'qrcode'
 
 const logger = loggerService.withContext('McpServer:DuskAutonomyTools')
 
@@ -137,7 +136,7 @@ const CRON_TOOL: Tool = {
 const NOTIFY_TOOL: Tool = {
   name: NOTIFY_TOOL_NAME,
   description:
-    'Deliver a message, a workspace file, or both to this turn’s configured notification recipients. Files are first-class deliverables: use file_path for final workspace artifacts. Telegram/Feishu/WeChat forward any file, and WeChat sends video as native video media; Discord/Slack/QQ do not support files yet. Omit channel_id to deliver to all configured recipients; provide channel_id only to select one configured recipient. In a source-channel session, channel_id may also select another live channel owned by this Agent.',
+    'Deliver a message, a workspace file, or both to this turn’s configured notification recipients. Files are first-class deliverables: use file_path for final workspace artifacts. Telegram forwards any file; Discord/Slack do not support files yet. Omit channel_id to deliver to all configured recipients; provide channel_id only to select one configured recipient. In a source-channel session, channel_id may also select another live channel owned by this Agent.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -167,23 +166,6 @@ const CHANNEL_CONFIG_SCHEMAS: Record<string, { required: string[]; optional: str
     required: ['bot_token'],
     optional: ['allowed_chat_ids'],
     description: 'Telegram Bot. Get bot_token from @BotFather.'
-  },
-  feishu: {
-    required: ['app_id', 'app_secret', 'encrypt_key', 'verification_token', 'domain'],
-    optional: ['allowed_chat_ids'],
-    description:
-      'Feishu/Lark bot. Set auth_mode to "qr" to register interactively without config. For credential setup, provide all required fields and set domain to "feishu" or "lark".'
-  },
-  qq: {
-    required: ['app_id', 'client_secret'],
-    optional: ['allowed_chat_ids'],
-    description: 'QQ official bot via QQ Open Platform.'
-  },
-  wechat: {
-    required: ['token_path'],
-    optional: ['allowed_chat_ids'],
-    description:
-      'WeChat via local WeChat desktop client bridge. Set auth_mode to "qr" to log in interactively without config. For an existing login, provide its token_path.'
   },
   discord: {
     required: ['bot_token'],
@@ -219,7 +201,7 @@ const CHANNEL_CONFIG_SCHEMAS: Record<string, { required: string[]; optional: str
 const CONFIG_TOOL: Tool = {
   name: CONFIG_TOOL_NAME,
   description:
-    "Inspect and manage your own agent configuration. Use 'status' to see current channels, model, and supported adapter types. Use 'rename' to change your display name. Use 'add_channel', 'update_channel', 'remove_channel', or 'reconnect_channel' to manage IM channel connections. Use 'reconnect_channel' when a WeChat or Feishu channel needs to re-scan a QR code (e.g. session expired or initial setup failed). Use 'complete_bootstrap' to mark the onboarding ritual as done. Use 'reset_bootstrap' to re-run the onboarding in the next session.",
+    "Inspect and manage your own agent configuration. Use 'status' to see current channels, model, and supported adapter types. Use 'rename' to change your display name. Use 'add_channel', 'update_channel', 'remove_channel', or 'reconnect_channel' to manage channel connections. Use 'complete_bootstrap' to mark the onboarding ritual as done. Use 'reset_bootstrap' to re-run the onboarding in the next session.",
   inputSchema: {
     type: 'object',
     properties: {
@@ -239,7 +221,7 @@ const CONFIG_TOOL: Tool = {
       },
       type: {
         type: 'string',
-        enum: ['telegram', 'feishu', 'qq', 'wechat', 'discord', 'slack'],
+        enum: ['mobile', 'telegram', 'discord', 'slack'],
         description: "Channel adapter type (required for 'add_channel')"
       },
       name: {
@@ -254,12 +236,6 @@ const CONFIG_TOOL: Tool = {
         type: 'object',
         description:
           "Adapter-specific configuration (required for credential-based 'add_channel', optional for QR authentication and 'update_channel')"
-      },
-      auth_mode: {
-        type: 'string',
-        enum: ['credentials', 'qr'],
-        description:
-          'Authentication mode for add_channel. Use "qr" only with WeChat or Feishu for interactive setup; defaults to "credentials".'
       },
       enabled: {
         type: 'boolean',
@@ -922,7 +898,6 @@ export class DuskAutonomyTools {
   private async configAddChannel(args: Record<string, unknown>) {
     const type = typeof args.type === 'string' ? args.type : undefined
     const name = typeof args.name === 'string' ? args.name : undefined
-    const authMode = typeof args.auth_mode === 'string' ? args.auth_mode : 'credentials'
     const enabled = typeof args.enabled === 'boolean' ? args.enabled : undefined
     const rawConfig = args.config
 
@@ -930,9 +905,6 @@ export class DuskAutonomyTools {
     if (!name) throw new McpError(ErrorCode.InvalidParams, "'name' is required for add_channel")
     if (rawConfig !== undefined && (typeof rawConfig !== 'object' || rawConfig === null || Array.isArray(rawConfig))) {
       throw new McpError(ErrorCode.InvalidParams, "'config' must be an object")
-    }
-    if (args.auth_mode !== undefined && typeof args.auth_mode !== 'string') {
-      throw new McpError(ErrorCode.InvalidParams, "'auth_mode' must be a string")
     }
     if (args.enabled !== undefined && typeof args.enabled !== 'boolean') {
       throw new McpError(ErrorCode.InvalidParams, "'enabled' must be a boolean")
@@ -946,140 +918,16 @@ export class DuskAutonomyTools {
       )
     }
 
-    if (authMode !== 'credentials' && authMode !== 'qr') {
-      throw new McpError(ErrorCode.InvalidParams, `Unknown auth_mode "${authMode}", expected credentials/qr`)
-    }
-    if (authMode === 'qr' && type !== 'wechat' && type !== 'feishu') {
-      throw new McpError(ErrorCode.InvalidParams, `QR authentication is not supported for ${type} channels`)
-    }
-    if (authMode === 'qr' && enabled === false) {
-      throw new McpError(ErrorCode.InvalidParams, 'QR authentication requires the channel to be enabled')
-    }
+    const cfg: object = rawConfig ?? {}
 
-    let cfg: object = rawConfig ?? {}
-    if (authMode === 'qr' && type === 'wechat') {
-      cfg = { ...rawConfig, token_path: '' }
-    } else if (authMode === 'qr' && type === 'feishu') {
-      const unverifiedChannels = channelService
-        .listChannels({ agentId: this.agentId, type: 'feishu' })
-        .filter((channel) => channel.type === 'feishu' && !(channel.config.app_id && channel.config.app_secret))
-
-      if (unverifiedChannels.length > 1) {
-        const channelIds = unverifiedChannels.map((channel) => channel.id).join(', ')
-        throw new McpError(
-          ErrorCode.InvalidParams,
-          `Multiple unverified Feishu channels already exist (${channelIds}). Use reconnect_channel with the intended channel_id instead of creating another channel.`
-        )
-      }
-
-      const existingChannel = unverifiedChannels[0]
-      cfg = {
-        allowed_chat_ids: [],
-        domain: 'feishu',
-        ...existingChannel?.config,
-        ...rawConfig,
-        app_id: '',
-        app_secret: '',
-        encrypt_key: '',
-        verification_token: ''
-      }
-
-      if (existingChannel) {
-        const config = ChannelConfigSchema.parse({ type, ...cfg })
-        channelService.updateChannel(existingChannel.id, {
-          name,
-          config,
-          isActive: true
-        })
-        return await this.configReconnectChannel({ channel_id: existingChannel.id })
-      }
-    }
-    if (authMode === 'credentials') {
-      for (const field of schema.required) {
-        if (!(field in cfg) || !cfg[field]) {
-          throw new McpError(ErrorCode.InvalidParams, `Missing required config field "${field}" for ${type} channel`)
-        }
+    for (const field of schema.required) {
+      if (!(field in cfg) || !cfg[field]) {
+        throw new McpError(ErrorCode.InvalidParams, `Missing required config field "${field}" for ${type} channel`)
       }
     }
 
     const config = ChannelConfigSchema.parse({ type, ...cfg })
     const channelType = config.type
-
-    // For channels that use QR-based setup (WeChat login, Feishu app registration),
-    // connect is blocking (waits for QR scan), so run sync in background
-    // and wait only for the QR URL to return it to the agent.
-    const needsQr = authMode === 'qr'
-
-    if (needsQr) {
-      const newChannel = channelService.createChannel({
-        type: channelType,
-        name,
-        agentId: this.agentId,
-        workspace: this.workspace,
-        config,
-        isActive: enabled ?? true
-      })
-
-      const channelManager = application.get('ChannelManager')
-      const qrPromise = channelManager.waitForQrUrl(this.agentId, newChannel.id, 30_000)
-      // Fire-and-forget: syncChannel will complete once the user scans
-      channelManager.syncChannel(newChannel.id).catch((err) => {
-        logger.error(`${type} sync failed`, {
-          agentId: this.agentId,
-          channelId: newChannel.id,
-          error: err instanceof Error ? err.message : String(err)
-        })
-      })
-
-      const channelLabel = type === 'wechat' ? 'WeChat' : 'Feishu'
-      const scanHint =
-        type === 'wechat'
-          ? 'scan with WeChat to log in'
-          : 'scan with Feishu to create a bot app and obtain credentials automatically'
-
-      try {
-        const qrUrl = await qrPromise
-        const qrDataUrl = await QRCode.toDataURL(qrUrl, { width: 300, margin: 2 })
-        // Extract base64 from data URI: "data:image/png;base64,..."
-        const base64 = qrDataUrl.split(',')[1]
-
-        logger.info(`${channelLabel} channel added, QR code generated`, {
-          agentId: this.agentId,
-          channelId: newChannel.id
-        })
-        return {
-          content: [
-            {
-              type: 'text' as const,
-              text: `${channelLabel} channel created (ID: ${newChannel.id}). QR code generated — display it to the user so they can ${scanHint}.`
-            },
-            {
-              type: 'image' as const,
-              data: base64,
-              mimeType: 'image/png'
-            }
-          ]
-        }
-      } catch (err) {
-        // QR timed out — remove the orphan channel so it doesn't block future connections
-        await this.removeOrphanChannel(newChannel.id)
-
-        logger.warn(`Failed to get ${channelLabel} QR code, orphan channel removed`, {
-          agentId: this.agentId,
-          channelId: newChannel.id,
-          error: err instanceof Error ? err.message : String(err)
-        })
-        return {
-          content: [
-            {
-              type: 'text' as const,
-              text: `Failed to set up ${channelLabel} channel: ${err instanceof Error ? err.message : String(err)}. The channel was not saved. Please try again.`
-            }
-          ],
-          isError: true
-        }
-      }
-    }
 
     const newChannel = await agentChannelWorkflowService.createChannel({
       type: channelType,
@@ -1151,58 +999,10 @@ export class DuskAutonomyTools {
     if (channel.agentId !== this.agentId)
       throw new McpError(ErrorCode.InvalidParams, `Channel "${channelId}" not found`)
 
-    const needsQr =
-      channel.type === 'wechat' || (channel.type === 'feishu' && !(channel.config.app_id && channel.config.app_secret))
-
     const channelManager = application.get('ChannelManager')
-    if (!needsQr) {
-      await channelManager.syncChannel(channelId)
-      return {
-        content: [{ type: 'text' as const, text: `Channel "${channelId}" reconnected.` }]
-      }
-    }
-
-    // QR-based reconnect: sync in background, wait for QR URL
-    const qrPromise = channelManager.waitForQrUrl(this.agentId, channelId, 30_000)
-    channelManager.syncChannel(channelId).catch((err) => {
-      logger.error('Reconnect sync failed', {
-        agentId: this.agentId,
-        channelId,
-        error: err instanceof Error ? err.message : String(err)
-      })
-    })
-
-    const channelLabel = channel.type === 'wechat' ? 'WeChat' : 'Feishu'
-
-    try {
-      const qrUrl = await qrPromise
-      const qrDataUrl = await QRCode.toDataURL(qrUrl, { width: 300, margin: 2 })
-      const base64 = qrDataUrl.split(',')[1]
-
-      logger.info(`${channelLabel} channel reconnect QR generated`, { agentId: this.agentId, channelId })
-      return {
-        content: [
-          {
-            type: 'text' as const,
-            text: `${channelLabel} channel "${channelId}" needs re-authentication. Display this QR code for the user to scan.`
-          },
-          {
-            type: 'image' as const,
-            data: base64,
-            mimeType: 'image/png'
-          }
-        ]
-      }
-    } catch (err) {
-      return {
-        content: [
-          {
-            type: 'text' as const,
-            text: `Failed to generate QR for reconnect: ${err instanceof Error ? err.message : String(err)}`
-          }
-        ],
-        isError: true
-      }
+    await channelManager.syncChannel(channelId)
+    return {
+      content: [{ type: 'text' as const, text: `Channel "${channelId}" reconnected.` }]
     }
   }
 
@@ -1246,17 +1046,6 @@ export class DuskAutonomyTools {
    * Remove a channel from config that failed to connect (e.g. QR timeout).
    * Prevents orphaned channels from blocking future connections.
    */
-  private async removeOrphanChannel(channelId: string): Promise<void> {
-    try {
-      await agentChannelWorkflowService.deleteChannel(channelId)
-    } catch (err) {
-      logger.error('Failed to remove orphan channel', {
-        agentId: this.agentId,
-        channelId,
-        error: err instanceof Error ? err.message : String(err)
-      })
-    }
-  }
 
   private async removeJob(args: Record<string, unknown>) {
     const id = typeof args.id === 'string' ? args.id : undefined
