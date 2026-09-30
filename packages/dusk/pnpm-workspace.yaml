@@ -234,3 +234,4 @@ minimumReleaseAgeExclude:
   - '@ai-sdk/togetherai@2.0.78'
   - '@ai-sdk/xai@3.0.126'
   - '@ai-sdk/provider-utils@4.0.48'
+  - officeparser@8.1.0
