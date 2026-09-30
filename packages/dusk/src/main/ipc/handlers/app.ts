@@ -1,4 +1,6 @@
-import { arch } from 'node:os'
+import fs from 'node:fs/promises'
+import { arch, freemem, totalmem } from 'node:os'
+import path from 'node:path'
 
 import { application } from '@application'
 import { loggerService } from '@logger'
@@ -12,7 +14,49 @@ import type { appRequestSchemas } from '@shared/ipc/schemas/app'
 import type { IpcHandlersFor } from '@shared/ipc/types'
 import { app, BrowserWindow } from 'electron'
 
+async function dirSize(dir: string): Promise<number> {
+  let total = 0
+  let entries
+  try {
+    entries = await fs.readdir(dir, { withFileTypes: true })
+  } catch {
+    return 0
+  }
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      total += await dirSize(full)
+    } else if (entry.isFile()) {
+      try {
+        total += (await fs.stat(full)).size
+      } catch {
+        // entry vanished mid-walk; skip it
+      }
+    }
+  }
+  return total
+}
+
 export const appHandlers: IpcHandlersFor<typeof appRequestSchemas> = {
+  'app.get_resource_usage': async () => {
+    const mem = process.memoryUsage()
+    const appDataPath = application.getPath('app.userdata')
+    return {
+      memory: {
+        rssBytes: mem.rss,
+        heapUsedBytes: mem.heapUsed,
+        heapTotalBytes: mem.heapTotal,
+        externalBytes: mem.external,
+        systemTotalBytes: totalmem(),
+        systemFreeBytes: freemem()
+      },
+      disk: {
+        appDataBytes: await dirSize(appDataPath),
+        cacheBytes: await dirSize(path.join(appDataPath, 'Cache')),
+        logsBytes: await dirSize(loggerService.getLogsDir())
+      }
+    }
+  },
   'app.get_info': async () => ({
     version: app.getVersion(),
     isPackaged: app.isPackaged,

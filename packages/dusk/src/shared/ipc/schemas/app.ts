@@ -31,6 +31,24 @@ const cacheCleanupGroupsInputSchema = z
   })
 
 export const appRequestSchemas = {
+  'app.get_resource_usage': defineRoute({
+    input: z.void(),
+    output: z.object({
+      memory: z.object({
+        rssBytes: z.number(),
+        heapUsedBytes: z.number(),
+        heapTotalBytes: z.number(),
+        externalBytes: z.number(),
+        systemTotalBytes: z.number(),
+        systemFreeBytes: z.number()
+      }),
+      disk: z.object({
+        appDataBytes: z.number(),
+        cacheBytes: z.number(),
+        logsBytes: z.number()
+      })
+    })
+  }),
   'app.get_info': defineRoute({
     input: z.void(),
     output: z.object({
