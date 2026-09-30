@@ -373,13 +373,13 @@ importers:
         version: 3.1.0(eslint@9.39.2(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.8.3)
       '@electron-toolkit/preload':
         specifier: ^3.0.0
-        version: 3.0.2(electron@41.8.0(supports-color@8.1.1))
+        version: 3.0.2(electron@41.10.6(supports-color@8.1.1))
       '@electron-toolkit/tsconfig':
         specifier: ^1.0.1
         version: 1.0.1(@types/node@24.10.4)
       '@electron-toolkit/utils':
         specifier: ^3.0.0
-        version: 3.0.0(electron@41.8.0(supports-color@8.1.1))
+        version: 3.0.0(electron@41.10.6(supports-color@8.1.1))
       '@electron/notarize':
         specifier: ^2.5.0
         version: 2.5.0(supports-color@8.1.1)
@@ -807,8 +807,8 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0
       electron:
-        specifier: 41.8.0
-        version: 41.8.0(supports-color@8.1.1)
+        specifier: 41.10.6
+        version: 41.10.6(supports-color@8.1.1)
       electron-builder:
         specifier: 26.15.6
         version: 26.15.6(electron-builder-squirrel-windows@26.15.6)(supports-color@8.1.1)
@@ -10614,8 +10614,8 @@ packages:
     resolution: {integrity: sha512-bO3y10YikuUwUuDUQRM4KfwNkKhnpVO7IPdbsrejwN9/AABJzzTQ4GeHwyzNSrVO+tEH3/Np255a3sVZpZDjvg==}
     engines: {node: '>=8.0.0'}
 
-  electron@41.8.0:
-    resolution: {integrity: sha512-mQRqdFxB6/EAyA9pPn00EC1KFytTijOQO52zBvl9HypWBvvibC3P4iSrT4CSVVksolOPKZZm8U4Cfjb5IHxZVA==}
+  electron@41.10.6:
+    resolution: {integrity: sha512-NEB7QnVpT2p8S9U5jOCPAtCyhl1WjRT/ODvJP6ec1/dZRUmf/EjYVOBb/dthCmJh4bISqpAroGJ/xRRxX7VwJw==}
     engines: {node: '>= 22.12.0'}
     hasBin: true
 
@@ -18630,17 +18630,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@electron-toolkit/preload@3.0.2(electron@41.8.0(supports-color@8.1.1))':
+  '@electron-toolkit/preload@3.0.2(electron@41.10.6(supports-color@8.1.1))':
     dependencies:
-      electron: 41.8.0(supports-color@8.1.1)
+      electron: 41.10.6(supports-color@8.1.1)
 
   '@electron-toolkit/tsconfig@1.0.1(@types/node@24.10.4)':
     dependencies:
       '@types/node': 24.10.4
 
-  '@electron-toolkit/utils@3.0.0(electron@41.8.0(supports-color@8.1.1))':
+  '@electron-toolkit/utils@3.0.0(electron@41.10.6(supports-color@8.1.1))':
     dependencies:
-      electron: 41.8.0(supports-color@8.1.1)
+      electron: 41.10.6(supports-color@8.1.1)
 
   '@electron/asar@3.4.1':
     dependencies:
@@ -25642,7 +25642,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  electron@41.8.0(supports-color@8.1.1):
+  electron@41.10.6(supports-color@8.1.1):
     dependencies:
       '@electron-internal/extract-zip': 1.0.3
       '@electron/get': 5.0.0(supports-color@8.1.1)
