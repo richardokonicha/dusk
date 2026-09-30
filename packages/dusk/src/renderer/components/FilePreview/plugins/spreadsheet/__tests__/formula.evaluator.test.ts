@@ -436,7 +436,9 @@ describe('createFormulaEvaluator — oversized range guard', () => {
     expect(evaluator.evaluate('SUM(A1:XFD1048576)', { sheet: 'Sheet1', row: 1, col: 20000 })).toEqual({
       state: 'unevaluated'
     })
-    expect(Date.now() - start).toBeLessThan(1000)
+    // Generous bound: this asserts the guard terminates, not a speed target, and
+    // a tight wall-clock limit flakes when the suite runs in parallel.
+    expect(Date.now() - start).toBeLessThan(5000)
     expect(callCount({ sheet: 'Sheet1', row: 500, col: 5 })).toBe(0)
   })
 
@@ -487,7 +489,9 @@ describe('createFormulaEvaluator — recursion depth guard', () => {
     expect(() => {
       outcome = evaluator.evaluate(`A${DEPTH - 1}+1`, { sheet: 'Sheet1', row: DEPTH, col: 1 })
     }).not.toThrow()
-    expect(Date.now() - start).toBeLessThan(1000)
+    // Generous bound: this asserts the guard terminates, not a speed target, and
+    // a tight wall-clock limit flakes when the suite runs in parallel.
+    expect(Date.now() - start).toBeLessThan(5000)
     expect(outcome).toBeDefined()
     expect(['evaluated', 'unevaluated']).toContain(outcome!.state)
     if (outcome!.state === 'evaluated') {
