@@ -2,7 +2,6 @@ import type { CompoundIcon } from '@dusk/ui'
 import { Bailian, Modelscope } from '@dusk/ui/icons/providers'
 import type { McpServer } from '@shared/data/types/mcpServer'
 
-import { getBailianToken, saveBailianToken, syncBailianServers } from './bailian'
 import { getModelScopeToken, MODELSCOPE_HOST, saveModelScopeToken, syncModelScopeServers } from './modelscope'
 
 export interface SyncResult {
@@ -24,16 +23,6 @@ export interface ProviderConfig {
 }
 
 export const providers: ProviderConfig[] = [
-  {
-    key: 'bailian',
-    nameKey: 'provider.dashscope',
-    discoverUrl: `https://bailian.console.aliyun.com/?tab=mcp#/mcp-market`,
-    apiKeyUrl: `https://bailian.console.aliyun.com/?tab=app#/api-key`,
-    tokenFieldName: 'bailianToken',
-    getToken: getBailianToken,
-    saveToken: saveBailianToken,
-    syncServers: syncBailianServers
-  },
   {
     key: 'modelscope',
     nameKey: 'ModelScope',

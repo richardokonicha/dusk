@@ -96,13 +96,6 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     bordered: true
   },
   {
-    id: 'doubao',
-    name: 'Doubao',
-    nameKey: 'miniApps.doubao',
-    url: 'https://www.doubao.com/chat/',
-    logo: 'doubao'
-  },
-  {
     id: 'cici',
     name: 'Cici',
     url: 'https://www.cici.com/chat/',
@@ -130,14 +123,6 @@ export const PRESETS_MINI_APPS: MiniAppPreset[] = [
     nameKey: 'miniApps.minimax-global',
     url: 'https://agent.minimax.io/',
     logo: 'minimax',
-    bordered: true
-  },
-  {
-    id: 'ima',
-    name: 'ima',
-    nameKey: 'miniApps.ima',
-    url: 'https://ima.qq.com/',
-    logo: 'ima',
     bordered: true
   },
   {
