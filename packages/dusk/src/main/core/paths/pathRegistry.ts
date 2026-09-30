@@ -75,6 +75,7 @@ export function buildPathRegistry() {
 
     // -- C. app.* — the Electron application itself --
     'app.root': app.getAppPath(), // app code; asar in packaged mode
+    'app.root.build': path.join(app.getAppPath(), 'build'), // electron-builder buildResources
     // ⚠ app.root.resources (asar-bundled) vs app.extra_resources (electron-builder extraResources) are DIFFERENT locations.
     'app.root.resources': appRootResources,
     'app.root.resources.scripts': path.join(appRootResources, 'scripts'),

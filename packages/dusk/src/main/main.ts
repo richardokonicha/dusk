@@ -85,7 +85,7 @@ const startApp = async () => {
   // unpackaged run has none, so macOS shows the Electron default. Point it at
   // the same artwork electron-builder packs.
   if (process.platform === 'darwin' && !app.isPackaged) {
-    app.dock?.setIcon(application.getPath('app.root', 'build/icon.png'))
+    app.dock?.setIcon(application.getPath('app.root.build', 'icon.png'))
   }
 
   // Record current version for upgrade-path tracking

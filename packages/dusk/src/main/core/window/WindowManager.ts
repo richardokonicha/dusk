@@ -1,4 +1,5 @@
-import { join } from 'node:path'
+import { join, sep } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { application } from '@application'
 import { loggerService } from '@logger'
@@ -1327,6 +1328,16 @@ export class WindowManager extends BaseService {
    * @param suppressAutoShow - When true, skip auto-show handler (used for pool idle windows)
    * @returns Window ID (UUID)
    */
+  /** True when `url` points inside this app's own built renderer output. */
+  private isOwnRendererPage(url: string): boolean {
+    try {
+      const rendererRoot = join(application.getPath('app.root'), 'out', 'renderer') + sep
+      return fileURLToPath(url).startsWith(rendererRoot)
+    } catch {
+      return false
+    }
+  }
+
   private createWindow<T>(type: WindowType, args?: OpenWindowArgs<T>, suppressAutoShow = false): string {
     const t0 = DIAGNOSTICS_ENABLED ? performance.now() : 0
     const metadata = getWindowTypeMetadata(type)
@@ -1375,9 +1386,15 @@ export class WindowManager extends BaseService {
           event.preventDefault()
           void shell.openExternal(url)
         }
+      } else if (url.startsWith('file:') && this.isOwnRendererPage(url)) {
+        // Multi-page renderer: feature windows (knowledge, painting, translation, chat)
+        // are sibling entry points under out/renderer/windows, so navigating between
+        // them is legitimate in-window navigation.
+        return
       } else {
-        // Non-web schemes (file:, custom protocols) have no legitimate in-window
-        // navigation path; deny like the window-open handler denies non-http(s) popups.
+        // Other schemes, and any file: URL outside our own renderer output, have no
+        // legitimate in-window navigation path; deny like the window-open handler
+        // denies non-http(s) popups.
         event.preventDefault()
         logger.warn(`Blocked navigation to untrusted URL scheme: ${url}`)
       }

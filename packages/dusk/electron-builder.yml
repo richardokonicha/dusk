@@ -180,5 +180,9 @@ artifactBuildCompleted: scripts/artifact-build-completed.js
 releaseInfo:
   releaseNotes: |
     <!--LANG:en-->
-    Dusk 0.1.0-alpha.1 — first public alpha of the Dusk Work OS for AI.
+    Dusk 0.1.0-alpha.2 — public alpha of the Dusk Work OS for AI.
+
+    Removes the China-market channels (Feishu, QQ, WeChat) and the CN-hosted
+    diagnostic feedback endpoint; adds a live memory and disk usage panel; fixes
+    the dock icon in unpackaged runs. Unsigned builds.
     <!--LANG:END-->
