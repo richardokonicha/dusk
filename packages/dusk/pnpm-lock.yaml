@@ -789,8 +789,8 @@ importers:
         specifier: 0.3.7
         version: 0.3.7
       dompurify:
-        specifier: ^3.2.6
-        version: 3.3.1
+        specifier: ^3.4.16
+        version: 3.4.16
       dotenv:
         specifier: 16.6.1
         version: 16.6.1
@@ -1167,8 +1167,8 @@ importers:
         specifier: ~5.8.3
         version: 5.8.3
       undici:
-        specifier: 6.27.0
-        version: 6.27.0
+        specifier: 6.28.1
+        version: 6.28.1
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -10405,8 +10405,8 @@ packages:
     resolution: {integrity: sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==}
     engines: {node: '>= 4'}
 
-  dompurify@3.3.1:
-    resolution: {integrity: sha512-qkdCKzLNtrgPFP1Vo+98FRzJnBRGe4ffyCea9IwHB1fyxPOeNTHpLKYGd4Uk9xvNoH0ZoOjwZxNptyMwqrId1Q==}
+  dompurify@3.4.16:
+    resolution: {integrity: sha512-sqo+pNp3qRhCIpbgRi1y8Tgk27Bo2Ry7w0dC1NBeNTdZChWjz9Xb/KOoZbRP/R6pQZ80Qw8YhXw13hWWBbMRnQ==}
 
   domutils@3.2.2:
     resolution: {integrity: sha512-6kZKyUajlDuqlHKVX1w7gyslj9MPIXzIFiz/rGu35uC1wMi+kMhQwGhl4lt9unC9Vb9INnY9Z3/ZA3+FhASLaw==}
@@ -15358,8 +15358,8 @@ packages:
     resolution: {integrity: sha512-YmfV3YnEDzXRC5lZ2jWtWWHKGUm1zIt8AhesR1tens+HTNv+YZlN/dp6G727LOvMJ8xjP9Be7Y2Sdr96LDm+pg==}
     engines: {node: '>=18.17'}
 
-  undici@6.28.0:
-    resolution: {integrity: sha512-LIY910g9TI13YS95lrMFrs8Rm/u/irgHeTWoKCoteeJ04CUJ92eEfj0rVn+7VKMPBpUPiUoBKfhNyLI23EE/KA==}
+  undici@6.28.1:
+    resolution: {integrity: sha512-zWpdTVD54H48CIybL0rWQ3ukpb9d23wM7eH5RtfdmeP70cWHNjtfo7P4vZX+5CoDcO53J4Pu5uXp7lNfjc6DRA==}
     engines: {node: '>=18.17'}
 
   undici@7.28.0:
@@ -16162,7 +16162,7 @@ snapshots:
       '@ai-sdk/provider': 3.0.15
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.1.1
-      undici: 6.28.0
+      undici: 6.28.1
       zod: 4.3.4
 
   '@ai-sdk/provider-utils@4.0.48(zod@4.3.6)':
@@ -16170,7 +16170,7 @@ snapshots:
       '@ai-sdk/provider': 3.0.15
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.1.1
-      undici: 6.28.0
+      undici: 6.28.1
       zod: 4.3.6
 
   '@ai-sdk/provider-utils@4.0.48(zod@4.4.3)':
@@ -16178,7 +16178,7 @@ snapshots:
       '@ai-sdk/provider': 3.0.15
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.1.1
-      undici: 6.28.0
+      undici: 6.28.1
       zod: 4.4.3
 
   '@ai-sdk/provider@3.0.15':
@@ -25458,7 +25458,7 @@ snapshots:
     dependencies:
       domelementtype: 2.3.0
 
-  dompurify@3.3.1:
+  dompurify@3.4.16:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
@@ -26300,7 +26300,7 @@ snapshots:
   fetch-socks@1.3.2:
     dependencies:
       socks: 2.8.7
-      undici: 6.27.0
+      undici: 6.28.1
 
   fflate@0.8.2: {}
 
@@ -28150,7 +28150,7 @@ snapshots:
       d3-sankey: 0.12.3
       dagre-d3-es: 7.0.14
       dayjs: 1.11.19
-      dompurify: 3.3.1
+      dompurify: 3.4.16
       katex: 0.16.40
       khroma: 2.1.0
       lodash-es: 4.18.1
@@ -31233,7 +31233,7 @@ snapshots:
 
   undici@6.27.0: {}
 
-  undici@6.28.0: {}
+  undici@6.28.1: {}
 
   undici@7.28.0: {}
 
@@ -31910,7 +31910,7 @@ snapshots:
     dependencies:
       '@bufbuild/protobuf': 2.10.2
       jintr: 3.3.1
-      undici: 6.27.0
+      undici: 6.28.1
 
   zip-stream@4.1.1:
     dependencies:
