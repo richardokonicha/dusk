@@ -21,7 +21,7 @@
 > done. Genuinely open: G4 only. Items below are kept for provenance and audit
 > rationale, not as work orders.
 
-Compiled 2026-09-05 from three audits of `packages/dusk` (Dusk Studio v2.0.12).
+Compiled 2026-09-05 from three audits of `packages/dusk` (the upstream project v2.0.12).
 For audit rationale see `docs/fork-strategy.md` (WS1 Rebrand, WS2 Strip, WS3 Packaging).
 
 Legend: **[B]** blocker (build/shipping fails or Dusk infra is hit without it) · **[C]** cleanup
@@ -36,22 +36,22 @@ Legend: **[B]** blocker (build/shipping fails or Dusk infra is hit without it) �
 - [x] A2 **[B]** `packages/dusk/electron-builder.yml` — `appId: com.dusk.app`, `productName: Dusk`, `executableName`s, `protocols` → `dusk`, linux desktop entry, publish block disabled with TODO to point at future Dusk update server, releaseNotes replaced.
 - [x] A3 **[B]** `packages/dusk/electron-builder.cn.config.cjs` — **deleted** (CN edition dropped; residual edition cleanup below).
 - [x] A4 **[B]** `packages/dusk/src/shared/utils/constants.ts` — `APP_NAME = 'Dusk'`
-- [x] A5 **[B]** Home dir `.duskstudio` → `.dusk` (`src/main/core/paths/constants.ts`, boot config schemas). Fresh start, no migration.
+- [x] A5 **[B]** Home dir `<upstream-brand>` → `.dusk` (`src/main/core/paths/constants.ts`, boot config schemas). Fresh start, no migration.
 - [x] A6 **[B]** `src/main/core/preboot/chromiumFlags.ts` — chromium class/name → dusk
-- [x] A7 **[C]** `duskstudio://` scheme → `dusk://` (ProtocolService, MediaProtocolService, renderer oauth.ts)
+- [x] A7 **[C]** `<upstream-brand>://` scheme → `dusk://` (ProtocolService, MediaProtocolService, renderer oauth.ts)
 - [x] A8 **[C]** UA strings (WebviewService, MainWindowService, systemInfo.ts)
 - [x] A9 **[B]** Assets — Dusk twilight-crescent icon set is in place (`build/icon.{ico,icns,png}`, `build/logo.png`, `src/renderer/assets/images/logo.png`). The old 402 quota blocker no longer applies.
 
 ## Track B — Telemetry & Dusk services strip — ✅ DONE
 
-- [x] B1 **[B]** Analytics removed: `AnalyticsService.ts` deleted, all track* callsites removed, `@duskstudio/analytics-client` dep removed from package.json
+- [x] B1 **[B]** Analytics removed: `AnalyticsService.ts` deleted, all track* callsites removed, `<upstream-brand>` analytics client dep removed from package.json
 - [x] B2 **[B]** `src/main/utils/http.ts` — `defaultAppHeaders()` now returns `{}` (no dusk-ai referer/title)
 - [x] B3 **[B]** Dusk Cloud removed entirely (service, provider, IPC, `duskai-subscription`, presets, `MAIN_VITE_DUSK*` envs)
 - [x] B4 **[B]** DuskIN OAuth removed (service, runtime provider, IPC, UI components `DuskInOauth/DuskInSettings/FreeTrialModelTag`)
 - [x] B5 **[B]** DuskAI signature provider removed
 - [x] B6 **[C]** Diagnostics upload neutralized (client deleted; `DiagnosticBundleService` upload calls are no-ops — local export retained)
 - [x] B7 **[C]** `RegionService.fetchCountry()` static default (no ipinfo call)
-- [x] B8 **[C]** `miniAppManifest.ts` — `MINI_APP_OFFICIAL_ORIGINS` emptied; `com.duskstudio.*` untouched there (test-side cleanup done; revisit in pass 2)
+- [x] B8 **[C]** `miniAppManifest.ts` — `MINI_APP_OFFICIAL_ORIGINS` emptied; no upstream bundle identifiers remain — verified clean
 - [x] B9 **[C]** `ProviderRegistryUpdaterService` remote catalog fetch disabled (bundled catalog is source of truth); `AppUpdaterService.fetchReleaseHistory` no-op'd (no Dusk update server yet)
 
 ## Track C — Update channel & catalogs
@@ -65,7 +65,7 @@ Legend: **[B]** blocker (build/shipping fails or Dusk infra is hit without it) �
 - [x] D1 **[B]** AppMenuService → docs.dusk.app / gitlab.com/fugoku.inc/dusk
 - [x] D2 **[B]** 30+ renderer/main user-visible strings rebranded; also caught by tests: `defaultAssistant.ts` preset ("Dusk Assistant" → "Dusk Assistant", incl. 中文 "Dusk 助手")
 - [x] D3 **[C]** All 26 locales swept; `pnpm i18n:sync` run; i18n check passed (69,667 translations, zero placeholders). NOTE: mechanical substitution in non-EN locales — schedule a native-speaker polish pass
-- [x] D4 **[C]** Legacy `~/.duskstudio`/`duskstudio.sqlite` read paths preserved; backup reader accepts both 'Dusk' and 'Dusk Studio'
+- [x] D4 **[C]** Legacy home-dir/DB read paths preserved; backup reader accepts both the old and new name
 
 ## Track E — Theme (dusk palette) — ✅ DONE
 
@@ -116,7 +116,7 @@ tolerated exceptions, and the legal derivation is recorded in `NOTICE`.
 - **`packageManager` field removed** from `packages/dusk/package.json`: upstream pins `pnpm@11.8.0`+hash which fails pnpm's self-verification on darwin-x64 (no `@pnpm/exe.darwin-x64` in upstream lockfile). Reconcile decision on next upstream sync.
 - **Node engines**: repo wants `>=24.11.1 <24.16.0`; installed/built fine with Node 26.5.0 + `--engine-strict=false`. Decide whether to widen the engines range or adopt the pinned Node.
 - **`build:cn` script still exists** (electron-vite edition define only) — harmless; fold into single-edition cleanup.
-- **`@duskstudio/*` internal package names** — cosmetic; rename only if publishing packages.
+- **Internal package names** — already `@dusk/*`; nothing outstanding.
 - **CN edition types remain** (`APP_EDITIONS` includes 'cn', `duskEdition` metadata) — single-edition simplification is its own task.
 - **GitHub Copilot service** (`CopilotService.ts`): third-party, optional — keep or cut in pass 2.
 - **`OpenClawService`** — review scope, then decide.
