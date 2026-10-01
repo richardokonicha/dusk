@@ -57,6 +57,8 @@ const REASONING_FAMILIES_GEN_PATH = path.join(__dirname, '../src/patterns/reason
 const SERVER_TOOL_MODELS_GEN_PATH = path.join(__dirname, '../src/patterns/server-tool-models.gen.ts')
 const SERVER_TOOL_CONSTRAINTS_GEN_PATH = path.join(__dirname, '../src/patterns/server-tool-constraints.gen.ts')
 const WRITE = process.argv.includes('--write')
+/** --live bypasses the committed upstream snapshots and re-reads the network. */
+const LIVE = process.argv.includes('--live')
 const REPORT = process.argv.includes('--report')
 // Each artifact's `version` is a hash of its own (version-less, key-sorted) content: equal content ⇒
 // equal version, ANY content change ⇒ new version. Seeders (`PresetProviderSeeder` via `SeedRunner`)
@@ -261,9 +263,18 @@ const sortKeys = (v: any): any =>
         )
       : v
 
-/** Load an upstream source (cache file or live URL) and validate its top-level shape with zod. */
-async function load<T>(env: string, url: string, schema: ZodType<T>): Promise<T> {
-  const cache = process.env[env]
+/**
+ * Load an upstream source and validate its top-level shape with zod.
+ *
+ * Prefers a committed snapshot under `data/upstream/` so generation is
+ * deterministic and repeatable. Without that, a regenerate silently pulls in
+ * whatever upstream says today, which drifts the catalog and breaks the
+ * invariants that were written against a known snapshot. Set the env var to a
+ * path (or pass --live) to refresh a snapshot deliberately and commit it.
+ */
+async function load<T>(env: string, url: string, schema: ZodType<T>, snapshot: string): Promise<T> {
+  const override = process.env[env]
+  const cache = override || (LIVE ? undefined : path.join(__dirname, '../data/upstream', snapshot))
   let raw: unknown
   if (cache) {
     raw = JSON.parse(fs.readFileSync(cache, 'utf8'))
@@ -651,10 +662,15 @@ function buildProviderModels(
 }
 
 void (async () => {
-  const md = await load('MODELSDEV_CACHE', 'https://models.dev/api.json', ModelsDevApiSchema)
+  const md = await load('MODELSDEV_CACHE', 'https://models.dev/api.json', ModelsDevApiSchema, 'models-dev.json')
   const [orModels, orImageModels] = await Promise.all([
-    load('OPENROUTER_CACHE', 'https://openrouter.ai/api/v1/models', OpenRouterApiSchema),
-    load('OPENROUTER_IMAGE_CACHE', 'https://openrouter.ai/api/v1/images/models', OpenRouterApiSchema)
+    load('OPENROUTER_CACHE', 'https://openrouter.ai/api/v1/models', OpenRouterApiSchema, 'openrouter-models.json'),
+    load(
+      'OPENROUTER_IMAGE_CACHE',
+      'https://openrouter.ai/api/v1/images/models',
+      OpenRouterApiSchema,
+      'openrouter-images.json'
+    )
   ])
   const or: OpenRouterApi = { data: [...(orModels.data ?? []), ...(orImageModels.data ?? [])] }
 
