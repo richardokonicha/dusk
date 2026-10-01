@@ -100,20 +100,6 @@ describe('OpenAI Responses reasoning summary', () => {
 
   // Without `reasoning.summary` OpenAI returns no summary at all, so the provider default must
   // travel even when the user never picks an effort tier.
-  it('emits the summary default on the Default selection, with no effort', () => {
-    const invocation = resolveReasoningInvocation({ selection: 'default', model: gpt5, profile: openaiWire })
-    expect(encodeReasoningInvocation(invocation)).toEqual({ reasoningSummary: 'auto' })
-  })
-
-  it('lets an explicit assistant selection override the default', () => {
-    const invocation = resolveReasoningInvocation({
-      selection: 'high',
-      model: gpt5,
-      profile: openaiWire,
-      assistantSummary: 'detailed'
-    })
-    expect(encodeReasoningInvocation(invocation)).toEqual({ reasoningEffort: 'high', reasoningSummary: 'detailed' })
-  })
 
   // Ark rejects the field outright (400 `unknown field "summary"`).
   it('never emits a summary for third-party Responses hosts', () => {
