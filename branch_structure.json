@@ -1,0 +1,18 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "main",
+    "origin",
+    "wip/provider-prune"
+  ],
+  "parent": {
+    "main": null,
+    "origin": "main",
+    "wip/provider-prune": "main"
+  },
+  "order": [
+    "main",
+    "origin",
+    "wip/provider-prune"
+  ]
+}
