@@ -13,6 +13,9 @@ import oxlint from 'eslint-plugin-oxlint'
 import reactHooks from 'eslint-plugin-react-hooks'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import unusedImports from 'eslint-plugin-unused-imports'
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 // --- renderer dependency-direction boundary gate (import-x/no-restricted-paths) ---
 const RENDERER_DIRNAME = path.dirname(fileURLToPath(import.meta.url))
@@ -938,4 +941,4 @@ export default defineConfig([
       'data-schema-key/valid-key': 'error'
     }
   }
-])
+]);
