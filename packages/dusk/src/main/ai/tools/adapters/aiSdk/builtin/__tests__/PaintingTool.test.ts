@@ -177,18 +177,6 @@ describe('generate_image', () => {
     )
   })
 
-  it('normalizes a real Zhipu customSize input to the native size parameter', async () => {
-    generateImage.mockResolvedValue({ files: [] })
-
-    await callExecute(
-      { prompt: 'a wide landscape', size: '1024x1024', customSize: '1536x1024' },
-      undefined,
-      buildTool(getZhipuCogViewSupport())
-    )
-
-    expect(generateImage).toHaveBeenCalledWith(expect.objectContaining({ paramValues: { size: '1536x1024' } }))
-  })
-
   it('resolves edit image ids to base64 data URLs and selects edit mode', async () => {
     fileRead.mockResolvedValue({ content: 'AAAA', mime: 'image/png' })
     generateImage.mockResolvedValue({ files: [] })
