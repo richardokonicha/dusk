@@ -194,7 +194,7 @@ export const WINDOW_TYPE_REGISTRY: Partial<Record<WindowType, WindowTypeMetadata
       // making the renderer re-initialize on window.reused; otherwise a recycled window would
       // keep displaying its previous tab.
       standbySize: 1,
-      warmup: 'eager'
+      warmup: 'lazy'
     },
     htmlPath: 'windows/subWindow/index.html',
     // preload omitted → defaults to 'preload.js' (full API preload).
