@@ -8,8 +8,8 @@
     "packages/dusk/packages/*"
   ],
   "scripts": {
-    "dev": "pnpm --dir packages/dusk dev",
-    "build": "pnpm --dir packages/dusk build",
+    "dev": "node api.js && pnpm --dir packages/dusk dev",
+    "build": "node api.js && pnpm --dir packages/dusk build",
     "test": "pnpm --dir packages/dusk test",
     "test:coverage": "pnpm --dir packages/dusk test:coverage",
     "coverage": "pnpm test:coverage",
