@@ -1,7 +1,4 @@
-import { resolve } from 'node:path'
-
 import type { ToolExecutionOptions } from '@ai-sdk/provider-utils'
-import { readProviderModelRegistry } from '@dusk/provider-registry/node'
 import { DataApiErrorFactory } from '@shared/data/api/errors'
 import type { Assistant } from '@shared/data/types/assistant'
 import type { ImageGenerationSupport } from '@shared/data/types/model'
@@ -96,17 +93,6 @@ function buildTool(support: ImageGenerationSupport): Tool {
     mcpToolIds: new Set(),
     paintingModel: { uniqueModelId: 'openai::gpt-image-1', support }
   })
-}
-
-function getZhipuCogViewSupport(): ImageGenerationSupport {
-  const registry = readProviderModelRegistry(
-    resolve(process.cwd(), 'packages/provider-registry/data/provider-models.json')
-  )
-  const support = registry.overrides.find(
-    ({ providerId, modelId }) => providerId === 'zhipu' && modelId === 'cogview-4'
-  )?.imageGeneration
-  if (!support) throw new Error('Missing zhipu/cogview-4 imageGeneration registry fixture')
-  return support
 }
 
 describe('generate_image', () => {
