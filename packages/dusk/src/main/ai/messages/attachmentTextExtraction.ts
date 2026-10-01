@@ -27,6 +27,21 @@ const OFFICE_PARSER_EXTS = new Set(
 
 const CACHE_TTL_MS = 30 * 60 * 1000
 
+/**
+ * Ceiling on a document we will pull into memory to extract text. Extraction
+ * buffers the whole file and the PDF/office parsers allocate several times that
+ * on top, so an unbounded read turns a large attachment into a multi-GB spike.
+ * The attachment token budget bounds what reaches the *prompt*; this bounds
+ * what we hold while *parsing*. Different ceilings, both needed.
+ */
+const MAX_EXTRACT_BYTES = 64 * 1024 * 1024
+
+/** Model-facing note when a document is refused because it exceeds the extraction ceiling. */
+export function documentTooLargeNote(filename: string, bytes: number): string {
+  const mb = Math.round(bytes / (1024 * 1024))
+  return `Skipped "${filename}" (${mb} MB): document text extraction is limited to ${MAX_EXTRACT_BYTES / (1024 * 1024)} MB.`
+}
+
 /** Model-facing note when a document yields no extractable text (scanned / image-only). */
 export function noExtractableTextNote(filename: string): string {
   return `No extractable text found in "${filename}" — it may be a scanned or image-only document.`
@@ -68,6 +83,13 @@ export async function extractDocumentText(
   const cache = application.get('CacheService')
 
   const version = await fileManager.getVersion(entryId)
+
+  if (version.size > MAX_EXTRACT_BYTES) {
+    const entry = await fileManager.getById(entryId)
+    logger.info('Skipped oversized document', { entryId, bytes: version.size })
+    return documentTooLargeNote(entry.name, version.size)
+  }
+
   const cacheKey = `doc-extraction:${entryId}:${version.mtime}:${version.size}`
   const cached = cache.get<string | null>(cacheKey)
   if (cached !== undefined) return cached
