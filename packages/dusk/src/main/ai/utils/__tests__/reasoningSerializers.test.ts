@@ -89,7 +89,6 @@ describe('OpenAI Responses reasoning summary', () => {
     readProviderRegistry(path.join(process.cwd(), 'packages/provider-registry/data/providers.json')).providers.find(
       (provider) => provider.id === providerId
     )?.endpointConfigs?.['openai-responses']?.reasoningFormat?.wire
-  const openaiWire = responsesWire('openai')!
   const arkWire = responsesWire('doubao')
   const gpt5 = makeModel({
     reasoning: {
