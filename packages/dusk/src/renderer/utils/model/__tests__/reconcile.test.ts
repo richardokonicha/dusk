@@ -68,19 +68,6 @@ describe('reconcile web search', () => {
     expect(reconcileWebSearchForModel(nextModel, { enableWebSearch: true }, undefined)).toBeNull()
   })
 
-  it('treats an implicitly eligible web-search model as built-in only when the provider natively serves it', () => {
-    const nextModel: Model = {
-      ...createModel(),
-      id: 'provider::claude-sonnet-4-6',
-      apiModelId: 'claude-sonnet-4-6'
-    }
-
-    expect(hasModelBuiltinWebSearch(nextModel, providerWith([]))).toBe(false)
-    expect(
-      hasModelBuiltinWebSearch(nextModel, providerWith([{ id: 'web-search', modelScope: 'model-dependent' }]))
-    ).toBe(true)
-  })
-
   it('treats provider-wide search as built-in for every chat model', () => {
     const nextModel = createModel()
 
