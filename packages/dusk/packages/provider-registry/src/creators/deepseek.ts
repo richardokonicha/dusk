@@ -63,6 +63,10 @@ export default defineCreator({
     }
   ],
   reasoningFamilies: [
+    // Upstream reports reasoning controls for these SKUs but the family table
+    // had no rule, so they failed the membership gate and lost their descriptor
+    // for anyone adding them on a custom provider.
+    { pattern: '^deepseek-flash' },
     { pattern: '^deepseek-v(?:[4-9]\\d*|[1-9]\\d{1,})(?:\\.\\d+)?', effort: ['none', 'low', 'high', 'max'] },
     // v3.x hybrid inference (thinking / non-thinking at one endpoint).
     { pattern: 'deepseek-(?:chat|v3(?:\\.\\d|-\\d))', toggle: true, template: true },

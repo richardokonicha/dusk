@@ -12080,14 +12080,11 @@
     },
     {
       "capabilities": ["function-call", "reasoning"],
-      "contextWindow": 1048576,
-      "description": "LongCat-2.0 is a high-performance agentic model with native tool calling, multi-step reasoning, a 1M-token context window, and a 128K-token maximum output.",
-      "family": "longcat",
+      "contextWindow": 1048756,
       "id": "longcat-2-0",
       "inputModalities": ["text"],
-      "maxOutputTokens": 131072,
       "metadata": {},
-      "name": "LongCat-2.0",
+      "name": "Meituan: LongCat 2.0",
       "outputModalities": ["text"],
       "ownedBy": "meituan",
       "pricing": {
@@ -23848,5 +23845,5 @@
       "ownedBy": "zhipu"
     }
   ],
-  "version": "bddc630641677822"
+  "version": "3e88d6944f03f196"
 }
