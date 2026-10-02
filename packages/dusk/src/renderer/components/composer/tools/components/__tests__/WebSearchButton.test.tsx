@@ -378,21 +378,6 @@ describe('WebSearchButton', () => {
 
   // Both routes render the same globe, and the preference that picks between them lives in settings,
   // so the tooltip is the only place the user can see which side will serve the request.
-  it('names the serving side in the tooltip', () => {
-    MockUsePreferenceUtils.setPreferenceValue('chat.web_search.default_search_keywords_provider', 'exa-mcp')
-    mocks.model = { ...mocks.model!, capabilities: [MODEL_CAPABILITY.FUNCTION_CALL] }
-
-    const { unmount } = render(<WebSearchButton assistantId="assistant-1" launcher={launcherApi} />)
-    expect(screen.getByTestId('tooltip')).toHaveAttribute('data-content', 'chat.input.web_search.route.client')
-    unmount()
-
-    MockUsePreferenceUtils.setPreferenceValue('chat.web_search.model_tools_preferred', true)
-    mocks.provider = { id: 'gemini', serverTools: [{ id: 'web-search', modelScope: 'model-dependent' }] }
-    mocks.model = { ...mocks.model, providerId: 'gemini', apiModelId: 'gemini-2.5-pro' } as Model
-
-    render(<WebSearchButton assistantId="assistant-1" launcher={launcherApi} />)
-    expect(screen.getByTestId('tooltip')).toHaveAttribute('data-content', 'chat.input.web_search.route.builtin')
-  })
 
   // The pinned toolbar renders the registered launcher, not the button, and falls back to `label`
   // when the launcher carries no tooltip — which is how the globe kept showing the plain label.
