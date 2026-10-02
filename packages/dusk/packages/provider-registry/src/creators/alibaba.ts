@@ -21,6 +21,10 @@ export default defineCreator({
   families: ['qwen', 'qvq'],
   idPrefixes: ['qwen', 'qvq', 'tongyi'],
   reasoningFamilies: [
+    // Upstream reports reasoning controls for these SKUs but the family table
+    // had no rule, so they failed the membership gate and lost their descriptor
+    // for anyone adding them on a custom provider.
+    { pattern: '^ling-3' },
     // Upstream sometimes reports reasoning controls for non-thinking coder /
     // instruct SKUs. This template grants no membership and blocks the broad
     // Qwen toggle rule below, so generation can discard the mislabeled block.
