@@ -45,7 +45,7 @@ vi.mock('@logger', () => ({
 vi.mock('@main/i18n', () => ({
   t: (key: string, _params?: unknown, lang?: string) => (lang ? `${key}::${lang}` : key),
   getAppLanguage: () => 'en-US',
-  SUPPORTED_LANGUAGES: ['en-US', 'zh-CN']
+  SUPPORTED_LANGUAGES: ['en-US', 'ru-RU']
 }))
 
 // Heavy services are stubbed so building the app + exercising handlers never
@@ -145,13 +145,13 @@ describe('API gateway routes (integration)', () => {
     })
 
     it('routes every documented operation through translation (no raw i18n key survives)', async () => {
-      const { body } = await read(await get(app, '/openapi/json?lang=zh-CN', {}))
+      const { body } = await read(await get(app, '/openapi/json?lang=ru-RU', {}))
       const operations = Object.values<any>(body.paths).flatMap((pathItem) => Object.values<any>(pathItem))
       expect(operations.length).toBeGreaterThan(0)
       for (const operation of operations) {
         // The stubbed `t()` appends `::lang`; a description a route declared but
         // openapiDocs.ts never resolved would show up here as a bare key.
-        expect(operation.description).toMatch(/^apiGateway\.docs\.operations\.[a-z_]+::zh-CN$/)
+        expect(operation.description).toMatch(/^apiGateway\.docs\.operations\.[a-z_]+::ru-RU$/)
       }
     })
 
@@ -161,10 +161,10 @@ describe('API gateway routes (integration)', () => {
       expect(Object.keys(body.paths)).not.toContain('/openapi/json')
     })
 
-    it('GET /openapi/json?lang=zh-CN translates against the requested language', async () => {
-      const { body } = await read(await get(app, '/openapi/json?lang=zh-CN', {}))
-      expect(body.info.description).toBe('apiGateway.docs.description::zh-CN')
-      expect(body.paths['/health'].get.description).toBe('apiGateway.docs.operations.health::zh-CN')
+    it('GET /openapi/json?lang=ru-RU translates against the requested language', async () => {
+      const { body } = await read(await get(app, '/openapi/json?lang=ru-RU', {}))
+      expect(body.info.description).toBe('apiGateway.docs.description::ru-RU')
+      expect(body.paths['/health'].get.description).toBe('apiGateway.docs.operations.health::ru-RU')
     })
 
     it('GET /openapi/json?lang=not-a-real-language falls back to the app language', async () => {
@@ -204,15 +204,15 @@ describe('API gateway routes (integration)', () => {
     it('GET /openapi renders a language dropdown offering every supported language, defaulting to the app language', async () => {
       const html = await (await get(app, '/openapi', {})).text()
       expect(html).toContain(`<option value="en-US" selected>English</option>`)
-      expect(html).toContain(`<option value="zh-CN">中文</option>`)
+      expect(html).toContain(`<option value="ru-RU">Русский</option>`)
     })
 
-    it('GET /openapi?lang=zh-CN renders Scalar chrome + the dropdown in the requested language', async () => {
-      const html = await (await get(app, '/openapi?lang=zh-CN', {})).text()
+    it('GET /openapi?lang=ru-RU renders Scalar chrome + the dropdown in the requested language', async () => {
+      const html = await (await get(app, '/openapi?lang=ru-RU', {})).text()
       const config = JSON.parse(html.match(/data-configuration='(.+?)'/)![1])
-      expect(config.url).toBe('http://localhost/openapi/json?lang=zh-CN')
-      expect(config.localization).toEqual({ locale: 'zh-CN' })
-      expect(html).toContain(`<option value="zh-CN" selected>中文</option>`)
+      expect(config.url).toBe('http://localhost/openapi/json?lang=ru-RU')
+      expect(config.localization).toEqual({ locale: 'ru' })
+      expect(html).toContain(`<option value="ru-RU" selected>Русский</option>`)
     })
   })
 

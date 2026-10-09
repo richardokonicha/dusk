@@ -672,22 +672,22 @@ describe('MiniAppService', () => {
       expect(() => miniAppService.update('com.example.a', { status: 'disabled' })).not.toThrow()
     })
 
-    it('shows the Chinese name under a Chinese UI and the English one otherwise', () => {
+    it('shows the manifest name for the active language and falls back to English', () => {
       // The bug this guards: storing one resolved string. Switching the app language
       // would then require rewriting rows, and until someone did, the name would lie.
-      seedInstalledApp('com.example.a', '1.0.0', { name: { en: 'My Game', zh: '我的游戏' } })
-
-      setLanguage('zh-CN')
-      expect(miniAppService.getByAppId('com.example.a').name).toBe('我的游戏')
+      seedInstalledApp('com.example.a', '1.0.0', { name: { en: 'My Game', de: 'Mein Spiel' } })
 
       setLanguage('de-DE')
+      expect(miniAppService.getByAppId('com.example.a').name).toBe('Mein Spiel')
+
+      setLanguage('ja-JP')
       expect(miniAppService.getByAppId('com.example.a').name).toBe('My Game')
     })
 
     it('resolves a name when the user has never picked a language', () => {
       // `app.language` starts null, and a null locale crashes `locale.split()`.
       // `getAppLanguage()` is the existing fallback chain.
-      seedInstalledApp('com.example.a', '1.0.0', { name: { en: 'My Game', zh: '我的游戏' } })
+      seedInstalledApp('com.example.a', '1.0.0', { name: { en: 'My Game', de: 'Mein Spiel' } })
 
       expect(MockMainPreferenceServiceUtils.getPreferenceValue('app.language')).toBeNull()
       expect(miniAppService.getByAppId('com.example.a').name).toBe('My Game')
