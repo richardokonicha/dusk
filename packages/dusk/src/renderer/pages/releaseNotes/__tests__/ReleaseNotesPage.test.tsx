@@ -4,21 +4,21 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const mocks = vi.hoisted(() => ({ ipcRequest: vi.fn(), language: 'zh-CN' }))
+const mocks = vi.hoisted(() => ({ ipcRequest: vi.fn() }))
 
-vi.stubGlobal('__APP_RELEASE_NOTES__', '<!--LANG:en-->English feature<!--LANG:zh-CN-->中文功能<!--LANG:END-->')
+vi.stubGlobal('__APP_RELEASE_NOTES__', '<!--LANG:en-->English feature<!--LANG:END-->')
 vi.stubGlobal('__APP_RELEASE_VERSION__', '2.0.2')
 vi.stubGlobal('__APP_RELEASE_HISTORY__', [
   {
-    releaseNotes: '<!--LANG:en-->Stale current<!--LANG:zh-CN-->过期当前版本<!--LANG:END-->',
+    releaseNotes: '<!--LANG:en-->Stale current<!--LANG:END-->',
     version: '2.0.2'
   },
   {
-    releaseNotes: '<!--LANG:en-->Previous feature<!--LANG:zh-CN-->历史功能<!--LANG:END-->',
+    releaseNotes: '<!--LANG:en-->Previous feature<!--LANG:END-->',
     version: '2.0.1'
   },
   {
-    releaseNotes: '<!--LANG:en-->Older feature<!--LANG:zh-CN-->更早功能<!--LANG:END-->',
+    releaseNotes: '<!--LANG:en-->Older feature<!--LANG:END-->',
     version: '2.0.0'
   }
 ])
@@ -37,8 +37,7 @@ vi.mock('@renderer/ipc', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => (key === 'settings.about.releases.title' ? 'Release Notes' : key),
-    i18n: { language: mocks.language, resolvedLanguage: mocks.language }
+    t: (key: string) => (key === 'settings.about.releases.title' ? 'Release Notes' : key)
   })
 }))
 
@@ -47,21 +46,14 @@ import ReleaseNotesPage from '../ReleaseNotesPage'
 describe('ReleaseNotesPage', () => {
   beforeEach(() => {
     mocks.ipcRequest.mockReset().mockResolvedValue(null)
-    mocks.language = 'zh-CN'
   })
 
-  it.each([
-    ['zh-CN', '中文功能', 'English feature'],
-    ['en-US', 'English feature', '中文功能']
-  ])('shows the bundled release notes for %s', (language, expected, hidden) => {
-    mocks.language = language
-
+  it('shows the bundled release notes with the markers stripped', () => {
     render(<ReleaseNotesPage />)
 
     expect(screen.getByRole('heading', { name: 'Release Notes' })).toBeInTheDocument()
     expect(screen.getAllByText('v2.0.2')).toHaveLength(2)
-    expect(screen.getByText(expected)).toBeInTheDocument()
-    expect(screen.queryByText(hidden)).not.toBeInTheDocument()
+    expect(screen.getByText('English feature')).toBeInTheDocument()
     expect(screen.queryByText('Stale current')).not.toBeInTheDocument()
   })
 
@@ -74,12 +66,12 @@ describe('ReleaseNotesPage', () => {
     expect(versionTriggers.map((trigger) => trigger.textContent)).toEqual(['v2.0.2', 'v2.0.1', 'v2.0.0'])
     expect(versionTriggers[0]).toHaveAttribute('aria-expanded', 'true')
     expect(versionTriggers[1]).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByText('历史功能')).not.toBeInTheDocument()
+    expect(screen.queryByText('Previous feature')).not.toBeInTheDocument()
 
     await user.click(versionTriggers[1])
 
     expect(versionTriggers[1]).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText('历史功能')).toBeInTheDocument()
+    expect(screen.getByText('Previous feature')).toBeInTheDocument()
     expect(screen.queryByRole('link')).not.toBeInTheDocument()
     expect(mocks.ipcRequest).toHaveBeenCalledWith('app.updater.release_notes.get')
   })
@@ -88,26 +80,26 @@ describe('ReleaseNotesPage', () => {
     const user = userEvent.setup()
     mocks.ipcRequest.mockResolvedValue([
       {
-        releaseNotes: '<!--LANG:en-->Remote feature<!--LANG:zh-CN-->远端新功能<!--LANG:END-->',
+        releaseNotes: '<!--LANG:en-->Remote feature<!--LANG:END-->',
         version: '2.0.3'
       },
       {
-        releaseNotes: '<!--LANG:en-->Remote current<!--LANG:zh-CN-->远端当前版本<!--LANG:END-->',
+        releaseNotes: '<!--LANG:en-->Remote current<!--LANG:END-->',
         version: '2.0.2'
       }
     ])
 
     render(<ReleaseNotesPage />)
 
-    expect(await screen.findByText('远端新功能')).toBeInTheDocument()
+    expect(await screen.findByText('Remote feature')).toBeInTheDocument()
     const versionTriggers = screen.getAllByRole('button')
     expect(versionTriggers.map((trigger) => trigger.textContent)).toEqual(['v2.0.3', 'v2.0.2', 'v2.0.1', 'v2.0.0'])
     expect(versionTriggers[0]).toHaveAttribute('aria-expanded', 'true')
     expect(versionTriggers[1]).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByText('中文功能')).not.toBeInTheDocument()
+    expect(screen.queryByText('English feature')).not.toBeInTheDocument()
 
     await user.click(versionTriggers[1])
-    expect(screen.getByText('远端当前版本')).toBeInTheDocument()
+    expect(screen.getByText('Remote current')).toBeInTheDocument()
   })
 
   it('keeps bundled release history when the managed update service is unavailable', async () => {
@@ -117,7 +109,7 @@ describe('ReleaseNotesPage', () => {
 
     await waitFor(() => expect(mocks.ipcRequest).toHaveBeenCalledOnce())
     expect(screen.getAllByText('v2.0.2')).toHaveLength(2)
-    expect(screen.getByText('中文功能')).toBeInTheDocument()
-    expect(screen.queryByText('远端新功能')).not.toBeInTheDocument()
+    expect(screen.getByText('English feature')).toBeInTheDocument()
+    expect(screen.queryByText('Remote feature')).not.toBeInTheDocument()
   })
 })
