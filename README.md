@@ -8,7 +8,7 @@ Dusk is a personal work operating system combining task management, project trac
 
 ## Alpha status
 
-Dusk is in alpha. Current version: `0.1.0-alpha.2`.
+Dusk is in alpha. Current version: `0.1.0-alpha.3`.
 
 ## Install (alpha)
 
@@ -86,8 +86,8 @@ pnpm typecheck
 To cut a release:
 
 ```bash
-git tag v0.1.0-alpha.2
-git push origin v0.1.0-alpha.2
+git tag v0.1.0-alpha.3
+git push origin v0.1.0-alpha.3
 ```
 
 ## Project structure
