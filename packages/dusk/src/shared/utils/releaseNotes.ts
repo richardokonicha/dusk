@@ -2,7 +2,6 @@ import { rcompare as compareSemverDescending } from 'semver'
 
 const RELEASE_NOTE_MARKERS = {
   english: '<!--LANG:en-->',
-  chinese: '<!--LANG:zh-CN-->',
   end: '<!--LANG:END-->'
 } as const
 
@@ -15,9 +14,8 @@ export type ReleaseNotesEntry = {
 
 function hasCompleteLanguageMarkers(releaseNotes: string): boolean {
   const englishMarker = releaseNotes.indexOf(RELEASE_NOTE_MARKERS.english)
-  const chineseMarker = releaseNotes.indexOf(RELEASE_NOTE_MARKERS.chinese, englishMarker + 1)
-  const endMarker = releaseNotes.indexOf(RELEASE_NOTE_MARKERS.end, chineseMarker + 1)
-  return englishMarker >= 0 && chineseMarker > englishMarker && endMarker > chineseMarker
+  const endMarker = releaseNotes.indexOf(RELEASE_NOTE_MARKERS.end, englishMarker + 1)
+  return englishMarker >= 0 && endMarker > englishMarker
 }
 
 export function parseReleaseHistory(source: string): ReleaseNotesEntry[] {
@@ -51,7 +49,7 @@ export function parseReleaseHistory(source: string): ReleaseNotesEntry[] {
       throw new Error(`release-history.json contains duplicate version ${version}`)
     }
     if (typeof releaseNotes !== 'string' || !releaseNotes.trim() || !hasCompleteLanguageMarkers(releaseNotes)) {
-      throw new Error(`release-history.json entry ${index} must have complete bilingual release notes`)
+      throw new Error(`release-history.json entry ${index} must have complete language-marked release notes`)
     }
 
     versions.add(version)
@@ -88,26 +86,15 @@ export function hasMultiLanguageReleaseNotes(releaseNotes: string): boolean {
   return releaseNotes.includes(RELEASE_NOTE_MARKERS.english)
 }
 
-export function localizeReleaseNotes(releaseNotes: string, language: string | null | undefined): string {
+export function localizeReleaseNotes(releaseNotes: string): string {
   if (!hasMultiLanguageReleaseNotes(releaseNotes)) return releaseNotes
 
   const englishStart = releaseNotes.indexOf(RELEASE_NOTE_MARKERS.english) + RELEASE_NOTE_MARKERS.english.length
-  const chineseMarker = releaseNotes.indexOf(RELEASE_NOTE_MARKERS.chinese, englishStart)
-  const chineseStart = chineseMarker + RELEASE_NOTE_MARKERS.chinese.length
-  const endMarker = releaseNotes.indexOf(RELEASE_NOTE_MARKERS.end, chineseStart)
-  const isChinese = language === 'zh-CN' || language === 'zh-TW'
+  const endMarker = releaseNotes.indexOf(RELEASE_NOTE_MARKERS.end, englishStart)
 
-  if (isChinese && chineseMarker >= englishStart && endMarker >= chineseStart) {
-    return releaseNotes.slice(chineseStart, endMarker).trim()
+  if (endMarker >= englishStart) {
+    return releaseNotes.slice(englishStart, endMarker).trim()
   }
 
-  if (chineseMarker >= englishStart) {
-    return releaseNotes.slice(englishStart, chineseMarker).trim()
-  }
-
-  return releaseNotes
-    .replaceAll(RELEASE_NOTE_MARKERS.english, '')
-    .replaceAll(RELEASE_NOTE_MARKERS.chinese, '')
-    .replaceAll(RELEASE_NOTE_MARKERS.end, '')
-    .trim()
+  return releaseNotes.replaceAll(RELEASE_NOTE_MARKERS.english, '').replaceAll(RELEASE_NOTE_MARKERS.end, '').trim()
 }

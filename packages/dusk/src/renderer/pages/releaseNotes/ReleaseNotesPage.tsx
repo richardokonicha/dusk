@@ -10,8 +10,7 @@ import { useTranslation } from 'react-i18next'
 const logger = loggerService.withContext('ReleaseNotesPage')
 
 export default function ReleaseNotesPage() {
-  const { t, i18n } = useTranslation()
-  const language = i18n.resolvedLanguage ?? i18n.language
+  const { t } = useTranslation()
   const [bundledReleases] = useState(() =>
     mergeReleaseNotes(
       { releaseNotes: __APP_RELEASE_NOTES__, version: __APP_RELEASE_VERSION__ },
@@ -59,7 +58,7 @@ export default function ReleaseNotesPage() {
                 <AccordionContent className="min-w-0 overflow-hidden pb-5">
                   <ReleaseNotes
                     className="min-w-0 max-w-full break-words [overflow-wrap:anywhere]"
-                    content={localizeReleaseNotes(releaseNotes, language)}
+                    content={localizeReleaseNotes(releaseNotes)}
                   />
                 </AccordionContent>
               </AccordionItem>
