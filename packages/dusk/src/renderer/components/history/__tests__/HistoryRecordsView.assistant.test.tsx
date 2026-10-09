@@ -17,8 +17,6 @@ import roRO from '../../../i18n/locales/ro-ro.json'
 import ruRU from '../../../i18n/locales/ru-ru.json'
 import trTR from '../../../i18n/locales/tr-tr.json'
 import viVN from '../../../i18n/locales/vi-vn.json'
-import zhCN from '../../../i18n/locales/zh-cn.json'
-import zhTW from '../../../i18n/locales/zh-tw.json'
 
 const hookMocks = vi.hoisted(() => ({
   cancelTopicRenaming: vi.fn(),
@@ -1491,8 +1489,8 @@ describe('HistoryRecordsView locale resources', () => {
       'table.time',
       'title'
     ]
-    const originalLocaleResources = [enUS, zhCN, zhTW]
-    const runtimeLocaleResources = [enUS, zhCN, zhTW, deDE, elGR, esES, frFR, jaJP, ptPT, roRO, ruRU, trTR, viVN]
+    const originalLocaleResources = [enUS]
+    const runtimeLocaleResources = [enUS, deDE, elGR, esES, frFR, jaJP, ptPT, roRO, ruRU, trTR, viVN]
 
     for (const resource of runtimeLocaleResources) {
       for (const key of requiredGlobalKeys) {

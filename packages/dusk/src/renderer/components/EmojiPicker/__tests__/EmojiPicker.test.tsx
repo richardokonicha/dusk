@@ -11,11 +11,11 @@ import { resetEmojiSupportLevelCacheForTesting } from '../emojiSupport'
 const emojiPickerPropsMock = vi.hoisted((): { value: any } => ({ value: undefined }))
 const i18nLanguageMock = vi.hoisted(() => ({ value: 'en-US' }))
 const require = createRequire(import.meta.url)
-const loadSourceEmojiRecords = (locale: 'en' | 'zh') =>
+const loadSourceEmojiRecords = (locale: 'en' | 'ru') =>
   JSON.parse(readFileSync(require.resolve(`emoji-picker-element-data/${locale}/cldr/data.json`), 'utf-8')) as unknown[]
 const sourceEmojiRecords = {
   en: loadSourceEmojiRecords('en'),
-  zh: loadSourceEmojiRecords('zh')
+  ru: loadSourceEmojiRecords('ru')
 }
 const emojiPickerCss = readFileSync(join(process.cwd(), 'src/renderer/components/EmojiPicker/EmojiPicker.css'), 'utf-8')
 const emojiSupportMock = { supportedEmoji: '🫪' }
@@ -158,7 +158,7 @@ describe('EmojiPicker', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async (input: string | URL | Request) => {
-        const records = String(input).includes('/zh/') ? sourceEmojiRecords.zh : sourceEmojiRecords.en
+        const records = String(input).includes('/ru/') ? sourceEmojiRecords.ru : sourceEmojiRecords.en
         return {
           json: async () => records,
           ok: true,
@@ -377,15 +377,13 @@ describe('EmojiPicker', () => {
   })
 
   it('loads localized emoji data when the app language changes', async () => {
-    i18nLanguageMock.value = 'zh-CN'
+    i18nLanguageMock.value = 'ru-RU'
 
     await renderResolvedPicker()
 
     await waitFor(() => {
       expect(emojiPickerPropsMock.value.emojiData.emojis.smileys_people).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ a: '17', n: expect.arrayContaining(['变形的脸']), u: '1faea' })
-        ])
+        expect.arrayContaining([expect.objectContaining({ n: expect.arrayContaining(['паника']), u: '1faea' })])
       )
     })
   })

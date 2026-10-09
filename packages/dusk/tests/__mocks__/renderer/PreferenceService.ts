@@ -15,7 +15,7 @@ export const mockPreferenceDefaults: Record<string, any> = {
   'data.export.markdown.show_model_provider': false,
 
   // UI preferences
-  'ui.language': 'zh-CN',
+  'ui.language': 'en-US',
   'ui.theme': 'light',
   'ui.font_size': 14,
 
@@ -34,7 +34,7 @@ export const mockPreferenceDefaults: Record<string, any> = {
 
   // App preferences
   'app.user.name': 'MockUser',
-  'app.language': 'zh-CN',
+  'app.language': 'en-US',
 
   // Mirrors the generated schema defaults — without them the hook returns
   // null and UI gated on the master switch renders its disabled state.
