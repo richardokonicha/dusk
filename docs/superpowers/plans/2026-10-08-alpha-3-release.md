@@ -42,7 +42,7 @@ No test files are added or changed. This plan alters documentation and release m
 
 **Interfaces:**
 - Consumes: nothing from earlier tasks
-- Produces: a branch whose `origin/main..HEAD` range holds 6 commits, none of them `b021c740`, and no `wip:` subject. Every later task assumes this shape.
+- Produces: a branch whose `origin/main..HEAD` range holds 8 commits (6 code commits plus the design spec and this plan), none of them `b021c740`, and no `wip:` subject. Every later task assumes this shape.
 
 `origin/main` already contains `fe7e88f8`, which is byte-identical to the branch's `b021c740` across its five shared paths and additionally modifies `.gitignore` and `packages/dusk/eslint.config.mjs`. The branch copy is therefore a strict subset and is dropped.
 
@@ -56,7 +56,7 @@ git branch --show-current
 git log --oneline origin/main..HEAD
 ```
 
-Expected: `v24.11.1`, branch `wip/provider-prune`, and 8 commits listed (7 pre-existing plus the spec commit `cc2df60f`).
+Expected: `v24.11.1`, branch `wip/provider-prune`, and 9 commits listed — the 7 pre-existing commits, plus `cc2df60f` (design spec) and `60176700` (this plan).
 
 - [ ] **Step 2: Fetch and rebase**
 
@@ -83,7 +83,7 @@ git log --oneline origin/main..HEAD
 git log --oneline origin/main..HEAD | grep -c b021c740
 ```
 
-Expected: 7 commits listed; the `grep -c` prints `0`.
+Expected: 8 commits listed; the `grep -c` prints `0`.
 
 - [ ] **Step 5: Confirm the absorbed change survived rather than being reverted**
 
@@ -595,21 +595,25 @@ Do not merge a red build. Report the failing job and its log to the user.
 - [ ] **Step 1: Merge**
 
 ```bash
-gh pr merge --squash --delete-branch=false
+gh pr merge --merge --delete-branch=false
 ```
 
-Use squash so `main` receives one commit for the release. Keep the branch — Task 8's verification needs to compare it against `origin/main`.
+Use a merge commit, not a squash: `main` must keep the Conventional Commit
+subjects of the six code commits, which `AGENTS.md` treats as documentation. A
+squash merge would collapse them irreversibly. Keep the branch — Task 8's
+verification compares it against `origin/main`.
 
 - [ ] **Step 2: Sync local main and confirm the release commit landed**
 
 ```bash
 cd /Users/ro/Fugoku/DUSK
 git fetch origin
-git log --oneline origin/main -3
+git log --oneline --graph origin/main -12
 git show origin/main:packages/dusk/package.json | grep '"version"'
 ```
 
-Expected: the tip is the squash commit and the version reads `0.1.0-alpha.3`.
+Expected: the tip is a merge commit whose second parent is `60176700`, the full
+commit chain is still visible below it, and the version reads `0.1.0-alpha.3`.
 
 ---
 
