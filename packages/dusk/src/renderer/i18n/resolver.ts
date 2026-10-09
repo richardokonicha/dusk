@@ -27,8 +27,6 @@ const logger = loggerService.withContext('I18N')
 // the current language (and the en-US fallback) on demand inside initI18n().
 const localeLoaders = {
   'en-US': () => import('./locales/en-us.json'),
-  'zh-CN': () => import('./locales/zh-cn.json'),
-  'zh-TW': () => import('./locales/zh-tw.json'),
   'de-DE': () => import('./locales/de-de.json'),
   'el-GR': () => import('./locales/el-gr.json'),
   'es-ES': () => import('./locales/es-es.json'),
@@ -54,8 +52,6 @@ const dayjsLocaleMap: Record<string, string> = {
   'en-US': 'en',
   'ja-JP': 'ja',
   'ru-RU': 'ru',
-  'zh-CN': 'zh-cn',
-  'zh-TW': 'zh-tw',
   'de-DE': 'de',
   'el-GR': 'el',
   'es-ES': 'es',
