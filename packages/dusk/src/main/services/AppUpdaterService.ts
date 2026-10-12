@@ -350,16 +350,9 @@ export class AppUpdaterService extends BaseService {
   private processReleaseInfo(releaseInfo: UpdateInfo): UpdateInfo {
     const processedInfo = { ...releaseInfo }
 
-    // Handle multi-language release notes in string format
-    if (releaseInfo.releaseNotes && typeof releaseInfo.releaseNotes === 'string') {
-      if (hasMultiLanguageReleaseNotes(releaseInfo.releaseNotes)) {
-        try {
-          const language = application.get('PreferenceService').get('app.language')
-          processedInfo.releaseNotes = localizeReleaseNotes(releaseInfo.releaseNotes, language)
-        } catch (error) {
-          logger.error('Failed to localize release notes', error as Error)
-        }
-      }
+    // Handle marked release notes in string format
+    if (typeof releaseInfo.releaseNotes === 'string' && hasMultiLanguageReleaseNotes(releaseInfo.releaseNotes)) {
+      processedInfo.releaseNotes = localizeReleaseNotes(releaseInfo.releaseNotes)
     }
 
     return processedInfo

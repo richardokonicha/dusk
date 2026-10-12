@@ -620,9 +620,9 @@ describe('OnboardingPage', () => {
 
     expect(languageTrigger).toHaveClass('nodrag')
 
-    fireEvent.click(screen.getByRole('button', { name: '中文' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Deutsch' }))
 
-    expect(i18nMock.changeLanguage).toHaveBeenCalledWith('zh-CN')
-    await waitFor(() => expect(MockUsePreferenceUtils.getPreferenceValue('app.language')).toBe('zh-CN'))
+    expect(i18nMock.changeLanguage).toHaveBeenCalledWith('de-DE')
+    await waitFor(() => expect(MockUsePreferenceUtils.getPreferenceValue('app.language')).toBe('de-DE'))
   })
 })

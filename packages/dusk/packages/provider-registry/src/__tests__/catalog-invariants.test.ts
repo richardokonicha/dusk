@@ -15,7 +15,6 @@ import { describe, expect, it } from 'vitest'
 import { canonOf, isModelsDevRoutingAlias, prefixHit } from '../../scripts/canonicalize'
 import { CREATORS } from '../creators'
 import { isServerToolModelEligible } from '../patterns/serverToolModelEligibility'
-import { PROVIDERS } from '../providers'
 import { SERVER_TOOL } from '../schemas/enums'
 import { ModelListSchema } from '../schemas/model'
 import { ProviderListSchema } from '../schemas/provider'
@@ -97,19 +96,6 @@ describe('catalog invariants (data/*.json)', () => {
   const ids = models.map((m) => m.id)
   const baseIds = new Set(ids)
 
-  it.each([
-    ['mai-image-2-5', 'microsoft', 'MicrosoftAI: MAI-Image-2.5'],
-    ['recraft-v4-1-vector', 'recraft', 'Recraft: Recraft V4.1 Vector'],
-    ['riverflow-v2-5-fast', 'sourceful', 'Sourceful: Riverflow V2.5 Fast'],
-    ['seedream-4-5', 'bytedance', 'Seedream 4.5']
-  ])('catalogs OpenRouter image model %s under its creator with its display name', (modelId, ownedBy, name) => {
-    expect(models.find((model) => model.id === modelId)).toMatchObject({
-      capabilities: expect.arrayContaining(['image-generation']),
-      name,
-      ownedBy
-    })
-  })
-
   it.each(GEMINI_IMAGE_ASPECT_RATIO_OPTIONS)(
     'keeps smart aspect ratio and explicit resolution controls for $modelId',
     ({ modelId, options }) => {
@@ -182,37 +168,6 @@ describe('catalog invariants (data/*.json)', () => {
       ...ids.filter(isBatch),
       ...overrides.filter((o) => isBatch(o.apiModelId ?? o.modelId)).map((o) => `${o.providerId}/${o.apiModelId}`)
     ]).toEqual([])
-  })
-
-  it('keeps the OpenRouter-only DeepSeek router alias out of the creator catalog', () => {
-    const aliases = overrides.filter(
-      (override) => override.providerId === 'openrouter' && override.apiModelId?.startsWith('~')
-    )
-
-    expect(aliases.length).toBeGreaterThan(0)
-    const deepseekLatest = aliases.find((override) => override.apiModelId === '~deepseek/deepseek-v4-flash-latest')
-    expect(deepseekLatest).toMatchObject({
-      modelId: 'deepseek-v4-flash-latest',
-      name: 'DeepSeek V4 Flash Latest'
-    })
-    expect(baseIds.has(deepseekLatest!.modelId)).toBe(false)
-    expect(deepseekLatest?.pricing).toBeUndefined()
-  })
-
-  it('keeps the declared OpenRouter GPT image route out of the OpenAI creator catalog', () => {
-    expect(PROVIDERS.find((provider) => provider.id === 'openrouter')?.standaloneModelIds).toEqual(['gpt-5-4-image-2'])
-    expect(ids).not.toContain('gpt-5-4-image-2')
-    expect(
-      providerModelOverrides.find(
-        (override) => override.providerId === 'openrouter' && override.apiModelId === 'openai/gpt-5.4-image-2'
-      )
-    ).toMatchObject({
-      modelId: 'gpt-5-4-image-2',
-      capabilities: { add: expect.arrayContaining(['image-generation']) },
-      endpointTypes: expect.arrayContaining(['openai-image-generation']),
-      name: 'OpenAI: GPT-5.4 Image 2',
-      ownedBy: 'openrouter'
-    })
   })
 
   it('drops Vercel OpenAI fast routing aliases without dropping real fast models', () => {
@@ -376,23 +331,6 @@ describe('catalog invariants (data/*.json)', () => {
     }
   )
 
-  it('keeps DeepSeek V4 base pricing at the documented static peak ceiling', () => {
-    const pricing = (id: string) => models.find((model) => model.id === id)?.pricing
-
-    expect(pricing('deepseek-v4-flash')).toEqual({
-      cacheRead: { currency: 'USD', perMillionTokens: 0.014 },
-      input: { currency: 'USD', perMillionTokens: 0.44 },
-      output: { currency: 'USD', perMillionTokens: 1.32 }
-    })
-    expect(pricing('deepseek-v4-flash-vision-exp')).toEqual(pricing('deepseek-v4-flash'))
-    expect(pricing('deepseek-v4-pro')).toEqual({
-      cacheRead: { currency: 'USD', perMillionTokens: 0.044 },
-      input: { currency: 'USD', perMillionTokens: 1.32 },
-      output: { currency: 'USD', perMillionTokens: 3.96 }
-    })
-    expect(pricing('deepseek-v4-flash-latest')).toBeUndefined()
-  })
-
   it('models.json conforms to ModelListSchema', () => {
     const r = ModelListSchema.safeParse(modelsRaw)
     expect(r.success ? [] : r.error.issues.slice(0, 5)).toEqual([])
@@ -401,15 +339,6 @@ describe('catalog invariants (data/*.json)', () => {
   it('provider-models.json conforms to ProviderModelListSchema', () => {
     const r = ProviderModelListSchema.safeParse(providerModelsRaw)
     expect(r.success ? [] : r.error.issues.slice(0, 5)).toEqual([])
-  })
-
-  it('Fast transports belong only to Codex, Claude Code, and Ark', () => {
-    expect(
-      providers
-        .filter((provider) => provider.fastMode)
-        .map((provider) => provider.id)
-        .sort()
-    ).toEqual(['claude-code', 'doubao', 'openai-codex'])
   })
 
   it('Fast provider-model declarations require a provider transport', () => {

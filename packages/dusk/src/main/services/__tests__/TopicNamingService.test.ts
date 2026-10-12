@@ -75,7 +75,6 @@ const { TopicNamingService } = await import('../TopicNamingService')
 const rendererI18nDir = path.join(process.cwd(), 'src/renderer/i18n')
 const unnamedTranslations = [
   'locales/en-us',
-  'locales/zh-cn',
   'locales/de-de',
   'locales/el-gr',
   'locales/es-es',
@@ -85,8 +84,7 @@ const unnamedTranslations = [
   'locales/ro-ro',
   'locales/ru-ru',
   'locales/tr-tr',
-  'locales/vi-vn',
-  'locales/zh-tw'
+  'locales/vi-vn'
 ].map((rel) => JSON.parse(fs.readFileSync(path.join(rendererI18nDir, `${rel}.json`), 'utf-8'))['common.unnamed'])
 
 function createService() {
@@ -144,7 +142,7 @@ describe('TopicNamingService', () => {
   })
 
   it('requests a title in the language selected in system settings', async () => {
-    MockMainPreferenceServiceUtils.setPreferenceValue('app.language', 'zh-CN')
+    MockMainPreferenceServiceUtils.setPreferenceValue('app.language', 'tr-TR')
 
     await createService().maybeRenameFromConversationSummary('topic-1', 'assistant-1', 'message-1', {
       role: 'assistant',
@@ -153,14 +151,14 @@ describe('TopicNamingService', () => {
 
     expect(mocks.generateText).toHaveBeenCalledWith(
       expect.objectContaining({
-        system: expect.stringContaining('Chinese (Simplified)')
+        system: expect.stringContaining('Turkish')
       })
     )
   })
 
   it('follows the system locale when app.language is null', async () => {
     MockMainPreferenceServiceUtils.setPreferenceValue('app.language', null)
-    vi.mocked(app.getLocale).mockReturnValueOnce('zh-CN')
+    vi.mocked(app.getLocale).mockReturnValueOnce('tr-TR')
 
     await createService().maybeRenameFromConversationSummary('topic-1', 'assistant-1', 'message-1', {
       role: 'assistant',
@@ -169,7 +167,7 @@ describe('TopicNamingService', () => {
 
     expect(mocks.generateText).toHaveBeenCalledWith(
       expect.objectContaining({
-        system: expect.stringContaining('Chinese (Simplified)')
+        system: expect.stringContaining('Turkish')
       })
     )
   })

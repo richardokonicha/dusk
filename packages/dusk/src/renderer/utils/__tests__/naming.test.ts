@@ -377,7 +377,7 @@ describe('naming', () => {
 
   describe('getProviderDisplayNameById', () => {
     it('uses the canonical label for a system provider id', () => {
-      expect(getProviderDisplayNameById('minimax')).toBe('MiniMax CN')
+      expect(getProviderDisplayNameById('minimax')).toBe('MiniMax')
     })
 
     it.each([

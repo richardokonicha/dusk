@@ -11,8 +11,8 @@ import AppearanceSettings, { confirmMenuPresentationModeChange } from '../Appear
 const t = (key: string) => key
 
 const i18nMock = vi.hoisted(() => ({
-  language: 'zh-CN',
-  resolvedLanguage: 'zh-CN'
+  language: 'tr-TR',
+  resolvedLanguage: 'tr-TR'
 }))
 
 vi.mock('@renderer/i18n/resolver', () => ({
@@ -284,8 +284,8 @@ describe('AppearanceSettings menu presentation mode', () => {
 describe('AppearanceSettings selectors', () => {
   beforeEach(() => {
     MockUsePreferenceUtils.resetMocks()
-    i18nMock.language = 'zh-CN'
-    i18nMock.resolvedLanguage = 'zh-CN'
+    i18nMock.language = 'tr-TR'
+    i18nMock.resolvedLanguage = 'tr-TR'
     mocks.request.mockReset()
     themeMocks.setTheme.mockReset()
     mocks.request.mockImplementation((route: string) => {
@@ -295,8 +295,8 @@ describe('AppearanceSettings selectors', () => {
     })
   })
 
-  it('shows the resolved i18n language when no app language preference is saved', async () => {
-    MockUsePreferenceUtils.setPreferenceValue('app.language', null)
+  it('falls back to the resolved i18n language when the saved one is not a supported app language', async () => {
+    MockUsePreferenceUtils.setPreferenceValue('app.language', 'xx-XX')
 
     render(<AppearanceSettings />)
 
@@ -305,8 +305,8 @@ describe('AppearanceSettings selectors', () => {
       expect(mocks.request).toHaveBeenCalledWith('app.adjust_zoom', { delta: 0 })
     })
 
-    expect(screen.getByRole('combobox', { name: /中文/ })).toBeInTheDocument()
-    expect(screen.queryByRole('combobox', { name: /English/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: /Türkçe/ })).toBeInTheDocument()
+    expect(screen.queryByRole('combobox', { name: /^English$/ })).not.toBeInTheDocument()
   })
 
   it('does not render manual chat layout switches', async () => {
