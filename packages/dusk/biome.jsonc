@@ -14,12 +14,7 @@
       }
     },
     "enabled": true,
-    "includes": [
-      "**/*.json",
-      "!**/package.json",
-      "!coverage/**",
-      "!**/provider-registry/data/upstream/**"
-    ]
+    "includes": ["**/*.json", "!**/package.json", "!coverage/**", "!**/provider-registry/data/upstream/**"]
   },
   "css": {
     "formatter": {
