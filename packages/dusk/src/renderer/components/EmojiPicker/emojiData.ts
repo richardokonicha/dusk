@@ -6,8 +6,6 @@ import dataFR from 'emoji-picker-element-data/fr/cldr/data.json?url'
 import dataJA from 'emoji-picker-element-data/ja/cldr/data.json?url'
 import dataPT from 'emoji-picker-element-data/pt/cldr/data.json?url'
 import dataRU from 'emoji-picker-element-data/ru/cldr/data.json?url'
-import dataZH from 'emoji-picker-element-data/zh/cldr/data.json?url'
-import dataZH_HANT from 'emoji-picker-element-data/zh-hant/cldr/data.json?url'
 import { Categories, type Props as EmojiPickerReactProps } from 'emoji-picker-react'
 
 export type EmojiData = NonNullable<EmojiPickerReactProps['emojiData']>
@@ -29,8 +27,6 @@ export interface EmojiRecord {
 
 const DATA_URL_MAP: Record<LanguageVarious, string> = {
   'en-US': dataEN,
-  'zh-CN': dataZH,
-  'zh-TW': dataZH_HANT,
   'de-DE': dataDE,
   'el-GR': dataEN,
   'es-ES': dataES,

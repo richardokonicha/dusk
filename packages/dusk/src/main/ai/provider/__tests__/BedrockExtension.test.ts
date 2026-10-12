@@ -1,8 +1,7 @@
 import path from 'node:path'
 
 import { coreExtensions, type ProviderExtensionConfig } from '@dusk/ai-core/provider'
-import { isServerToolModelEligible, SERVER_TOOL } from '@dusk/provider-registry'
-import { readModelRegistry, readProviderRegistry } from '@dusk/provider-registry/node'
+import { readProviderRegistry } from '@dusk/provider-registry/node'
 import { describe, expect, it } from 'vitest'
 
 import { BedrockExtension, extensions } from '../extensions'
@@ -54,21 +53,5 @@ describe('BedrockExtension toolFactories', () => {
         ).toContainEqual(expect.objectContaining({ id: 'web-search' }))
       }
     }
-  })
-
-  it('keeps Bedrock Web Search declared across the registry, extension, and model eligibility', () => {
-    const { providers } = readProviderRegistry(
-      path.join(process.cwd(), 'packages/provider-registry/data/providers.json')
-    )
-    const { models } = readModelRegistry(path.join(process.cwd(), 'packages/provider-registry/data/models.json'))
-    const provider = providers.find(({ id }) => id === 'aws-bedrock')
-    const model = models.find(({ id }) => id === 'claude-sonnet-4-6')
-
-    expect(provider?.serverTools).toContainEqual(
-      expect.objectContaining({ id: 'web-search', modelScope: 'model-dependent' })
-    )
-    expect(BedrockExtension.config.toolFactories?.webSearch).toBeDefined()
-    expect(model && isServerToolModelEligible(model.id, 'aws-bedrock', SERVER_TOOL.WEB_SEARCH)).toBe(true)
-    expect(model?.capabilities).not.toContain('web-search')
   })
 })

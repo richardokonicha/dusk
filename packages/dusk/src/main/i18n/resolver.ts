@@ -14,14 +14,10 @@ import roRO from './locales/ro-ro.json'
 import RuRu from './locales/ru-ru.json'
 import trTR from './locales/tr-tr.json'
 import viVN from './locales/vi-vn.json'
-import ZhCn from './locales/zh-cn.json'
-import ZhTw from './locales/zh-tw.json'
 
 const locales = Object.fromEntries(
   [
     ['en-US', EnUs],
-    ['zh-CN', ZhCn],
-    ['zh-TW', ZhTw],
     ['ja-JP', JaJP],
     ['ru-RU', RuRu],
     ['de-DE', deDE],

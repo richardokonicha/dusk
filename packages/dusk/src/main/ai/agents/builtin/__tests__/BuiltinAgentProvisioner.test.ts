@@ -24,14 +24,14 @@ import {
 } from '../BuiltinAgentProvisioner'
 
 const TEMPLATE_AGENT_JSON = JSON.stringify({
-  name: { 'en-US': 'Dusk Assistant', 'zh-CN': 'Dusk Assistant CN' },
-  instructions: { 'en-US': 'English instructions', 'zh-CN': 'Chinese instructions' },
+  name: { 'en-US': 'Dusk Assistant', 'tr-TR': 'Dusk Assistant TR' },
+  instructions: { 'en-US': 'English instructions', 'tr-TR': 'Turkish instructions' },
   configuration: { permission_mode: 'default' },
   skills: ['dusk-assistant-guide']
 })
 const SUPPORT_AGENT_JSON = JSON.stringify({
-  name: { 'en-US': 'Dusk Support', 'zh-CN': 'Dusk Support CN' },
-  instructions: { 'en-US': 'Support instructions', 'zh-CN': 'Chinese support instructions' },
+  name: { 'en-US': 'Dusk Support', 'tr-TR': 'Dusk Support TR' },
+  instructions: { 'en-US': 'Support instructions', 'tr-TR': 'Turkish support instructions' },
   configuration: { permission_mode: 'acceptEdits' },
   skills: ['dusk-assistant-guide', 'faq-collector', 'dusk-feedback', 'issue-reporter']
 })
@@ -79,17 +79,17 @@ describe('BuiltinAgentProvisioner', () => {
   })
 
   it('uses the system locale when app.language is unset', () => {
-    vi.mocked(app.getLocale).mockReturnValue('zh-CN')
+    vi.mocked(app.getLocale).mockReturnValue('tr-TR')
 
     expect(loadBuiltinAgentDefinition('assistant')).toMatchObject({
-      name: 'Dusk Assistant CN',
-      instructions: 'Chinese instructions'
+      name: 'Dusk Assistant TR',
+      instructions: 'Turkish instructions'
     })
   })
 
   it('prefers app.language over the system locale', () => {
     MockMainPreferenceServiceUtils.setPreferenceValue('app.language', 'en-US')
-    vi.mocked(app.getLocale).mockReturnValue('zh-CN')
+    vi.mocked(app.getLocale).mockReturnValue('tr-TR')
 
     expect(loadBuiltinAgentDefinition('assistant')).toMatchObject({
       name: 'Dusk Assistant',

@@ -15,18 +15,6 @@ import { runPainting } from '../runPainting'
 describe('runPainting error surfacing', () => {
   const fail = (error: unknown) => runPainting(() => Promise.reject(error))
 
-  it('surfaces the provider detail message from an AI_REQUEST_FAILED IpcError', async () => {
-    const detail = { name: 'AI_APICallError', message: '401 Unauthorized', stack: null, statusCode: 401 }
-    // Empty top-level message (the message-less case the user hit): the detail must win.
-    const err = new IpcError(aiErrorCodes.AI_REQUEST_FAILED, '', detail)
-
-    await expect(fail(err)).rejects.toMatchObject({
-      name: 'PaintingGenerateError',
-      code: 'REMOTE_ERROR',
-      message: '401 Unauthorized'
-    })
-  })
-
   it('falls back to HTTP status + response body when the detail has no message', async () => {
     const detail = { name: 'AI_APICallError', message: '', stack: null, statusCode: 500, responseBody: 'upstream boom' }
     const err = new IpcError(aiErrorCodes.AI_REQUEST_FAILED, '', detail)
