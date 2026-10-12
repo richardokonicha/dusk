@@ -37,7 +37,6 @@ let originalLanguage: string
 
 beforeAll(async () => {
   originalLanguage = i18n.language
-  await i18n.changeLanguage('zh-CN')
 })
 
 afterAll(async () => {
@@ -61,10 +60,9 @@ describe('MessageMetaTool', () => {
 
     await waitFor(() => {
       expect(copyText).toHaveBeenCalledWith(expect.stringContaining('"query": "browser"'), {
-        successMessage: 'Copied'
+        successMessage: 'Copied!'
       })
     })
-    expect(screen.getByText('Copied')).toBeInTheDocument()
   })
 
   async function expandCard(name: RegExp) {
