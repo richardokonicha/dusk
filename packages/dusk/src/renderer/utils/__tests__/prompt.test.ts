@@ -30,12 +30,12 @@ describe('prompt', () => {
   const mockDate = new Date('2024-01-01T12:00:00Z')
 
   beforeEach(() => {
-    // 重置所有 mocks
+    // Reset every mock
     vi.clearAllMocks()
     vi.useFakeTimers()
     vi.setSystemTime(mockDate)
 
-    // 设置默认的 mock 返回值
+    // Default mock return values
     deviceTypeResult = 'macOS'
     appInfoResult = { arch: 'darwin64' }
     mocks.request.mockImplementation((route: string) => {
@@ -53,19 +53,19 @@ describe('prompt', () => {
   describe('buildSystemPrompt', () => {
     it('should replace all variables correctly with strict equality', async () => {
       const userPrompt = `
-以下是一些辅助信息:
-  - 日期和时间: {{datetime}};
-  - 操作系统: {{system}};
-  - 中央处理器架构: {{arch}};
-  - 语言: {{language}};
-  - 模型名称: {{model_name}};
-  - 用户名称: {{username}};
+Some supporting information:
+  - Date and time: {{datetime}};
+  - Operating system: {{system}};
+  - CPU architecture: {{arch}};
+  - Language: {{language}};
+  - Model name: {{model_name}};
+  - User name: {{username}};
 `
       const assistant = createMockAssistant('MyAssistant', 'Super-Model-X')
       const result = await replacePromptVariables(userPrompt, assistant.modelName)
       const expectedPrompt = `
-以下是一些辅助信息:
-  - 日期和时间: ${mockDate.toLocaleString(undefined, {
+Some supporting information:
+  - Date and time: ${mockDate.toLocaleString(undefined, {
     weekday: 'short',
     year: 'numeric',
     month: 'numeric',
@@ -74,11 +74,11 @@ describe('prompt', () => {
     minute: 'numeric',
     second: 'numeric'
   })};
-  - 操作系统: macOS;
-  - 中央处理器架构: darwin64;
-  - 语言: zh-CN;
-  - 模型名称: Super-Model-X;
-  - 用户名称: MockUser;
+  - Operating system: macOS;
+  - CPU architecture: darwin64;
+  - Language: en-US;
+  - Model name: Super-Model-X;
+  - User name: MockUser;
 `
       expect(result).toEqual(expectedPrompt)
     })
