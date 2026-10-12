@@ -9,6 +9,11 @@ export default defineCreator({
   families: ['kimi'],
   idPrefixes: ['kimi', 'moonshot'],
   reasoningFamilies: [
+    // Upstream reports reasoning controls for these SKUs but the family table
+    // had no rule, so they failed the membership gate and lost their descriptor
+    // for anyone adding them on a custom provider.
+    { pattern: '^kimi-k2$' },
+    { pattern: '^kimi-k2\b' },
     // K2.7-code only accepts thinking type 'enabled' (platform.kimi.com
     // claude-code guide: requests without it are rejected) — always-on, the
     // explicit `toggle: false` stops the generic toggle below.

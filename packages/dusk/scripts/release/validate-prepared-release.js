@@ -11,32 +11,33 @@ function runGit(cwd, args) {
 }
 
 function readBaseFile(cwd, filePath) {
-  return runGit(cwd, ['show', `HEAD:${filePath}`])
+  const prefix = runGit(cwd, ['rev-parse', '--show-prefix']).trim()
+  return runGit(cwd, ['show', `HEAD:${prefix}${filePath}`])
 }
 
 function changedPaths(cwd) {
-  const tracked = runGit(cwd, ['diff', 'HEAD', '--name-only', '--no-renames', '-z']).split('\0').filter(Boolean)
+  const tracked = runGit(cwd, ['diff', 'HEAD', '--relative', '--name-only', '--no-renames', '-z'])
+    .split('\0')
+    .filter(Boolean)
   const untracked = runGit(cwd, ['ls-files', '--others', '--exclude-standard', '-z']).split('\0').filter(Boolean)
   return [...new Set([...tracked, ...untracked])].sort()
 }
 
 function validateReleaseNotes(releaseNotes) {
   const normalizedReleaseNotes = releaseNotes.trim()
-  const markers = ['<!--LANG:en-->', '<!--LANG:zh-CN-->', '<!--LANG:END-->']
+  const markers = ['<!--LANG:en-->', '<!--LANG:END-->']
   const indexes = markers.map((marker) => normalizedReleaseNotes.indexOf(marker))
   if (
     indexes.some((index) => index < 0) ||
     markers.some((marker, markerIndex) => normalizedReleaseNotes.indexOf(marker, indexes[markerIndex] + 1) >= 0) ||
-    indexes[0] >= indexes[1] ||
-    indexes[1] >= indexes[2]
+    indexes[0] >= indexes[1]
   ) {
-    throw new Error('Release notes must contain one ordered set of bilingual markers')
+    throw new Error('Release notes must contain one ordered set of language markers')
   }
 
   const english = normalizedReleaseNotes.slice(indexes[0] + markers[0].length, indexes[1])
-  const chinese = normalizedReleaseNotes.slice(indexes[1] + markers[1].length, indexes[2])
-  if (!english.trim() || !chinese.trim()) {
-    throw new Error('Release notes must contain non-empty English and Chinese sections')
+  if (!english.trim()) {
+    throw new Error('Release notes must contain a non-empty English section')
   }
 }
 

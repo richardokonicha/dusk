@@ -36,44 +36,12 @@ type Delivery =
   /** Appended to the serialized request body by a custom `fetch` (openai adapter drops unknown tools). */
   | { kind: 'body-transform' }
 
-const factories = (...names: string[]): Delivery => ({ kind: 'factories', names })
-
-const DELIVERY: Record<string, Partial<Record<string, Delivery>>> = {
-  anthropic: { 'web-search': factories('anthropic'), 'url-context': factories('anthropic') },
-  gemini: { 'web-search': factories('google'), 'url-context': factories('google') },
-  vertexai: {
-    'web-search': factories('google-vertex', 'google-vertex-anthropic'),
-    // Declared `vendors: ['gemini']`: @ai-sdk/google-vertex/anthropic exposes
-    // no webFetch tool, so availability itself excludes Claude-on-Vertex.
-    'url-context': factories('google-vertex')
-  },
-  'aws-bedrock': { 'web-search': factories('bedrock'), 'url-context': factories('bedrock') },
-  'azure-openai': {
-    'web-search': factories('azure', 'azure-responses', 'azure-anthropic'),
-    'url-context': factories('azure-anthropic')
-  },
-  openai: { 'web-search': factories('openai', 'openai-chat') },
-  grok: { 'web-search': factories('xai-responses') },
-  openrouter: { 'web-search': factories('openrouter'), 'url-context': factories('openrouter') },
-  perplexity: { 'web-search': { kind: 'implicit' } },
-  // Responses-endpoint models only; the openai extension's factory emits the bare tool shape.
-  doubao: { 'web-search': factories('openai') },
-  deepseek: { 'web-search': factories('openai') },
-  // web-search: enable_search body params (getWebSearchParams). url-context (web_extractor): chat upgrades
-  // search_strategy to `agent_max` (provider-options), Responses appends the `web_extractor` tool via a
-  // custom-fetch body transform (appendDashScopeWebExtractor) — the openai adapter drops unknown tool ids.
-  dashscope: { 'web-search': { kind: 'provider-options' }, 'url-context': { kind: 'body-transform' } },
-  // web_search marker via providerOptions, moved into `tools` by transformZhipuRequestBody.
-  zhipu: { 'web-search': { kind: 'provider-options' } },
-  // $web_search echo tool injected by the moonshot extension factory.
-  moonshot: { 'web-search': factories('moonshot') },
-  poe: { 'web-search': { kind: 'provider-options' } },
-  'new-api': { 'web-search': { kind: 'gateway-mapped' }, 'url-context': { kind: 'gateway-mapped' } },
-  // Native vendor endpoints behind `aihubmix.<vendor>` model provider strings.
-  aihubmix: { 'web-search': { kind: 'gateway-mapped' }, 'url-context': { kind: 'gateway-mapped' } },
-  // Anthropic-direct (anthropic-messages endpoint, adapterFamily 'anthropic').
-  'claude-code': { 'url-context': factories('anthropic') }
-}
+// Dusk ships only the Kilo and Fugoku gateways, and neither declares
+// `serverTools`, so no delivery route is reachable. Every entry that used to
+// live here belonged to a pruned provider and is now dead configuration. Keep
+// the table (and the invariants around it) so the next provider that declares
+// server tools has its delivery path asserted from the first commit.
+const DELIVERY: Record<string, Partial<Record<string, Delivery>>> = {}
 
 const CAPABILITY: Record<string, ToolCapability> = {
   'web-search': 'webSearch',
