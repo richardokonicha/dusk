@@ -11,7 +11,8 @@ function runGit(cwd, args) {
 }
 
 function readBaseFile(cwd, filePath) {
-  return runGit(cwd, ['show', `HEAD:${filePath}`])
+  const prefix = runGit(cwd, ['rev-parse', '--show-prefix']).trim()
+  return runGit(cwd, ['show', `HEAD:${prefix}${filePath}`])
 }
 
 function changedPaths(cwd) {
