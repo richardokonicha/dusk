@@ -102,7 +102,6 @@ vi.mock('electron-updater', () => {
   }
 })
 
-import { application } from '@application'
 import { UpgradeChannel } from '@shared/data/preference/preferenceTypes'
 import { APP_NAME } from '@shared/utils/constants'
 import { MockMainPreferenceServiceUtils } from '@test-mocks/main/PreferenceService'
@@ -242,20 +241,20 @@ describe('AppUpdaterService', () => {
   })
 
   describe('processReleaseInfo', () => {
-    it('localizes marked release notes', () => {
-      MockMainPreferenceServiceUtils.setPreferenceValue('app.language', 'zh-CN')
+    it('extracts the marked section of release notes', () => {
+      MockMainPreferenceServiceUtils.setPreferenceValue('app.language', 'en-US')
       const releaseInfo = {
         version: '1.0.0',
         files: [],
         path: '',
         sha512: '',
         releaseDate: new Date().toISOString(),
-        releaseNotes: '<!--LANG:en-->English notes<!--LANG:zh-CN-->中文说明<!--LANG:END-->'
+        releaseNotes: '<!--LANG:en-->English notes<!--LANG:END-->'
       } as UpdateInfo
 
       const result = (appUpdater as any).processReleaseInfo(releaseInfo)
 
-      expect(result.releaseNotes).toBe('中文说明')
+      expect(result.releaseNotes).toBe('English notes')
     })
 
     it('leaves unmarked release notes unchanged', () => {
@@ -298,22 +297,6 @@ describe('AppUpdaterService', () => {
       } as UpdateInfo
 
       expect((appUpdater as any).processReleaseInfo(releaseInfo).releaseNotes).toBeNull()
-    })
-
-    it('leaves marked release notes unchanged when language lookup fails', () => {
-      const releaseInfo = {
-        version: '1.0.0',
-        files: [],
-        path: '',
-        sha512: '',
-        releaseDate: new Date().toISOString(),
-        releaseNotes: '<!--LANG:en-->English notes<!--LANG:zh-CN-->中文说明<!--LANG:END-->'
-      } as UpdateInfo
-      vi.mocked(application.get('PreferenceService').get).mockImplementationOnce(() => {
-        throw new Error('Test error')
-      })
-
-      expect((appUpdater as any).processReleaseInfo(releaseInfo).releaseNotes).toBe(releaseInfo.releaseNotes)
     })
   })
 })

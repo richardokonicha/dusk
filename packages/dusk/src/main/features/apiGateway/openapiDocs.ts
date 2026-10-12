@@ -22,14 +22,12 @@ const SCALAR_VERSION = '1.63.0'
  * Scalar's own UI chrome (search, "Body"/"required" labels, buttons, …) ships
  * pre-translated for these locales only — see
  * https://github.com/scalar/scalar/blob/main/documentation/localization.md.
- * Languages we support but Scalar doesn't (zh-TW included, per product
- * decision — Scalar has no Traditional Chinese chrome and we chose not to
- * substitute Simplified) fall back to Scalar's own English chrome; the doc's
- * own prose (descriptions, see below) is still translated for them.
+ * Languages we support but Scalar doesn't fall back to Scalar's own English
+ * chrome; the doc's own prose (descriptions, see below) is still translated for
+ * them.
  */
 const SCALAR_CHROME_LOCALE: Partial<Record<LanguageVarious, string>> = {
   'en-US': 'en',
-  'zh-CN': 'zh-CN',
   'ru-RU': 'ru',
   'de-DE': 'de',
   'es-ES': 'es',

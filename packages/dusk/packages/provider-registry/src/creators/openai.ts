@@ -27,6 +27,12 @@ export default defineCreator({
   fetchModels: openaiCompatible('openai', 'OPENAI_API_KEY'),
   modelsDevProviders: ['openai'],
   reasoningFamilies: [
+    // Upstream reports reasoning controls for these SKUs but the family table
+    // had no rule, so they failed the membership gate and lost their descriptor
+    // for anyone adding them on a custom provider.
+    { pattern: '^gpt-6-(?:sol|luna)' },
+    { pattern: '^gpt-6-1-' },
+    { pattern: '^gpt-daybreak-' },
     { pattern: '^(?:o\\d|gpt).*deep[-_]?research', effort: ['medium'] },
     { pattern: '^gpt-5[.-]1-codex-max', effort: ['medium', 'high', 'xhigh'] },
     { pattern: '^gpt-5[.-]1-codex', effort: ['medium', 'high'] },

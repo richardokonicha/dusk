@@ -12,30 +12,23 @@ import {
 const releaseNotes = `<!--LANG:en-->
 New features
 - English item
-<!--LANG:zh-CN-->
-新功能
-- 中文项目
 <!--LANG:END-->`
 
 describe('releaseNotes', () => {
-  it.each(['zh-CN', 'zh-TW'])('returns Chinese notes for %s', (language) => {
-    expect(localizeReleaseNotes(releaseNotes, language)).toBe('新功能\n- 中文项目')
-  })
-
-  it.each(['en-US', 'ja-JP', null])('returns English notes for %s', (language) => {
-    expect(localizeReleaseNotes(releaseNotes, language)).toBe('New features\n- English item')
+  it('extracts the English section from marked notes', () => {
+    expect(localizeReleaseNotes(releaseNotes)).toBe('New features\n- English item')
   })
 
   it('leaves unmarked release notes unchanged', () => {
-    expect(localizeReleaseNotes('Simple release notes', 'zh-CN')).toBe('Simple release notes')
+    expect(localizeReleaseNotes('Simple release notes')).toBe('Simple release notes')
     expect(hasMultiLanguageReleaseNotes('Simple release notes')).toBe(false)
   })
 
   it('removes markers when a marked document is incomplete', () => {
-    expect(localizeReleaseNotes('<!--LANG:en-->English only', 'zh-CN')).toBe('English only')
+    expect(localizeReleaseNotes('<!--LANG:en-->English only')).toBe('English only')
   })
 
-  it('parses bundled stable release history without changing its order or bilingual notes', () => {
+  it('parses bundled stable release history without changing its order or marked notes', () => {
     expect(
       parseReleaseHistory(
         JSON.stringify([
