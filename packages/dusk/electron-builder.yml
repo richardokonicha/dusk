@@ -184,9 +184,12 @@ artifactBuildCompleted: scripts/artifact-build-completed.js
 releaseInfo:
   releaseNotes: |
     <!--LANG:en-->
-    Dusk 0.1.0-alpha.2 — public alpha of the Dusk Work OS for AI.
+    Dusk 0.1.0-alpha.3 — provider registry consolidation and packaging fixes.
 
-    Removes the China-market channels (Feishu, QQ, WeChat) and the CN-hosted
-    diagnostic feedback endpoint; adds a live memory and disk usage panel; fixes
-    the dock icon in unpackaged runs. Unsigned builds.
+    The provider registry is pruned to the two supported OpenAI-compatible
+    gateways: Kilo Gateway and Fugoku Gateway. Providers removed from the
+    registry take their test fixtures and server-tool delivery entries with them.
+    Vendored upstream model snapshots are no longer bundled into the app package,
+    and reasoning-family rules are corrected for newly upstreamed SKUs.
+    Unsigned builds.
     <!--LANG:END-->
