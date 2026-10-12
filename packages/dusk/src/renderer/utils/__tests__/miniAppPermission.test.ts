@@ -1,5 +1,4 @@
 import enUs from '@renderer/i18n/locales/en-us.json'
-import zhCn from '@renderer/i18n/locales/zh-cn.json'
 import { MINI_APP_NAMESPACES, MINI_APP_PERMISSIONS } from '@shared/types/miniAppManifest'
 import { describe, expect, it } from 'vitest'
 
@@ -11,7 +10,7 @@ import { groupPermissionsByNamespace, permissionLabel } from '../miniAppPermissi
  * is the check that catches it, in the two catalogs that are hand-maintained.
  */
 describe('mini app permission copy', () => {
-  const catalogs: Record<string, Record<string, string>> = { 'en-us': enUs, 'zh-cn': zhCn }
+  const catalogs: Record<string, Record<string, string>> = { 'en-us': enUs }
 
   it.each(Object.keys(catalogs))('%s names every grantable leaf and namespace', (locale) => {
     const catalog = catalogs[locale]

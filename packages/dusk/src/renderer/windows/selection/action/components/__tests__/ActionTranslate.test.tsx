@@ -160,22 +160,8 @@ describe('ActionTranslate', () => {
     expect(state.translate).not.toHaveBeenCalled()
   })
 
-  it('uses Traditional Chinese when the app language is zh-TW and the target is still the default', async () => {
-    MockUsePreferenceUtils.setPreferenceValue('app.language', 'zh-TW')
-    state.detectLanguage.mockResolvedValue('en-us')
-
-    render(<ActionTranslate action={createAction()} scrollToBottom={state.scrollToBottom} />)
-
-    await waitFor(() =>
-      expect(state.translate).toHaveBeenCalledWith('There is no default export.', state.traditionalChinese)
-    )
-  })
-
-  it('keeps a non-default target language when the app language is zh-TW', async () => {
-    MockUsePreferenceUtils.setMultiplePreferenceValues({
-      'app.language': 'zh-TW',
-      'feature.translate.action.preferred_lang': 'ja-jp'
-    })
+  it('keeps a non-default target language', async () => {
+    MockUsePreferenceUtils.setPreferenceValue('feature.translate.action.preferred_lang', 'ja-jp')
     state.detectLanguage.mockResolvedValue('en-us')
 
     render(<ActionTranslate action={createAction()} scrollToBottom={state.scrollToBottom} />)

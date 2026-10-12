@@ -38,20 +38,14 @@ const ActionTranslate: FC<Props> = ({ action, scrollToBottom }) => {
   const { t } = useTranslation()
   const selectedText = action.selectedText
 
-  const [language] = usePreference('app.language')
   const [preferredLangCode, setPreferredLangCode] = usePreference('feature.translate.action.preferred_lang')
   const [alterLangCode, setAlterLangCode] = usePreference('feature.translate.action.alter_lang')
   const { languages, getLanguage } = useLanguages()
   const isLanguagesLoaded = languages !== undefined
   const detectLanguage = useDetectLang()
-  // The stored default is zh-cn, so preserve the matching UI-locale fallback for zh-TW.
-  const effectivePreferredLangCode =
-    language === 'zh-TW' && preferredLangCode === BUILTIN_LANGUAGE.zhCN.langCode
-      ? BUILTIN_LANGUAGE.zhTW.langCode
-      : preferredLangCode
 
   const [targetLanguage, setTargetLanguage] = useState<TranslateLanguage>(() => {
-    const lang = getLanguage(effectivePreferredLangCode)
+    const lang = getLanguage(preferredLangCode)
     if (lang) {
       return lang
     }
@@ -81,7 +75,7 @@ const ActionTranslate: FC<Props> = ({ action, scrollToBottom }) => {
       return
     }
 
-    const targetLang = getLanguage(effectivePreferredLangCode)
+    const targetLang = getLanguage(preferredLangCode)
     if (targetLang) {
       setTargetLanguage(targetLang)
       targetLangRef.current = targetLang
@@ -91,7 +85,7 @@ const ActionTranslate: FC<Props> = ({ action, scrollToBottom }) => {
     if (alterLang) {
       setAlterLanguage(alterLang)
     }
-  }, [getLanguage, isLanguagesLoaded, effectivePreferredLangCode, alterLangCode])
+  }, [getLanguage, isLanguagesLoaded, preferredLangCode, alterLangCode])
 
   // Initialize values only once
   const initialize = useCallback(async () => {

@@ -8,16 +8,31 @@ alpha-readiness sweep. It covers the two GitHub Actions workflows, the
 
 ### 1.1 `.github/workflows/ci.yml`
 
-Triggers on push to `main` and on pull requests targeting `main`. Two jobs, both on
-`ubuntu-latest`. Installs **must** run inside `packages/dusk` — the
-`patchedDependencies` and workspace overrides live in
-`packages/dusk/pnpm-workspace.yaml`, so every install step uses
-`defaults.run.working-directory: packages/dusk`.
+Triggers on push to `main` and on pull requests targeting `main`. Three jobs.
+Installs **must** run inside `packages/dusk` — the `patchedDependencies` and
+workspace overrides live in `packages/dusk/pnpm-workspace.yaml`, so every
+install step uses `working-directory: packages/dusk`.
 
-| Job | Steps |
-| --- | --- |
-| `lint-and-build` | checkout → setup pnpm → setup Node 24.15 → `pnpm install --frozen-lockfile` → `pnpm lint` → `pnpm build` |
-| `test` | checkout → setup pnpm → setup Node 24.15 → `pnpm install --frozen-lockfile` → `pnpm test` (timeout 45 min) |
+| Job | Runner | Steps |
+| --- | --- | --- |
+| `lint-and-build` | `ubuntu-latest` | checkout → setup pnpm → setup Node 24.15 → `pnpm install --frozen-lockfile` → `pnpm lint` → `pnpm build` |
+| `test` | `ubuntu-latest` | checkout → setup pnpm → setup Node 24.15 → `pnpm install --frozen-lockfile` → `pnpm test` (timeout 45 min) |
+| `build-desktop` | matrix | checkout → setup pnpm → setup Node 24.15 → `pnpm install --frozen-lockfile` → `hdiutil detach -all` (macOS only) → package → upload artifacts |
+
+`build-desktop` is what proves macOS and Windows packaging works:
+
+| Matrix entry | Runner | Script | Zip fallback |
+| --- | --- | --- | --- |
+| `macos-arm64` | `macos-14` | `build:mac:arm64` | `build:mac:arm64:zip` |
+| `macos-x64` | `macos-14` | `build:mac:x64` | `build:mac:x64:zip` |
+| `windows-x64` | `windows-latest` | `build:win:x64` | — |
+| `windows-arm64` | `windows-latest` | `build:win:arm64` | — |
+
+The packaging step retries once after `hdiutil detach -all`, then falls back to
+the zip target, because `hdiutil` intermittently fails with "Device not
+configured" on the macOS runners. Artifacts (`*.dmg`, `*.zip`, `*.exe`,
+`*.blockmap`, `latest*.yml`) are uploaded per matrix entry with 14-day retention
+and `if-no-files-found: error`.
 
 `pnpm lint` is the gate that runs in CI — it covers format + oxlint + eslint +
 typecheck + i18n:check. `pnpm test:lint` (oxlint `--deny-warnings`) is **not** used
@@ -26,7 +41,7 @@ in CI because it fails on 47 pre-existing warnings.
 ### 1.2 Pipeline overview
 
 ```
-GitHub Event (push/PR/tag)
+GitHub Event (push to main / PR to main / v* tag)
     │
     ▼
 ┌──────────────┐
@@ -41,33 +56,51 @@ GitHub Event (push/PR/tag)
        ▼
 ┌──────────────┐
 │  pnpm test   │  vitest (all projects)
-└──────────────┘
+└──────┬───────┘
+       │
+       ▼
+┌─────────────────────────────────┐
+│  desktop packaging (matrix)     │  macos-14: arm64 + x64
+│  electron-builder               │  windows-latest: x64 + arm64
+└─────────────────────────────────┘
 ```
 
 ## 2. Release Pipeline
 
 ### 2.1 `.github/workflows/release.yml`
 
-Triggers on tags matching `v*`. Matrix of three OS runners; installs run inside
-`packages/dusk`. Per-OS build scripts (read from `packages/dusk/package.json`):
+Triggers on tags matching `v*`. A six-entry matrix, `fail-fast: false`, with
+`defaults.run.working-directory: packages/dusk`. Per-entry scripts read from
+`packages/dusk/package.json`:
 
-| Runner | Script | Signing secrets referenced |
-| --- | --- | --- |
-| `macos-14` (arm64) | `pnpm build:mac` | `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`, `CSC_LINK`, `CSC_KEY_PASSWORD` |
-| `windows-latest` | `pnpm build:win` | `WIN_SIGN`, `DUSK_CERT_PATH`, `DUSK_CERT_KEY`, `DUSK_CERT_CSP`, `WIN_SIGN_TIMESTAMP_URLS`, `CSC_LINK`, `CSC_KEY_PASSWORD` |
-| `ubuntu-latest` | `pnpm build:linux` | (none) |
+| Runner | Matrix entry | Script | Zip fallback |
+| --- | --- | --- | --- |
+| `macos-14` | `macos-arm64` | `build:mac:arm64` | `build:mac:arm64:zip` |
+| `macos-14` | `macos-x64` | `build:mac:x64` | `build:mac:x64:zip` |
+| `windows-latest` | `windows-x64` | `build:win:x64` | — |
+| `windows-latest` | `windows-arm64` | `build:win:arm64` | — |
+| `ubuntu-latest` | `linux-x64` | `build:linux:x64` | — |
+| `ubuntu-latest` | `linux-arm64` | `build:linux:arm64` | — |
 
-Windows signing is driven by `scripts/win-sign.js`, which reads the env vars listed
-above. `WIN_SIGN` must be set to a truthy value for signing to actually run.
+The Linux entries first install X11 build dependencies, because `selection-hook`
+compiles X11 code that the runner image lacks headers for. Every entry packages
+with `--publish never`, retries once after `hdiutil detach -all`, then falls back
+to the zip target.
 
-Artifacts are uploaded from `packages/dusk/out` (the default `electron-builder`
-output directory — `electron-builder.yml` sets `directories.buildResources` but
-does not set `directories.output`).
+Windows signing is driven by `scripts/win-sign.js`, which reads the env vars in
+§4. `WIN_SIGN` must be truthy for signing to actually run; the workflow sets it to
+`true` only when `DUSK_CERT_PATH` is non-empty, so it is not itself a secret.
 
-**Publishing:** `electron-builder.yml` currently has no `publish` block (the
-generic provider URL is commented out as a TODO placeholder). The release workflow
-therefore does not publish to GitHub releases; this is tracked as a TODO in the
-workflow file.
+Artifacts are read from **`packages/dusk/dist`**, the electron-builder output
+directory, not from `packages/dusk/out` (which holds the electron-vite bundle).
+
+**Publishing** is done by a separate `publish` job that `needs: build`, so a single
+failed matrix entry blocks publication and no partial release can ship. It runs on
+`ubuntu-latest` with `permissions: contents: write`, downloads the per-entry
+artifacts, stages the installers, and creates the release with
+`softprops/action-gh-release@v2` using `draft: false`, `prerelease: true` and
+`generate_release_notes: true`. `electron-builder.yml` has no `publish` block — the
+workflow owns the release rather than electron-builder self-publishing.
 
 ### 2.2 `electron-builder.yml`
 
@@ -80,6 +113,9 @@ workflow file.
 - Linux: AppImage + deb + rpm targets
 - Release notes live under `releaseInfo.releaseNotes` with bilingual
   `<!--LANG:en-->` / `<!--LANG:zh-CN-->` / `<!--LANG:END-->` markers
+- `scripts/release/validate-release-state.js` implements a draft-release flow
+  (draft release, `workflow_dispatch`, branch/tag/SHA equality, manual publish
+  gate). `release.yml` does **not** call it; the tag-push flow above is what runs.
 
 ## 3. Pre-Release Validation
 
@@ -89,7 +125,7 @@ touch:
 
 ```bash
 cd packages/dusk
-node scripts/release/validate-prepared-release.js --target-version 0.1.0-alpha.2
+node scripts/release/validate-prepared-release.js --target-version 0.1.0-alpha.3
 ```
 
 The validator checks:
@@ -104,7 +140,7 @@ The validator checks:
 - For stable releases, `resources/dusk/release-history.json` starts with the new
   version and its notes match `electron-builder.yml` exactly.
 
-For prereleases (`0.1.0-alpha.2`), the release history file must remain unchanged.
+For prereleases (`0.1.0-alpha.3`), the release history file must remain unchanged.
 
 ## 4. Secrets Management
 
@@ -118,17 +154,28 @@ Settings → Secrets and variables → Actions):
 | `APPLE_TEAM_ID` | macOS notarization |
 | `CSC_LINK` | Code signing certificate (macOS + Windows) |
 | `CSC_KEY_PASSWORD` | Code signing certificate password |
-| `WIN_SIGN` | Enable Windows code signing |
 | `DUSK_CERT_PATH` | Windows signing certificate path |
 | `DUSK_CERT_KEY` | Windows signing key container |
 | `DUSK_CERT_CSP` | Windows signing CSP |
 | `WIN_SIGN_TIMESTAMP_URLS` | Comma-separated timestamp URLs (optional) |
 
+`WIN_SIGN` is deliberately absent from this table: the workflow derives it from
+`DUSK_CERT_PATH` rather than reading it from the repository.
+
+**Current status: no secrets are configured** (`gh secret list` returns empty).
+macOS notarization is therefore skipped — `scripts/notarize.js` returns early
+without `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD` and `APPLE_TEAM_ID` — and
+Windows installers are unsigned. Every published alpha is unsigned, so users meet
+Gatekeeper and SmartScreen warnings on first launch.
+
 ## 5. Distribution Channels
 
-- **GitHub Releases** — primary distribution channel (currently disabled pending
-  the `publish` configuration in `electron-builder.yml`).
-- Assets: DMG/zip (mac), EXE (win), AppImage/deb/rpm (linux).
+- **GitHub Releases** — primary distribution channel. The `publish` job in
+  `release.yml` creates a pre-release automatically on every `v*` tag.
+- Assets: DMG/zip (mac), setup + portable EXE (win), AppImage/deb/rpm (linux).
+- A macOS x64 entry may ship zip-only: the `hdiutil` fallback in `release.yml`
+  replaces the DMG when volume creation fails on the runner. `v0.1.0-alpha.2`
+  shipped this way.
 
 ---
 
