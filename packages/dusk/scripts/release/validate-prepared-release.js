@@ -15,7 +15,9 @@ function readBaseFile(cwd, filePath) {
 }
 
 function changedPaths(cwd) {
-  const tracked = runGit(cwd, ['diff', 'HEAD', '--name-only', '--no-renames', '-z']).split('\0').filter(Boolean)
+  const tracked = runGit(cwd, ['diff', 'HEAD', '--relative', '--name-only', '--no-renames', '-z'])
+    .split('\0')
+    .filter(Boolean)
   const untracked = runGit(cwd, ['ls-files', '--others', '--exclude-standard', '-z']).split('\0').filter(Boolean)
   return [...new Set([...tracked, ...untracked])].sort()
 }
