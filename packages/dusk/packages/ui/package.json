@@ -7,8 +7,8 @@
   "types": "dist/index.d.ts",
   "react-native": "dist/index.js",
   "scripts": {
-    "build": "pnpm theme:build && tsdown && mkdir -p dist/styles && cp -R src/styles/. dist/styles/",
-    "dev": "tsc -w",
+    "build": "node init && pnpm theme:build && tsdown && mkdir -p dist/styles && cp -R src/styles/. dist/styles/",
+    "dev": "node init && tsc -w",
     "clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -17,7 +17,7 @@
     "type:check": "tsc --noEmit -p tsconfig.json --composite false",
     "theme:build": "tsx scripts/build-theme-css.ts",
     "storybook": "storybook dev -p 6006",
-    "build:storybook": "storybook build",
+    "build:storybook": "node init && storybook build",
     "icons:generate": "tsx scripts/icons-generate.ts",
     "posticons:generate": "pnpm --workspace-root exec eslint packages/ui/src/components/icons --ext .ts,.tsx --fix && pnpm --workspace-root format"
   },
