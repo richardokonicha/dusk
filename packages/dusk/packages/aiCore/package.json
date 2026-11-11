@@ -7,8 +7,8 @@
   "types": "dist/index.d.mts",
   "react-native": "dist/index.mjs",
   "scripts": {
-    "build": "tsdown",
-    "dev": "tsc -w",
+    "build": "node init && tsdown",
+    "dev": "node init && tsc -w",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --fix && eslint . --fix --cache",
     "lint:check": "oxlint && eslint . --cache",
