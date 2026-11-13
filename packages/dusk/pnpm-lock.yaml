@@ -5603,18 +5603,21 @@ packages:
   '@opentelemetry/sdk-trace-base@2.0.0':
     resolution: {integrity: sha512-qQnYdX+ZCkonM7tA5iU4fSRsVxbFGml8jbxOgipRGMFHKaXKHQ30js03rTobYjKjIfnOsZSbHKWF0/0v0OQGfw==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 
   '@opentelemetry/sdk-trace-base@2.2.0':
     resolution: {integrity: sha512-xWQgL0Bmctsalg6PaXExmzdedSp3gyKV8mQBwK/j9VGdCDu2fmXIb2gAehBKbkXCpJ4HPkgv3QfoJWRT4dHWbw==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 
   '@opentelemetry/sdk-trace-node@2.2.0':
     resolution: {integrity: sha512-+OaRja3f0IqGG2kptVeYsrZQK9nKRSpfFrKtRBq4uh6nIB8bTBgaGvYQrQoRrQWQMA5dK5yLhDMDc0dvYvCOIQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.0.0 <1.10.0'
 
@@ -7163,6 +7166,9 @@ packages:
   '@smithy/core@3.31.1':
     resolution: {integrity: sha512-CyogUINxvi7C7LDsh8Syo6hVJOT9ckz4rG8dRZfTJ8r91HkMY59PnNooaj7WcHyxEkxPfBAmbgztZU+xTo76lg==}
     engines: {node: '>=18.0.0'}
+    deprecated: |-
+      Deprecated due to a bug in custom logger data redaction. Upgrade to the latest version. If you used a custom logger with this
+        version, review your logs and rotate any credentials or other secrets. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/credential-provider-imds@4.2.10':
     resolution: {integrity: sha512-3bsMLJJLTZGZqVGGeBVFfLzuRulVsGTj12BzRKODTHqUABpIr0jMN1vN3+u6r2OfyhAQ2pXaMZWX/swBK5I6PQ==}
@@ -7303,6 +7309,9 @@ packages:
   '@smithy/smithy-client@4.12.0':
     resolution: {integrity: sha512-R8bQ9K3lCcXyZmBnQqUZJF4ChZmtWT5NLi6x5kgWx5D+/j0KorXcA0YcFg/X5TOgnTCy1tbKc6z2g2y4amFupQ==}
     engines: {node: '>=18.0.0'}
+    deprecated: |-
+      Deprecated due to a bug in custom logger data redaction. Upgrade to the latest version. If you used a custom logger with
+        this version, review your logs and rotate any credentials or other secrets. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/types@4.7.1':
     resolution: {integrity: sha512-WwP7vzoDyzvIFLzF5UhLQ6AsEx/PvSObzlNtJNW3lLy+BaSvTqCU628QKVvcJI/dydlAS1mSHQP7anKcxDcOxA==}
@@ -11543,8 +11552,8 @@ packages:
   hls.js@1.6.15:
     resolution: {integrity: sha512-E3a5VwgXimGHwpRGV+WxRTKeSp2DW5DI5MWv34ulL3t5UNmyJWCQ1KmLEHbYzcfThfXG8amBL+fCYPneGHC4VA==}
 
-  hono@4.12.25:
-    resolution: {integrity: sha512-2NFaIyNVgJmBs/ecmtGzlmluTFs5cHEWGTdu0t1HBwYzoGXOL5nUQBRMXsXWla5i4KkG//QMzVP88m1+I3fdAQ==}
+  hono@4.13.18:
+    resolution: {integrity: sha512-H9q/E1XizaWstJxUW881dmLxEj+t/TrGGnyxINkm4+sK0qUwsMtFdo2BWI9Vs3cIS19MU6b6iCijoUoEf4f3DA==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -15929,8 +15938,8 @@ snapshots:
   '@ai-sdk/devtools@0.0.17':
     dependencies:
       '@ai-sdk/provider': 3.0.15
-      '@hono/node-server': 1.19.10(hono@4.12.25)
-      hono: 4.12.25
+      '@hono/node-server': 1.19.10(hono@4.13.18)
+      hono: 4.13.18
 
   '@ai-sdk/gateway@3.0.104(zod@4.3.4)':
     dependencies:
@@ -19030,9 +19039,9 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@hono/node-server@1.19.10(hono@4.12.25)':
+  '@hono/node-server@1.19.10(hono@4.13.18)':
     dependencies:
-      hono: 4.12.25
+      hono: 4.13.18
 
   '@hookform/resolvers@5.2.2(react-hook-form@7.75.0(react@19.2.3))':
     dependencies:
@@ -19686,7 +19695,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.27.1(supports-color@8.1.1)(zod@4.3.4)':
     dependencies:
-      '@hono/node-server': 1.19.10(hono@4.12.25)
+      '@hono/node-server': 1.19.10(hono@4.13.18)
       ajv: 8.17.1
       ajv-formats: 3.0.1
       content-type: 1.0.5
@@ -19696,7 +19705,7 @@ snapshots:
       eventsource-parser: 3.0.6
       express: 5.2.1(supports-color@8.1.1)
       express-rate-limit: 8.2.2(express@5.2.1(supports-color@8.1.1))
-      hono: 4.12.25
+      hono: 4.13.18
       jose: 6.1.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -19708,7 +19717,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.27.1(supports-color@8.1.1)(zod@4.4.3)':
     dependencies:
-      '@hono/node-server': 1.19.10(hono@4.12.25)
+      '@hono/node-server': 1.19.10(hono@4.13.18)
       ajv: 8.17.1
       ajv-formats: 3.0.1
       content-type: 1.0.5
@@ -19718,7 +19727,7 @@ snapshots:
       eventsource-parser: 3.0.6
       express: 5.2.1(supports-color@8.1.1)
       express-rate-limit: 8.2.2(express@5.2.1(supports-color@8.1.1))
-      hono: 4.12.25
+      hono: 4.13.18
       jose: 6.1.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -26779,7 +26788,7 @@ snapshots:
 
   hls.js@1.6.15: {}
 
-  hono@4.12.25: {}
+  hono@4.13.18: {}
 
   hookable@5.5.3: {}
 
