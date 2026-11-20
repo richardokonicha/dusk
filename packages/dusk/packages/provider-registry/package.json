@@ -8,8 +8,8 @@
   "types": "dist/index.d.cts",
   "packageManager": "pnpm@10.27.0",
   "scripts": {
-    "build": "tsdown",
-    "dev": "tsc -w",
+    "build": "node init && tsdown",
+    "dev": "node init && tsc -w",
     "clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest",
